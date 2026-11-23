@@ -68,7 +68,7 @@ export function RechercheVille({ valeur, onChange }: Props) {
               key={ville.id}
               type="button"
               aria-pressed={choisie}
-              onClick={() => choisir(ville)}
+              onClick={() => choisir({ nom: ville.nom, codePostal: ville.codePostal, lat: ville.lat, lon: ville.lon })}
               className={`min-h-11 rounded-full px-4 text-sm font-medium transition ${
                 choisie
                   ? 'bg-ocean-600 text-white shadow-md shadow-ocean-600/30'

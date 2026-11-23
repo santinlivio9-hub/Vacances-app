@@ -1,93 +1,66 @@
-import { useState } from 'react'
-import { CarteDestination } from './components/CarteDestination'
+import type { ComponentType } from 'react'
+import { EnTete } from './components/EnTete'
 import { Fond } from './components/Fond'
-import { RechercheVille } from './components/RechercheVille'
-import { aeroports, destinations, villesDepart } from './data'
-import type { Destination, LieuDepart, Zone } from './data/types'
-import { calculerVoyage, CONTEXTE_PAR_DEFAUT, optionsTransport } from './engine'
-import { aeroportLePlusProche, distanceKm } from './engine/geo'
-import { formaterKm } from './lib/format'
+import { LimiteErreur } from './components/LimiteErreur'
+import { useRoute } from './hooks/useRoute'
 import { MENTION_ESTIMATION } from './lib/libelles'
+import type { Page } from './lib/routes'
+import { Accueil } from './pages/Accueil'
+import { Budget } from './pages/Budget'
+import { Recap } from './pages/Recap'
+import { Simulateur } from './pages/Simulateur'
+import { Simulations } from './pages/Simulations'
 
-/** Voyage type affiché sur les cartes de l'aperçu (moyenne saison, mode le moins cher). */
-const VOYAGE_TYPE = { personnes: 2, nuits: 7, confort: 'moyen' } as const
-
-function voyageType(destination: Destination, depart: LieuDepart) {
-  const options = optionsTransport(depart, destination, VOYAGE_TYPE.personnes, 'moyenne', CONTEXTE_PAR_DEFAUT)
-  const moinsCher = options.filter((o) => o.disponible).sort((a, b) => a.cout - b.cout)[0]
-  const resultat = calculerVoyage({ ...VOYAGE_TYPE, destination, depart, mode: moinsCher?.mode ?? 'avion' })
-  return { options, resultat }
+const PAGES: Record<Page, ComponentType<{ params: URLSearchParams }>> = {
+  accueil: Accueil,
+  simulateur: Simulateur,
+  budget: Budget,
+  recap: Recap,
+  simulations: Simulations,
 }
 
-const ZONES: { id: Zone; titre: string }[] = [
-  { id: 'france', titre: 'En France' },
-  { id: 'europe', titre: 'En Europe' },
-  { id: 'monde', titre: 'Plus loin' },
-]
+const TITRES: Record<Page, string> = {
+  accueil: 'Budget Voyage — simulateur de coût de vacances',
+  simulateur: 'Simulateur — Budget Voyage',
+  budget: 'Où partir avec mon budget ? — Budget Voyage',
+  recap: 'Récapitulatif — Budget Voyage',
+  simulations: 'Mes simulations — Budget Voyage',
+}
 
-/** Page provisoire (phase 1) : aperçu des données et du style visuel. */
+const SOURCES = 'https://github.com/santinlivio9-hub/Vacances-app/blob/main/src/data/SOURCES.md'
+
 export default function App() {
-  const [depart, setDepart] = useState<LieuDepart>(villesDepart[0])
-  const proche = aeroportLePlusProche(depart, aeroports)
+  const { hash, page, params } = useRoute()
+  const PageCourante = PAGES[page]
+  document.title = TITRES[page]
 
   return (
     <>
-      <Fond />
-      <div className="mx-auto max-w-6xl px-4 pt-6 pb-10 sm:px-6 sm:pt-10">
-        <header className="mb-8 flex flex-wrap items-center justify-between gap-3">
-          <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight sm:text-3xl">
-            <span aria-hidden="true">🧳</span> Budget Voyage
-          </h1>
-          <span className="verre rounded-full px-3 py-1.5 text-sm font-medium text-ocean-800 dark:text-ocean-100">
-            Aperçu · phase 2 sur 4
-          </span>
-        </header>
-
-        <main className="space-y-10">
-          <section aria-labelledby="titre-depart" className="verre rounded-3xl p-5 sm:p-6">
-            <h2 id="titre-depart" className="text-lg font-semibold">
-              D'où partez-vous ?
-            </h2>
-            <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
-              Toutes les communes de France métropolitaine et de Corse sont disponibles.
-            </p>
-            <RechercheVille valeur={depart} onChange={setDepart} />
-            <p className="mt-4 text-sm text-slate-700 dark:text-slate-200" aria-live="polite">
-              Départ de <strong>{depart.nom}</strong> ({depart.codePostal}) · aéroport le plus proche :{' '}
-              <strong>{proche.aeroport.nom}</strong>
-              {proche.distanceKm >= 10 && <>, à {formaterKm(proche.distanceKm)}</>}
-            </p>
-          </section>
-
-          {ZONES.map((zone) => (
-            <section key={zone.id} aria-labelledby={`titre-${zone.id}`}>
-              <h2 id={`titre-${zone.id}`} className="mb-4 text-xl font-semibold">
-                {zone.titre}
-              </h2>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {destinations
-                  .filter((d) => d.zone === zone.id)
-                  .map((d) => (
-                    <CarteDestination
-                      key={d.id}
-                      destination={d}
-                      distanceKm={distanceKm(depart, d)}
-                      legende="Voyage type, 2 pers., 7 nuits, tout compris"
-                      {...voyageType(d, depart)}
-                    />
-                  ))}
-              </div>
-            </section>
-          ))}
-        </main>
-
-        <footer className="mt-12 text-center text-xs text-slate-600 dark:text-slate-400">
-          <p>
-            {MENTION_ESTIMATION}. Voyage type : 2 personnes, 7 nuits, confort moyen, moyenne saison, transport le moins cher
-            (en bleu foncé), 10 % d'imprévus compris. Transport : aller-retour pour 2 personnes.
-          </p>
-        </footer>
+      <div className="print:hidden">
+        <Fond />
       </div>
+      <a
+        href="#contenu"
+        onClick={(e) => {
+          e.preventDefault()
+          document.getElementById('contenu')?.focus()
+        }}
+        className="sr-only z-50 rounded-full bg-ocean-600 px-4 py-2 text-white focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+      >
+        Aller au contenu
+      </a>
+      <EnTete page={page} />
+      <main id="contenu" tabIndex={-1} className="mx-auto max-w-6xl px-4 pt-6 pb-28 focus:outline-none sm:px-6 lg:pb-12">
+        <LimiteErreur key={hash}>
+          <PageCourante key={hash} params={params} />
+        </LimiteErreur>
+      </main>
+      <footer className="mx-auto max-w-6xl px-4 pb-28 text-center text-xs text-slate-600 sm:px-6 lg:pb-10 dark:text-slate-400">
+        {MENTION_ESTIMATION} ·{' '}
+        <a href={SOURCES} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 print:no-underline">
+          sources et méthode
+        </a>
+      </footer>
     </>
   )
 }

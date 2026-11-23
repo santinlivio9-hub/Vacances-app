@@ -10,7 +10,7 @@ L'application tourne entièrement dans le navigateur : pas de serveur ni de clé
 
 - [x] Phase 1 — Données : 12 destinations, toutes les communes de France comme villes de départ, aéroports, barème des transports
 - [x] Phase 2 — Moteur de calcul : coût du voyage, mode budget, liens de réservation (112 tests)
-- [ ] Phase 3 — Interface (simulateur, mode budget, récap, simulations sauvegardées)
+- [x] Phase 3 — Interface : accueil, simulateur en direct, mode budget, récap et réservation, simulations sauvegardées et comparées
 - [ ] Phase 4 — Finitions et documentation complète
 
 ## Règles de calcul (`src/engine/`)
@@ -44,13 +44,27 @@ npm run build    # version de production dans dist/
 
 Vite, React, TypeScript, Tailwind CSS, Recharts et Vitest. Le site est déployé automatiquement sur GitHub Pages par GitHub Actions à chaque push sur `main`.
 
+## Écrans
+
+| Adresse | Écran |
+| --- | --- |
+| `#/` | Accueil : « Combien va coûter mon voyage ? » ou « J’ai un budget, où partir ? » |
+| `#/simulateur?d=nice&p=2&n=7…` | Simulateur : formulaire à gauche (ou en haut sur mobile), résultat en direct à droite (ou en bas, avec le total qui reste visible en bas de l’écran) |
+| `#/budget?b=2500…` | Mode budget : jauge, enveloppes conseillées, destinations en vert / orange / rouge |
+| `#/recap?…` | Récap : liens de réservation, checklist, Sauvegarder / Partager / Imprimer-PDF |
+| `#/simulations` | Simulations sauvegardées (dans le navigateur) et comparaison de 2 ou 3 voyages |
+
+Tous les paramètres sont dans l'adresse de la page : un lien copié rouvre exactement la même simulation. La navigation passe par `#/…`, car GitHub Pages ne sait pas servir les autres adresses d'une application d'une seule page.
+
 ## Organisation
 
 ```
 src/
   data/       données JSON versionnées (destinations, transports, communes…) + SOURCES.md
   engine/     moteur de calcul : fonctions pures, testées
+  pages/      les cinq écrans
   components/ composants d'interface
-  lib/        formatage et libellés
+  hooks/      navigation, montants animés, messages
+  lib/        paramètres d'URL, sauvegarde locale, formatage, libellés
 scripts/      génération de la liste des communes
 ```
