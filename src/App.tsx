@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react'
+import { useEffect, type ComponentType } from 'react'
 import { EnTete } from './components/EnTete'
 import { Fond } from './components/Fond'
 import { LimiteErreur } from './components/LimiteErreur'
@@ -32,7 +32,9 @@ const SOURCES = 'https://github.com/santinlivio9-hub/Vacances-app/blob/main/src/
 export default function App() {
   const { hash, page, params } = useRoute()
   const PageCourante = PAGES[page]
-  document.title = TITRES[page]
+  useEffect(() => {
+    document.title = TITRES[page]
+  }, [page])
 
   return (
     <>

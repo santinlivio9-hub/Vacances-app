@@ -167,7 +167,7 @@ export function Simulations() {
                   { libelle: 'Voyageurs', valeur: (e: Entree) => pluriel(e.sim.personnes, 'pers.', 'pers.') },
                   { libelle: 'Nuits', valeur: (e: Entree) => String(e.sim.nuits) },
                   { libelle: 'Confort', valeur: (e: Entree) => libelleConfort(e.sim.confort) },
-                  { libelle: 'Transport', valeur: (e: Entree) => (e.resultat.transport ? libelleMode(e.resultat.transport.mode).libelle : '—') },
+                  { libelle: 'Moyen de transport', valeur: (e: Entree) => (e.resultat.transport ? libelleMode(e.resultat.transport.mode).libelle : '—') },
                   ...POSTES.map((p) => ({
                     libelle: p.libelle,
                     couleur: p.couleur,
