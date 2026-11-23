@@ -3,10 +3,21 @@ import { CarteDestination } from './components/CarteDestination'
 import { Fond } from './components/Fond'
 import { RechercheVille } from './components/RechercheVille'
 import { aeroports, destinations, villesDepart } from './data'
-import type { LieuDepart, Zone } from './data/types'
+import type { Destination, LieuDepart, Zone } from './data/types'
+import { calculerVoyage, CONTEXTE_PAR_DEFAUT, optionsTransport } from './engine'
 import { aeroportLePlusProche, distanceKm } from './engine/geo'
 import { formaterKm } from './lib/format'
 import { MENTION_ESTIMATION } from './lib/libelles'
+
+/** Voyage type affiché sur les cartes de l'aperçu (moyenne saison, mode le moins cher). */
+const VOYAGE_TYPE = { personnes: 2, nuits: 7, confort: 'moyen' } as const
+
+function voyageType(destination: Destination, depart: LieuDepart) {
+  const options = optionsTransport(depart, destination, VOYAGE_TYPE.personnes, 'moyenne', CONTEXTE_PAR_DEFAUT)
+  const moinsCher = options.filter((o) => o.disponible).sort((a, b) => a.cout - b.cout)[0]
+  const resultat = calculerVoyage({ ...VOYAGE_TYPE, destination, depart, mode: moinsCher?.mode ?? 'avion' })
+  return { options, resultat }
+}
 
 const ZONES: { id: Zone; titre: string }[] = [
   { id: 'france', titre: 'En France' },
@@ -28,7 +39,7 @@ export default function App() {
             <span aria-hidden="true">🧳</span> Budget Voyage
           </h1>
           <span className="verre rounded-full px-3 py-1.5 text-sm font-medium text-ocean-800 dark:text-ocean-100">
-            Aperçu · phase 1 sur 4
+            Aperçu · phase 2 sur 4
           </span>
         </header>
 
@@ -57,7 +68,13 @@ export default function App() {
                 {destinations
                   .filter((d) => d.zone === zone.id)
                   .map((d) => (
-                    <CarteDestination key={d.id} destination={d} distanceKm={distanceKm(depart, d)} />
+                    <CarteDestination
+                      key={d.id}
+                      destination={d}
+                      distanceKm={distanceKm(depart, d)}
+                      legende="Voyage type, 2 pers., 7 nuits, tout compris"
+                      {...voyageType(d, depart)}
+                    />
                   ))}
               </div>
             </section>
@@ -65,7 +82,10 @@ export default function App() {
         </main>
 
         <footer className="mt-12 text-center text-xs text-slate-600 dark:text-slate-400">
-          <p>{MENTION_ESTIMATION}. Prix sur place par personne, en moyenne saison, confort moyen, chambre double partagée.</p>
+          <p>
+            {MENTION_ESTIMATION}. Voyage type : 2 personnes, 7 nuits, confort moyen, moyenne saison, transport le moins cher
+            (en bleu foncé), 10 % d'imprévus compris. Transport : aller-retour pour 2 personnes.
+          </p>
         </footer>
       </div>
     </>

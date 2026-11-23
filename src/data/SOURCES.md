@@ -54,6 +54,20 @@ Résultats du barème au départ de Paris, en moyenne saison :
 
 Prix publics par adulte, arrondis, d'après les sites officiels des lieux (2025–2026). Ils n'ont pas été revérifiés un par un et peuvent changer : par exemple la Sagrada Família, les musées du Vatican, l'Empire State Building ou le Rijksmuseum.
 
+## Liens de réservation (`src/engine/liens.ts`)
+
+Liens testés le 23/11/2026 dans un navigateur automatisé :
+
+| Site | Ce qui est transmis | Vérification |
+| --- | --- | --- |
+| Airbnb | ville, dates, voyageurs (`/s/Ville--Pays/homes?checkin=&checkout=&adults=`) | ✅ tout est pré-rempli |
+| Booking.com | ville, dates, voyageurs, chambres (`ss`, `checkin`, `checkout`, `group_adults`, `no_rooms`) | ✅ ville et voyageurs repris ; dates non confirmées à cause de la protection anti-robot. Format repris par plusieurs sources : [Apify](https://apify.com/scrapyspider/booking-com-scraper.md), [Browserless](https://cloud.browserless.io/skills/booking.com/search-booking-hotel-prices) |
+| Skyscanner | aéroports, dates au format AAMMJJ, voyageurs (`/transport/vols/cdg/nce/270601/270608/?adultsv2=2`) | ⚠️ captcha anti-robot, test impossible. Format documenté par [Apify](https://apify.com/memo23/skyscanner-scraper?fpr=data). Les codes de ville (PAR, NYC, ROM) sont remplacés par l'aéroport principal (CDG, JFK, FCO) |
+| Google Flights | — | ❌ le paramètre `q` n'a pas été pris en compte : simple lien de recherche |
+| SNCF Connect, Trainline | — | pas de recherche par URL stable : simples liens |
+| GetYourGuide | nom de la ville (`/s/?q=Nice`) | ⚠️ accès bloqué aux robots ; dates non transmises car leur format n'est pas confirmé ([Apify](https://apify.com/abotapi/getyourguide-scraper)) |
+| Google Maps (voiture) | départ, arrivée (`/maps/dir/?api=1&origin=&destination=&travelmode=driving`) | ✅ format officiel des URL Google Maps |
+
 ## Communes et aéroports
 
 - **Communes** (`communes.json`) : 34 746 communes de France métropolitaine et de Corse, avec leur position et leurs codes postaux. Source : [geo.api.gouv.fr](https://geo.api.gouv.fr) (Etalab, Licence Ouverte 2.0), récupérées le 23/11/2026. Pour régénérer le fichier : `npm run donnees:communes`.
