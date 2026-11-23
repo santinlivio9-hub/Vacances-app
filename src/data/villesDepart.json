@@ -1,0 +1,11 @@
+[
+  { "id": "paris", "nom": "Paris", "codePostal": "75001", "lat": 48.8566, "lon": 2.3522 },
+  { "id": "lyon", "nom": "Lyon", "codePostal": "69001", "lat": 45.764, "lon": 4.8357 },
+  { "id": "marseille", "nom": "Marseille", "codePostal": "13001", "lat": 43.2965, "lon": 5.3698 },
+  { "id": "toulouse", "nom": "Toulouse", "codePostal": "31000", "lat": 43.6047, "lon": 1.4442 },
+  { "id": "lille", "nom": "Lille", "codePostal": "59000", "lat": 50.6292, "lon": 3.0573 },
+  { "id": "bordeaux", "nom": "Bordeaux", "codePostal": "33000", "lat": 44.8378, "lon": -0.5792 },
+  { "id": "nantes", "nom": "Nantes", "codePostal": "44000", "lat": 47.2184, "lon": -1.5536 },
+  { "id": "strasbourg", "nom": "Strasbourg", "codePostal": "67000", "lat": 48.5734, "lon": 7.7521 },
+  { "id": "troyes", "nom": "Troyes", "codePostal": "10000", "lat": 48.2973, "lon": 4.0744 }
+]

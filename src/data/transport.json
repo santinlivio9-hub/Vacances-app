@@ -1,0 +1,29 @@
+{
+  "coefficientDetour": 1.2,
+  "allerRetour": true,
+  "voiture": {
+    "consommationLitresPour100Km": 6.5,
+    "prixCarburantLitre": 2.05,
+    "peageParKm": 0.075,
+    "placesParVehicule": 4
+  },
+  "train": {
+    "prixParKm": 0.12,
+    "minimumParTrajet": 15,
+    "plafondParTrajet": 150
+  },
+  "avion": {
+    "forfaitParTrajet": 45,
+    "tranches": [
+      { "jusquaKm": 1000, "prixParKm": 0.07 },
+      { "jusquaKm": 3000, "prixParKm": 0.035 },
+      { "jusquaKm": null, "prixParKm": 0.04 }
+    ],
+    "coefficientSaison": { "basse": 0.9, "moyenne": 1.0, "haute": 1.25 },
+    "distanceMinimaleKm": 300
+  },
+  "accesAeroport": {
+    "prixParKm": 0.12,
+    "seuilKm": 30
+  }
+}
