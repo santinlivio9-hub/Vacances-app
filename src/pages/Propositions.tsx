@@ -243,7 +243,7 @@ export default function Propositions() {
         {choisies.length >= 2 && <TableauComparaison propositions={choisies} />}
         <div className="mt-4 grid grid-cols-1 gap-2" style={{ gridTemplateColumns: `repeat(${Math.max(1, choisies.length)}, minmax(0, 1fr))` }}>
           {choisies.map((p) => (
-            <button key={p.id} type="button" onClick={() => choisir(p)} className="min-h-11 rounded-2xl bg-corail-700 px-2 py-2 text-sm leading-tight font-semibold text-white hover:bg-[#a83522]">
+            <button key={p.id} type="button" onClick={() => choisir(p)} className="min-h-11 rounded-2xl bouton-accent px-2 py-2 text-sm leading-tight font-semibold text-white">
               Choisir « {p.titre} »
             </button>
           ))}

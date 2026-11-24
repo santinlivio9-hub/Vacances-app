@@ -8,7 +8,7 @@ Déjà fait (commit 2091324) : tokens, `<Glass>`, `<LiquidSelector>`, barre caps
 - [x] 1. PROGRESS.md
 - [x] 2. Sélection liquide dans les contrôles segmentés (Simple / Avancé, onglets, chips)
 - [x] 3. Anneau de budget doré + badge d'écart
-- [ ] 4. Carte : champs Départ/Arrivée en verre, feuille du bas en verre, barre « Calculer » teintée
+- [x] 4. Carte : champs Départ/Arrivée en verre, feuille du bas en verre, barre « Calculer » teintée
 - [ ] 5. En-têtes qui deviennent verre au défilement, boutons d'action ronds, chargement, fenêtres
 - [ ] 6. Sidebar ouverte : « Mes voyages récents » + avatar
 - [ ] 7. Connexion par code à 6 chiffres (réf. C)
@@ -17,4 +17,4 @@ Déjà fait (commit 2091324) : tokens, `<Glass>`, `<LiquidSelector>`, barre caps
 - [ ] 10. Vérification finale (build, tests, captures 390 × 844 sombre)
 
 ## Étape en cours
-4
+5

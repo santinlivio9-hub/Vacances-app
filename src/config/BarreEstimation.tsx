@@ -65,7 +65,7 @@ export function BarreEstimation({ total, parPersonne, budget, provisoire, bloque
           onClick={onCalculer}
           disabled={!!bloque}
           title={bloque ?? undefined}
-          className="flex h-13 shrink-0 items-center gap-2 rounded-2xl bg-corail-700 px-4 font-semibold text-white shadow-lg shadow-corail-700/25 transition hover:bg-[#a83522] disabled:cursor-not-allowed disabled:opacity-50 sm:px-6"
+          className="flex h-13 shrink-0 items-center gap-2 rounded-2xl bouton-accent px-4 font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-50 sm:px-6"
         >
           <span className="hidden sm:inline">Calculer mon voyage</span>
           <span className="sm:hidden">Calculer</span>

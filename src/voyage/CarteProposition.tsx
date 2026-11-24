@@ -146,7 +146,7 @@ export function CarteProposition({ p, depart, arrivee, graine, image, budget, vo
             </button>
           ) : (
             <>
-              <button type="button" onClick={onChoisir} className="h-12 flex-1 rounded-2xl bg-corail-700 px-4 font-semibold text-white shadow-md shadow-corail-700/20 hover:bg-[#a83522]">
+              <button type="button" onClick={onChoisir} className="h-12 flex-1 rounded-2xl bouton-accent px-4 font-semibold text-white">
                 Choisir cette proposition
               </button>
               <button type="button" onClick={onSauvegarder} className="grid size-12 shrink-0 place-items-center rounded-2xl text-ocean-800 ring-1 ring-slate-900/10 hover:bg-ocean-50 dark:text-ocean-100 dark:ring-white/15 dark:hover:bg-white/5" aria-label={`Sauvegarder « ${p.titre} »`} title="Sauvegarder">

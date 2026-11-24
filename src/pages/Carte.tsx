@@ -160,7 +160,7 @@ export default function Carte() {
 
       {/* Colonne de gauche sur ordinateur ; haut et bas de l'écran sur mobile */}
       <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-3 sm:p-4 lg:inset-y-0 lg:right-auto lg:w-[26rem] lg:justify-start lg:gap-3">
-        <div ref={refHaut} className="verre pointer-events-auto rounded-3xl p-3 [--verre-fond:0.82]">
+        <div ref={refHaut} className="verre refraction pointer-events-auto rounded-[1.75rem] p-3 [--verre-fond:0.66] dark:[--verre-fond:0.55]">
           <p className="mb-2 flex items-center gap-1.5 pl-1 text-sm font-bold tracking-tight text-ocean-800 lg:hidden dark:text-ocean-200">
             <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="size-5 rounded-md" />
             Valise &amp; Cap
@@ -185,7 +185,7 @@ export default function Carte() {
               <button
                 type="button"
                 onClick={inverser}
-                className="absolute top-1/2 right-14 z-10 grid size-8 -translate-y-1/2 place-items-center rounded-full bg-white text-slate-600 shadow ring-1 ring-slate-900/10 hover:text-ocean-700 dark:bg-slate-800 dark:text-slate-300 dark:ring-white/10"
+                className="verre absolute top-1/2 right-14 z-10 grid size-8 -translate-y-1/2 place-items-center rounded-full text-slate-700 [--verre-fond:0.85] hover:text-ocean-700 dark:text-slate-200"
                 aria-label="Inverser départ et arrivée"
                 title="Inverser"
               >
@@ -203,19 +203,23 @@ export default function Carte() {
         <motion.div
           ref={refBas}
           layout
-          className="verre pointer-events-auto max-h-[58dvh] overflow-hidden rounded-3xl [--verre-fond:0.9] lg:max-h-none lg:min-h-0 lg:shrink"
+          className="verre pointer-events-auto max-h-[58dvh] overflow-hidden rounded-[1.75rem] [--verre-fond:0.84] dark:[--verre-fond:0.72] lg:max-h-none lg:min-h-0 lg:shrink"
         >
           <div className="flex max-h-[inherit] flex-col lg:max-h-[calc(100dvh-14rem)]">
             {!large && (
-              <button
+              <motion.button
                 type="button"
                 onClick={() => setReplie((r) => !r)}
-                className="flex h-7 w-full shrink-0 items-center justify-center"
+                onPanEnd={(_, info) => {
+                  if (info.offset.y > 30) setReplie(true)
+                  else if (info.offset.y < -30) setReplie(false)
+                }}
+                className="flex h-8 w-full shrink-0 cursor-grab touch-none items-center justify-center active:cursor-grabbing"
                 aria-expanded={!replie}
                 aria-label={replie ? 'Déplier le panneau' : 'Replier le panneau'}
               >
                 {replie ? <ChevronDown className="size-5 rotate-180 text-slate-500" /> : <span className="h-1.5 w-10 rounded-full bg-slate-400/60" />}
-              </button>
+              </motion.button>
             )}
             <AnimatePresence initial={false} mode="wait">
               {!(replie && !large) && (

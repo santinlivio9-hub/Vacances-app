@@ -129,7 +129,7 @@ export function PanneauTrajet({ depart, arrivee, itineraire, resume, nuits, date
           <button
             type="button"
             onClick={onConfigurer}
-            className="flex h-13 w-full items-center justify-center gap-2 rounded-2xl bg-corail-700 px-5 text-base font-semibold text-white shadow-lg shadow-corail-700/25 transition hover:bg-[#a83522] active:scale-[0.99]"
+            className="flex h-13 w-full items-center justify-center gap-2 rounded-2xl bouton-accent px-5 text-base font-semibold text-white transition active:scale-[0.99]"
           >
             Configurer mon voyage
             <ArrowRight className="size-5" aria-hidden />
