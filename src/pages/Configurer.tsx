@@ -9,6 +9,7 @@ import { SectionsAvancees } from '../config/SectionsAvancees'
 import { SectionsSimples } from '../config/SectionsSimples'
 import { useEstimation } from '../config/useEstimation'
 import { useVoyage } from '../store/voyage'
+import { repartitionDuTotal } from '../engine/repartition'
 import { formatKm } from '../ui/format'
 import { MentionDonnees } from '../ui/MentionDonnees'
 import { PisteLiquide, classeOnglet, FOND_PISTE } from '../ui/glass'
@@ -28,7 +29,9 @@ export default function Configurer() {
     [enregistrerBrouillon],
   )
 
-  if (!depart || !arrivee || !estimation) {
+  const repartition = estimation ? repartitionDuTotal(estimation.couts.postes, estimation.total, reglages.simple) : null
+
+  if (!depart || !arrivee || !estimation || !repartition) {
     return (
       <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-4 p-6 text-center">
         <MapPin className="size-10 text-ocean-600" aria-hidden />
@@ -142,6 +145,7 @@ export default function Configurer() {
         libelle={estimation.libelle}
         precision={estimation.precision}
         fourchette={estimation.fourchette}
+        parts={repartition.ok ? repartition.parts : undefined}
         budget={reglages.simple.budget}
         provisoire={estimation.provisoire}
         bloque={transportImpossible ? 'Choisissez un mode de transport possible pour ce trajet.' : null}

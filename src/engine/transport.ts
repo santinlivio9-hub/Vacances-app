@@ -41,7 +41,7 @@ const NOMS_MODES: Record<ModeTransport, string> = { voiture: 'voiture', train: '
 
 const IMPOSSIBLE = (mode: ModeTransport, raison: string): EstimationTransport => ({ mode, possible: false, raison, total: 0, fourchette: { bas: 0, haut: 0, milieu: 0 }, dureeAllerMin: 0, details: [] })
 
-export type ChoixTrajet = Pick<ReglagesSimples, 'adultes' | 'enfants'> & Partial<Pick<ReglagesSimples, 'nuits' | 'priorite' | 'combinaisons' | 'trajetChoisi'>>
+export type ChoixTrajet = Pick<ReglagesSimples, 'adultes' | 'enfants'> & Partial<Pick<ReglagesSimples, 'bebes' | 'nuits' | 'priorite' | 'combinaisons' | 'trajetChoisi'>>
 export type AvancesTrajet = ParametresTrajet['av']
 
 /** Comparatif de tous les trajets (simples et combinés) pour ces réglages. */
@@ -51,7 +51,8 @@ export function comparatifTrajets(trajet: DonneesTrajet, simple: ChoixTrajet, av
     geo,
     {
       adultes: simple.adultes,
-      enfants: simple.enfants,
+      // Les bébés voyagent gratuitement (sur les genoux en train, en car et en avion à quelques euros près)
+      enfants: Math.max(0, simple.enfants - (simple.bebes ?? 0)),
       nuits: simple.nuits ?? 2,
       saison,
       av: {

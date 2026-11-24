@@ -130,7 +130,14 @@ export interface ReglagesSimples {
   dateDepart: string
   nuits: number
   adultes: number
+  /** Enfants, bébés compris */
   enfants: number
+  /** Dont bébés (moins de 2 ans) : gratuits pour le logement et le transport, repas à 30 % */
+  bebes?: number
+  /** Voyageurs nommés et leur profil de paiement (v7) ; adultes, enfants et bébés en sont déduits */
+  voyageurs?: Voyageur[]
+  /** Qui paie quoi : réglages avancés */
+  repartition?: ReglagesRepartition
   transport: ModeTransport
   /** Moins cher, plus rapide ou compromis : sert à choisir le trajet */
   priorite: PrioriteTrajet

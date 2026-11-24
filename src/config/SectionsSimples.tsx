@@ -5,6 +5,8 @@ import { reglagesEffectifs } from '../engine/reglages'
 import { comparatifTrajets } from '../engine/transport'
 import { NOMS_TRAJETS } from '../engine/trajets'
 import { CartesTrajets } from '../voyage/CartesTrajets'
+import { repartitionDuTotal, voyageursDe } from '../engine/repartition'
+import { EditeurVoyageurs } from './EditeurVoyageurs'
 import { ajouterJours } from '../engine/dates'
 import { NOMS_MOIS } from '../engine/periodes'
 import { GRATIFICATION } from '../engine/sejourLong'
@@ -34,8 +36,9 @@ export const resumeDurees = (min: number, max: number) => {
 }
 
 export function SectionsSimples({ estimation, ouvertes }: { estimation: Estimation; ouvertes: boolean }) {
-  const { reglages, modifierSimple } = useVoyage()
+  const { reglages, modifierSimple, modeAvance } = useVoyage()
   const s = reglages.simple
+  const repartition = repartitionDuTotal(estimation.couts.postes, estimation.total, s)
   const def = typeVoyage(s)
   const retour = ajouterJours(s.dateDepart, s.nuits)
   const voyageurs = s.adultes + s.enfants
@@ -191,18 +194,29 @@ export function SectionsSimples({ estimation, ouvertes }: { estimation: Estimati
       </CarteReglage>
     ),
 
-    qui: () => (
-      <CarteReglage key="qui" titre="Qui" icone={Users} resume={`${s.adultes} adulte${s.adultes > 1 ? 's' : ''}${s.enfants ? `, ${s.enfants} enfant${s.enfants > 1 ? 's' : ''}` : ''}`} ouverteParDefaut={ouvertes}>
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <Reglage libelle="Adultes">
-            <Compteur libelle="Adultes" valeur={s.adultes} min={1} max={12} onChange={(adultes) => modifierSimple({ adultes })} />
-          </Reglage>
-          <Reglage libelle="Enfants" aide="Moins de 12 ans">
-            <Compteur libelle="Enfants" valeur={s.enfants} min={0} max={10} onChange={(enfants) => modifierSimple({ enfants })} />
-          </Reglage>
-        </div>
-      </CarteReglage>
-    ),
+    qui: () => {
+      const voyageurs = voyageursDe(s)
+      const payeurs = repartition.ok ? repartition.parts.filter((p) => p.montant > 0).length : 0
+      const montants = repartition.ok ? new Map(repartition.parts.map((p) => [p.id, p.montant])) : undefined
+      const bebes = s.bebes ?? 0
+      return (
+        <CarteReglage
+          key="qui"
+          titre="Voyageurs"
+          icone={Users}
+          resume={`${s.adultes} adulte${s.adultes > 1 ? 's' : ''}${s.enfants - bebes ? `, ${s.enfants - bebes} enfant${s.enfants - bebes > 1 ? 's' : ''}` : ''}${bebes ? `, ${bebes} bébé${bebes > 1 ? 's' : ''}` : ''} · ${payeurs} paie${payeurs > 1 ? 'nt' : ''}`}
+          ouverteParDefaut={ouvertes}
+        >
+          <EditeurVoyageurs voyageurs={voyageurs} onChange={(l) => modifierSimple({ voyageurs: l })} avance={modeAvance} montants={montants} />
+          {!repartition.ok && (
+            <p role="alert" className="rounded-2xl bg-(--statut-depasse)/10 px-3 py-2 text-sm text-(--statut-depasse-texte)">
+              {repartition.erreur}
+            </p>
+          )}
+          <p className="text-xs text-slate-500 dark:text-slate-400">Par défaut, les adultes partagent à parts égales et les enfants ne paient rien. Le prix du voyage compte quand même tout le monde (tarif enfant, bébé gratuit en logement et en train).</p>
+        </CarteReglage>
+      )
+    },
 
     comment: () => {
       const choisi = estimation.couts.transport.option?.type

@@ -129,7 +129,7 @@ export function reglagesAvancesParDefaut(s: ReglagesSimples): ReglagesAvances {
     // Logement
     typeLogement,
     etoiles: parStyle(s.style, { eco: 2, equilibre: 3, confort: 4 } as const),
-    chambres: typeLogement === 'appartement' ? 1 : Math.max(1, Math.ceil(s.adultes / 2) + Math.floor(s.enfants / 3)),
+    chambres: typeLogement === 'appartement' ? 1 : Math.max(1, Math.ceil(s.adultes / 2) + Math.floor((s.enfants - (s.bebes ?? 0)) / 3)),
     petitDejeuner: s.style === 'confort',
     quartier: s.style === 'eco' ? 'calme' : 'centre',
     // Repas

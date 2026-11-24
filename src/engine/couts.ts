@@ -60,13 +60,14 @@ const pluriel = (n: number, mot: string) => `${n} ${mot}${n > 1 ? 's' : ''}`
  */
 export function coutLogement(
   av: ReglagesAvances,
-  s: Pick<ReglagesSimples, 'adultes' | 'enfants' | 'nuits' | 'style'>,
+  s: Pick<ReglagesSimples, 'adultes' | 'enfants' | 'nuits' | 'style'> & Partial<Pick<ReglagesSimples, 'bebes'>>,
   contexte: { indice: number; saison: number; france: boolean },
 ): { nuits: number; total: number; lignes: LigneDetail[] } {
   const L = prixBase.logement
   const st = s.style
   const nuits = Math.max(1, s.nuits)
-  const voyageurs = s.adultes + s.enfants
+  // Un bébé dort dans la chambre de ses parents (lit parapluie) : il ne compte pas
+  const voyageurs = s.adultes + s.enfants - (s.bebes ?? 0)
   const chambresParDeux = Math.max(1, Math.ceil(voyageurs / 2))
   let nuitee: number
   let libelle: string
@@ -140,6 +141,12 @@ export interface EntreeCouts {
   reglages: Reglages
 }
 
+/** Repas et souvenirs : enfant 70 % d'un adulte, bébé 30 %. */
+export function equivalentsRepas(s: Pick<ReglagesSimples, 'adultes' | 'enfants'> & Partial<Pick<ReglagesSimples, 'bebes'>>): number {
+  const bebes = Math.min(s.enfants, s.bebes ?? 0)
+  return s.adultes + (s.enfants - bebes) * prixBase.divers.partEnfant + bebes * 0.3
+}
+
 /**
  * Estimation complète d'un voyage. Prix France × indice du pays × saison (logement) ;
  * enfants : 70 % pour repas, activités et souvenirs, 100 % pour transport et logement.
@@ -157,7 +164,7 @@ export function estimerCouts({ trajet, arrivee, reglages }: EntreeCouts): Estima
   const nuits = Math.max(1, s.nuits)
   const jours = nuits + 1
   const voyageurs = s.adultes + s.enfants
-  const equivalentsAdultes = s.adultes + s.enfants * prixBase.divers.partEnfant
+  const equivalentsAdultes = equivalentsRepas(s)
   const avertissements: string[] = []
   if (pays.estimationContinent) avertissements.push(`Pays absent de notre base : prix estimés d’après la moyenne de la région.`)
 

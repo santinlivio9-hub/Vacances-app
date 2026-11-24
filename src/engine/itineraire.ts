@@ -64,7 +64,8 @@ export function prixActivite(lieu: LieuVisite, reglages: Reglages, indice: numbe
   const s = reglages.simple
   // Prix réel relevé dans OpenStreetMap si on l'a, sinon estimation d'après le type de lieu
   const unitaire = lieu.prixEntree ?? prixBase.activites[lieu.type][s.style] * indice
-  return unitaire * (s.adultes + s.enfants * prixBase.divers.partEnfant)
+  // Les bébés entrent gratuitement
+  return unitaire * (s.adultes + (s.enfants - (s.bebes ?? 0)) * prixBase.divers.partEnfant)
 }
 
 /** Note d'un lieu : intérêts, notoriété, distance au centre, et une petite part de hasard (graine). */

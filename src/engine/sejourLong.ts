@@ -1,7 +1,7 @@
 import { donneesPays, prixBase } from '../data'
 import type { ReglagesSimples, TransportLocal, TypeLogement } from '../domain/types'
 import { saisonDuMois } from './apercu'
-import type { EntreeCouts } from './couts'
+import { equivalentsRepas, type EntreeCouts } from './couts'
 import { moisDe } from './dates'
 import { LOGEMENTS } from './logements'
 import { reglagesEffectifs } from './reglages'
@@ -217,7 +217,7 @@ export function budgetSejourLong(entree: EntreeSejourLong): BudgetSejourLong {
   // Même logement que partout ailleurs (configuration, propositions, Mon voyage) : celui des réglages effectifs
   const logement = entree.logement ?? av.typeLogement
   const occupants = s.adultes + s.enfants
-  const equivalentsAdultes = s.adultes + s.enfants * prixBase.divers.partEnfant
+  const equivalentsAdultes = equivalentsRepas(s)
 
   // Loyer
   const loyerBase = SL.loyerMensuel[logement][st] * (1 + SL.occupantSupplementaire[logement] * Math.max(0, occupants - 1))

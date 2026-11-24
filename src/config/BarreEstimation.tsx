@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { etatBudget } from '../engine/couts'
 import { formatEntre, formatEuros } from '../ui/format'
 import { AnneauBudget, BadgeEcart, Montant } from '../ui/glass'
+import { AvatarVoyageur } from '../ui/AvatarVoyageur'
 
 /** Nombre qui glisse vers sa nouvelle valeur (désactivé si l'utilisateur préfère moins d'animations). */
 export function useNombreAnime(cible: number, dureeMs = 350): number {
@@ -35,7 +36,7 @@ const STATUTS = {
   depasse: { libelle: 'Budget dépassé', icone: AlertTriangle, couleur: 'var(--statut-depasse)', texte: 'var(--statut-depasse-texte)' },
 }
 
-export function BarreEstimation({ total, parPersonne, budget, provisoire, bloque, onCalculer, libelle = 'Estimation', precision, fourchette }: { total: number; parPersonne: number; budget: number | null; provisoire: boolean; bloque: string | null; onCalculer: () => void; libelle?: string; precision?: string; fourchette?: { bas: number; haut: number } }) {
+export function BarreEstimation({ total, parPersonne, budget, provisoire, bloque, onCalculer, libelle = 'Estimation', precision, fourchette, parts }: { total: number; parPersonne: number; budget: number | null; provisoire: boolean; bloque: string | null; onCalculer: () => void; libelle?: string; precision?: string; fourchette?: { bas: number; haut: number }; parts?: { id: string; nom: string; montant: number }[] }) {
   const anime = useNombreAnime(total)
   const { statut, ratio } = etatBudget(total, budget)
   const s = statut === 'libre' ? null : STATUTS[statut]
@@ -48,8 +49,19 @@ export function BarreEstimation({ total, parPersonne, budget, provisoire, bloque
           <p className="truncate text-xs text-slate-500 dark:text-slate-400">{libelle}{provisoire ? ' (trajet en cours de calcul)' : ''}</p>
           <p className="flex items-baseline gap-2">
             <Montant valeur={anime} className="text-2xl leading-tight" />
-            {!precision && <span className="truncate text-sm text-slate-500 dark:text-slate-400">{formatEuros(parPersonne)} / pers.</span>}
+            {!precision && !parts && <span className="truncate text-sm text-slate-500 dark:text-slate-400">{formatEuros(parPersonne)} / pers.</span>}
           </p>
+          {parts && parts.length > 1 && (
+            <ul aria-label="Ce que paie chacun" className="-mx-1 mt-0.5 flex gap-1 overflow-x-auto px-1 pb-0.5 [scrollbar-width:none]">
+              {parts.map((p, i) => (
+                <li key={p.id} className={`flex shrink-0 items-center gap-1 rounded-full bg-slate-900/5 py-0.5 pr-2 pl-0.5 text-[11px] whitespace-nowrap dark:bg-white/10 ${p.montant === 0 ? 'opacity-70' : ''}`}>
+                  <AvatarVoyageur nom={p.nom} index={i} taille={18} className="ring-1!" />
+                  <span className="max-w-20 truncate">{p.nom}</span>
+                  <span className="font-semibold tabular-nums">{formatEuros(p.montant)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
           {fourchette && fourchette.haut > 0 && <p className="text-xs leading-snug text-slate-600 dark:text-slate-300">{formatEntre(fourchette)}</p>}
           {precision && <p className="text-xs leading-snug text-slate-500 dark:text-slate-400">{precision}</p>}
           {s && budget != null && (

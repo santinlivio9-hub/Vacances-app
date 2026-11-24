@@ -1,3 +1,4 @@
+import { synchroniserVoyageurs } from '../engine/repartition'
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import type { CleAvancee, Lieu, ModeTransport, Reglages, ReglagesAvances, ReglagesSimples, TypeVoyage } from '../domain/types'
@@ -126,7 +127,7 @@ export const useVoyage = create<EtatVoyage>()(
       definirArrivee: (arrivee) => set(({ arrivee: avant }) => ({ arrivee, typeChoisi: avant && arrivee && avant.lat === arrivee.lat && avant.lon === arrivee.lon ? get().typeChoisi : false })),
       inverser: () => set(({ depart, arrivee }) => ({ depart: arrivee, arrivee: depart })),
 
-      modifierSimple: (partiel) => set(({ reglages }) => ({ reglages: { ...reglages, simple: harmoniserSimple({ ...reglages.simple, ...partiel }) } })),
+      modifierSimple: (partiel) => set(({ reglages }) => ({ reglages: { ...reglages, simple: harmoniserSimple(synchroniserVoyageurs(reglages.simple, partiel)) } })),
       choisirTypeVoyage: (type) => set(({ reglages }) => ({ typeChoisi: true, reglages: { ...reglages, simple: changerTypeVoyage(reglages.simple, type, dateDuJour()) } })),
       modifierAvance: (cle, valeur) =>
         set(({ reglages }) => ({ reglages: { ...reglages, modifies: { ...reglages.modifies, [cle]: valeur } } })),

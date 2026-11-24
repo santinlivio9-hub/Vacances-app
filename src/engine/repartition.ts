@@ -1,4 +1,4 @@
-import type { PosteDepense, ReglagesRepartition, Voyageur } from '../domain/types'
+import type { PosteDepense, ReglagesRepartition, ReglagesSimples, Voyageur } from '../domain/types'
 
 /**
  * Qui paie quoi. Le coût (ce que consomme chacun) et le paiement (qui règle) sont séparés :
@@ -76,19 +76,48 @@ export function nomVoyageur(v: Voyageur, tous: Voyageur[]): string {
   return `${v.type === 'adulte' ? 'Adulte' : v.type === 'enfant' ? 'Enfant' : 'Bébé'} ${n || 1}`
 }
 
-/** Voyageurs par défaut : les adultes paient leur part, les enfants et bébés ne paient rien. */
+/** Voyageurs par défaut : les adultes paient leur part, les enfants et bébés ne paient rien. Garde les voyageurs existants. */
 export function voyageursParDefaut(adultes: number, enfants: number, bebes = 0, existants: Voyageur[] = []): Voyageur[] {
+  const pris = new Set(existants.map((v) => v.id))
   const prendre = (type: Voyageur['type'], n: number) => {
-    const deja = existants.filter((v) => v.type === type).slice(0, n)
-    const nouveaux = Array.from({ length: n - deja.length }, (_, i): Voyageur => ({
-      id: `${type}-${Date.now().toString(36)}-${deja.length + i}-${Math.random().toString(36).slice(2, 6)}`,
-      type,
-      paiement: type === 'adulte' ? 'part' : 'rien',
-      ...(type === 'enfant' ? { age: 8 } : type === 'bebe' ? { age: 1 } : {}),
-    }))
+    const deja = existants.filter((v) => v.type === type).slice(0, Math.max(0, n))
+    const nouveaux: Voyageur[] = []
+    for (let k = 1; deja.length + nouveaux.length < n; k++) {
+      // Identifiant stable (« adulte-1 ») : la même liste est recalculée à l'identique
+      const id = `${type}-${k}`
+      if (pris.has(id)) continue
+      pris.add(id)
+      nouveaux.push({ id, type, paiement: type === 'adulte' ? 'part' : 'rien', ...(type === 'enfant' ? { age: 8 } : type === 'bebe' ? { age: 1 } : {}) })
+    }
     return [...deja, ...nouveaux]
   }
-  return [...prendre('adulte', Math.max(0, adultes)), ...prendre('enfant', Math.max(0, enfants)), ...prendre('bebe', Math.max(0, bebes))]
+  return [...prendre('adulte', adultes), ...prendre('enfant', enfants), ...prendre('bebe', bebes)]
+}
+
+/** Nombre d'adultes, d'enfants (bébés compris) et de bébés d'une liste de voyageurs. */
+export function compterVoyageurs(l: Voyageur[]): Pick<ReglagesSimples, 'adultes' | 'enfants' | 'bebes'> {
+  const n = (t: Voyageur['type']) => l.filter((v) => v.type === t).length
+  return { adultes: n('adulte'), enfants: n('enfant') + n('bebe'), bebes: n('bebe') }
+}
+
+/** Voyageurs d'un voyage, complétés si la liste manque ou ne correspond plus aux nombres (anciennes sauvegardes). */
+export function voyageursDe(s: Pick<ReglagesSimples, 'adultes' | 'enfants' | 'bebes' | 'voyageurs'>): Voyageur[] {
+  const bebes = Math.min(s.enfants, s.bebes ?? 0)
+  const l = s.voyageurs ?? []
+  const c = compterVoyageurs(l)
+  if (l.length && c.adultes === s.adultes && c.enfants === s.enfants && c.bebes === bebes) return l
+  return voyageursParDefaut(s.adultes, s.enfants - bebes, bebes, l)
+}
+
+/** Applique un changement aux réglages en gardant les voyageurs et les nombres d'accord. */
+export function synchroniserVoyageurs(s: ReglagesSimples, partiel: Partial<ReglagesSimples>): ReglagesSimples {
+  const r = { ...s, ...partiel }
+  if (partiel.voyageurs) return { ...r, ...compterVoyageurs(partiel.voyageurs) }
+  if (partiel.adultes !== undefined || partiel.enfants !== undefined || partiel.bebes !== undefined) {
+    const bebes = Math.min(r.enfants, r.bebes ?? 0)
+    return { ...r, bebes, voyageurs: voyageursParDefaut(r.adultes, r.enfants - bebes, bebes, s.voyageurs ?? []) }
+  }
+  return r
 }
 
 /** Poids de coût d'un voyageur pour une dépense (1 = un adulte). */
@@ -293,4 +322,20 @@ function expliquer(p: PartVoyageur, v: Voyageur): string {
     })
     .join(' + ')
     .replace(/^./, (c) => c.toUpperCase())
+}
+
+/**
+ * Répartition d'une estimation : les postes sont ramenés au total affiché (séjour long, dates flexibles),
+ * pour que la somme des parts tombe exactement sur ce total.
+ */
+export function repartitionDuTotal(
+  postes: Partial<Record<PosteDepense, number>>,
+  total: number,
+  s: Pick<ReglagesSimples, 'adultes' | 'enfants' | 'bebes' | 'voyageurs' | 'repartition' | 'transport'>,
+  activites?: ActiviteRepartie[],
+): ResultatRepartition {
+  const somme = POSTES_DEPENSE.reduce((t, p) => t + (postes[p] ?? 0), 0)
+  const k = somme > 0 ? total / somme : 1
+  const ramenes = Object.fromEntries(POSTES_DEPENSE.map((p) => [p, (postes[p] ?? 0) * k])) as Record<PosteDepense, number>
+  return calculerRepartition({ postes: ramenes, activites: activites?.map((a) => ({ ...a, prix: a.prix * k })), avion: s.transport === 'avion' }, voyageursDe(s), s.repartition)
 }
