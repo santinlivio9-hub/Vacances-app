@@ -27,6 +27,20 @@ export function lireReferenceWikipedia(reference: string): { langue: Langue; tit
   return correspondance ? { langue: correspondance[1] as Langue, titre: correspondance[2] } : { langue: 'fr', titre: reference }
 }
 
+/**
+ * Écarte les images qui ne sont pas des photos : drapeaux, blasons, logos, cartes
+ * (fichiers SVG ou noms explicites, en plusieurs langues).
+ */
+export function estUnePhoto(url: string): boolean {
+  let nom = url
+  try {
+    nom = decodeURIComponent(url)
+  } catch {
+    /* adresse mal encodée : on teste telle quelle */
+  }
+  return !/\.svg\/|flag|drapeau|bandeira|bandera|bandiera|flagge|blason|armoiries|coat[_ ]of[_ ]arms|brasão|escudo|wappen|stemma|seal[_ ]of|logo|emblem|locator|location[_ ]map|carte[_ ]|map[_ ]of/i.test(nom)
+}
+
 async function resumeDansLangue(titre: string, langue: Langue, signal?: AbortSignal): Promise<ResumeWikipedia | null> {
   return avecCache(`wiki-resume:${langue}:${titre}`, async () => {
     const url = `https://${langue}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(titre.replaceAll(' ', '_'))}`
@@ -36,8 +50,7 @@ async function resumeDansLangue(titre: string, langue: Langue, signal?: AbortSig
       return {
         titre: r.title,
         extrait: r.extract,
-        // Les images SVG sont des drapeaux, blasons ou logos : pas de vraies photos
-        image: r.thumbnail?.source && !/\.svg\//i.test(r.thumbnail.source) ? r.thumbnail.source : undefined,
+        image: r.thumbnail?.source && estUnePhoto(r.thumbnail.source) ? r.thumbnail.source : undefined,
         lien: r.content_urls?.desktop?.page ?? `https://${langue}.wikipedia.org/wiki/${encodeURIComponent(titre)}`,
         langue,
       }
@@ -52,8 +65,22 @@ async function resumeDansLangue(titre: string, langue: Langue, signal?: AbortSig
 export async function resumeWikipedia(reference: string, signal?: AbortSignal): Promise<ResumeWikipedia | null> {
   const { langue, titre } = lireReferenceWikipedia(reference)
   const premier = await resumeDansLangue(titre, langue, signal)
-  if (premier || langue === 'en') return premier
-  return resumeDansLangue(titre, 'en', signal)
+  if (langue === 'en' || (premier && premier.image)) return premier
+  // Pas d'article, ou pas de vraie photo : on regarde l'article anglais (souvent illustré d'une photo de la ville)
+  const anglais = await resumeDansLangue(premier?.titre ?? titre, 'en', signal)
+  if (!premier) return anglais
+  return anglais?.image ? { ...premier, image: anglais.image } : premier
+}
+
+/** Églises, cathédrales… : entrée généralement libre. */
+export const estLieuDeCulte = (titre: string) => /(^|[^\p{L}])([ée]glise|cath[ée]drale|basilique|chapelle|temple|mosqu[ée]e|synagogue|church|cathedral|chapel)(?![\p{L}])/iu.test(titre)
+
+/**
+ * Vignette Wikimedia à la largeur voulue (les adresses « …/330px-Fichier.jpg » acceptent les largeurs standard : 500, 960, 1280…).
+ * Laisse l'adresse telle quelle si elle n'a pas ce format.
+ */
+export function imageLargeur(url: string, largeur: number): string {
+  return url.replace(/\/(\d+)px-([^/?]+)(\?.*)?$/, (tout, px, fichier, requete = '') => (Number(px) >= largeur ? tout : `/${largeur}px-${fichier}${requete}`))
 }
 
 /** Devine le type d'un lieu Wikipédia d'après son titre (pas de tags comme dans OSM). */
@@ -87,6 +114,7 @@ export async function lieuxWikipedia(centre: Coordonnees, rayonKm: number, signa
       id: `wiki-${g.pageid}`,
       nom: g.title,
       type: typeDepuisTitre(g.title),
+      ...(estLieuDeCulte(g.title) ? { gratuit: true } : {}),
       lat: g.lat,
       lon: g.lon,
       wikipedia: `fr:${g.title}`,

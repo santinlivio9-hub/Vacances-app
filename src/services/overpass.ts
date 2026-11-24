@@ -63,7 +63,8 @@ export function versLieuVisite(e: ElementOverpass): LieuVisite | null {
     wikipedia: tags.wikipedia,
     wikidata: tags.wikidata,
     site: tags.website ?? tags['contact:website'],
-    gratuit: tags.fee === 'no' ? true : tags.fee === 'yes' ? false : undefined,
+    // Lieux de culte : entrée libre sauf mention contraire
+    gratuit: tags.fee === 'no' ? true : tags.fee === 'yes' ? false : tags.amenity === 'place_of_worship' || ['church', 'cathedral', 'chapel'].includes(tags.building ?? tags.historic ?? '') ? true : undefined,
     source: 'osm',
   }
 }

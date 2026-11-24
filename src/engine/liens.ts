@@ -56,6 +56,7 @@ export function genererLiensReservation({ depart, arrivee, reglages }: EntreeLie
   const av = reglagesEffectifs(reglages)
   const aller = s.dateDepart
   const retour = ajouterJours(s.dateDepart, s.nuits)
+  const jj = (iso: string) => iso.split('-').reverse().join('/')
   const de = ville(depart)
   const a = ville(arrivee)
   const coord = (l: Lieu) => `${l.lat.toFixed(5)},${l.lon.toFixed(5)}`
@@ -66,7 +67,7 @@ export function genererLiensReservation({ depart, arrivee, reglages }: EntreeLie
       {
         categorie: 'transport',
         titre: 'Comparer les vols (Google Vols)',
-        description: `${de} → ${a}, aller le ${aller}, retour le ${retour}, ${s.adultes + s.enfants} voyageur(s)`,
+        description: `${de} → ${a}, aller le ${jj(aller)}, retour le ${jj(retour)}, ${s.adultes + s.enfants} voyageur(s)`,
         url: `https://www.google.com/travel/flights?hl=fr&q=${q(`Vols de ${de} à ${a} le ${aller} retour le ${retour} ${s.adultes} adultes${s.enfants ? ` ${s.enfants} enfants` : ''}`)}`,
         preRempli: true,
       },
@@ -86,7 +87,7 @@ export function genererLiensReservation({ depart, arrivee, reglages }: EntreeLie
       {
         categorie: 'transport',
         titre: 'Covoiturage (BlaBlaCar)',
-        description: `Places libres pour ${de} → ${a} le ${aller}`,
+        description: `Places libres pour ${de} → ${a} le ${jj(aller)}`,
         url: `https://www.blablacar.fr/search?fn=${q(de)}&tn=${q(a)}&db=${aller}&seats=${Math.min(4, s.adultes + s.enfants)}`,
         preRempli: true,
       },
@@ -99,7 +100,7 @@ export function genererLiensReservation({ depart, arrivee, reglages }: EntreeLie
   liens.push({
     categorie: 'logement',
     titre: av.typeLogement === 'hotel' ? `Hôtels ${av.etoiles} étoiles (Booking.com)` : 'Hébergements (Booking.com)',
-    description: `${a}, du ${aller} au ${retour}, ${s.adultes} adulte(s)${s.enfants ? `, ${s.enfants} enfant(s)` : ''}`,
+    description: `${a}, du ${jj(aller)} au ${jj(retour)}, ${s.adultes} adulte(s)${s.enfants ? `, ${s.enfants} enfant(s)` : ''}`,
     url:
       `https://www.booking.com/searchresults.fr.html?ss=${q(a)}&checkin=${aller}&checkout=${retour}&group_adults=${s.adultes}&group_children=${s.enfants}&no_rooms=${chambres}` +
       (s.enfants ? Array.from({ length: s.enfants }, () => '&age=8').join('') : '') +
@@ -110,7 +111,7 @@ export function genererLiensReservation({ depart, arrivee, reglages }: EntreeLie
     liens.push({
       categorie: 'logement',
       titre: 'Appartements (Airbnb)',
-      description: `${a}, du ${aller} au ${retour}`,
+      description: `${a}, du ${jj(aller)} au ${jj(retour)}`,
       url: `https://www.airbnb.fr/s/${q(a)}/homes?checkin=${aller}&checkout=${retour}&adults=${s.adultes}&children=${s.enfants}`,
       preRempli: true,
     })

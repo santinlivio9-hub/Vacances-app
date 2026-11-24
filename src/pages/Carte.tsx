@@ -174,7 +174,6 @@ export default function Carte() {
               placeholder="Point de départ"
               valeur={depart}
               onChoisir={definirDepart}
-              proximite={arrivee ?? undefined}
               pastille={<Pastille lettre="A" couleur="bg-ocean-700" />}
               action={boutonPosition}
             />
@@ -183,7 +182,6 @@ export default function Carte() {
               placeholder="Où allez-vous ?"
               valeur={arrivee}
               onChoisir={definirArrivee}
-              proximite={depart ?? undefined}
               pastille={<Pastille lettre="B" couleur="bg-corail-700" />}
             />
             {(depart || arrivee) && (

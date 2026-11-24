@@ -1,9 +1,9 @@
 {
   "name": "budget-voyage",
   "private": true,
-  "version": "0.1.0",
+  "version": "2.0.0",
   "type": "module",
-  "description": "Simulateur de budget vacances",
+  "description": "Budget Voyage : carte, configurateur et carnet de voyage avec estimation du budget",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

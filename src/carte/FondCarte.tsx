@@ -48,7 +48,8 @@ function Evenements({ onPoint }: { onPoint: Props['onPoint'] }) {
 /** Recadre la carte quand le trajet change. */
 function Cadrage({ points, marges }: { points: [number, number][]; marges: Props['marges'] }) {
   const carte = useMap()
-  const cle = points.map((p) => p.join(',')).join(';')
+  // On recadre aussi quand les panneaux changent de hauteur (photo et texte chargés après coup)
+  const cle = `${points.map((p) => p.join(',')).join(';')}|${Math.round(marges.haut / 40)},${Math.round(marges.bas / 40)},${Math.round(marges.gauche / 40)}`
   useEffect(() => {
     if (points.length === 0) return
     const options = {

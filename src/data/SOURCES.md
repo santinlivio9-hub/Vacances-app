@@ -30,7 +30,7 @@ Le coût d'un voyage se calcule comme suit : **prix de référence France** (`pr
 | [OSRM, serveur de démonstration](https://github.com/Project-OSRM/osrm-backend/wiki/Demo-server) | Distance et durée en voiture | Un appel par trajet, cache ; repli vol d'oiseau × 1,25 |
 | [Overpass API](https://wiki.openstreetmap.org/wiki/Overpass_API) | Lieux à visiter | Rayon limité (≈ 12 km), 150 résultats maximum, un appel par destination, cache |
 | [Wikipédia](https://fr.wikipedia.org/api/rest_v1/) | Résumés, photos, lieux géolocalisés | Cache, liens vers les articles (licence CC BY-SA) |
-| [CARTO](https://carto.com/attributions) / OpenStreetMap | Fond de carte | Attribution affichée sur la carte |
+| [Tuiles OpenStreetMap](https://operations.osmfoundation.org/policies/tiles/) | Fond de carte (CARTO exige une clé depuis septembre 2026) | Attribution affichée sous la carte, usage modéré |
 
 Les données OpenStreetMap sont sous licence [ODbL](https://www.openstreetmap.org/copyright) : l'attribution « © OpenStreetMap » est affichée sur la carte et dans le pied de page.
 

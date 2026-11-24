@@ -11,6 +11,7 @@ import { cleVoyage, useResultat } from '../store/resultat'
 import { cleTrajet, useVoyage } from '../store/voyage'
 import { formatEuros } from '../ui/format'
 import { MentionDonnees } from '../ui/MentionDonnees'
+import { imageLargeur } from '../services/wikipedia'
 import { coutsDuResultat } from '../voyage/calcul'
 import { Economies } from '../voyage/Economies'
 import { OngletItineraire } from '../voyage/OngletItineraire'
@@ -113,8 +114,8 @@ export default function Voyage() {
     <div className="min-h-dvh pb-12">
       {/* En-tête : photo, total, jauge */}
       <header className="relative isolate overflow-hidden bg-gradient-to-br from-ocean-600 to-ocean-900 text-white print:bg-none print:text-black">
-        {resultat.resume?.image && <img src={resultat.resume.image} alt="" className="absolute inset-0 -z-10 size-full object-cover print:hidden" />}
-        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/75 via-black/35 to-black/20 print:hidden" />
+        {resultat.resume?.image && <img src={imageLargeur(resultat.resume.image, 1280)} alt="" className="absolute inset-0 -z-10 size-full object-cover print:hidden" />}
+        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/80 via-black/45 to-black/35 print:hidden" />
         <div className="mx-auto max-w-3xl px-4 pt-3 pb-5">
           <div className="flex items-center justify-between print:hidden">
             <Link to="/" className="grid size-11 place-items-center rounded-full bg-black/25 backdrop-blur hover:bg-black/40" aria-label="Retour à la carte">

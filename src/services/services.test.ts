@@ -3,11 +3,11 @@ import { avecCache, viderCache } from './cache'
 import { coordonneesEnTexte, versLieu as lieuNominatim } from './nominatim'
 import { calculerTrajet } from './osrm'
 import { dedoublonner, requeteOverpass, typeDepuisTags, versLieuVisite } from './overpass'
-import { versLieu as lieuPhoton } from './photon'
+import { classerLieux, versLieu as lieuPhoton } from './photon'
 import { trouverLieux } from './lieux'
 import { rechercherLieux } from './recherche'
 import { creerLimiteur, enParallele } from './reseau'
-import { lireReferenceWikipedia, resumeWikipedia, typeDepuisTitre } from './wikipedia'
+import { estLieuDeCulte, estUnePhoto, imageLargeur, lireReferenceWikipedia, resumeWikipedia, typeDepuisTitre } from './wikipedia'
 
 const troyes = { lat: 48.2973, lon: 4.0744 }
 const annecy = { lat: 45.8992, lon: 6.1294 }
@@ -70,6 +70,12 @@ describe('Photon et recherche d’adresse', () => {
     const lieu = lieuPhoton({ street: 'Rue de la Paix', housenumber: '12', city: 'Paris', country: 'France', countrycode: 'FR' }, [2.33, 48.87])
     expect(lieu.nom).toBe('12 Rue de la Paix')
     expect(lieu.detail).toBe('Paris, France')
+  })
+
+  it('classe les villes avant les commerces et les rues homonymes', () => {
+    const l = (nom: string, type: string) => ({ nom, detail: '', lat: 0, lon: 0, type })
+    const r = classerLieux([l('New York Café', 'house'), l('Avenue de New York', 'street'), l('New York', 'city'), l('New York', 'state')])
+    expect(r.map((x) => `${x.nom}/${x.type}`)).toEqual(['New York/city', 'New York/state', 'Avenue de New York/street', 'New York Café/house'])
   })
 
   it('utilise Photon quand il répond', async () => {
@@ -214,9 +220,32 @@ describe('Wikipédia', () => {
     expect(r).toMatchObject({ langue: 'en', titre: 'Belém', image: 'https://upload.wikimedia.org/x.jpg' })
   })
 
-  it('écarte les drapeaux et blasons (images SVG)', async () => {
-    simulerFetch([['summary/Lisbonne', { type: 'standard', title: 'Lisbonne', extract: 'Capitale.', thumbnail: { source: 'https://upload.wikimedia.org/thumb/a/ab/Bras%C3%A3o_de_Lisboa.svg/320px-Bras%C3%A3o_de_Lisboa.svg.png' } }]])
-    expect((await resumeWikipedia('Lisbonne'))?.image).toBeUndefined()
+  it('demande une vignette plus large sans toucher aux autres adresses', () => {
+    expect(imageLargeur('https://upload.wikimedia.org/wikipedia/commons/thumb/a/b/Lisbon.jpg/330px-Lisbon.jpg?utm_source=x', 1280)).toBe('https://upload.wikimedia.org/wikipedia/commons/thumb/a/b/Lisbon.jpg/1280px-Lisbon.jpg?utm_source=x')
+    expect(imageLargeur('https://x/thumb/a/b/L.jpg/1920px-L.jpg', 1280)).toBe('https://x/thumb/a/b/L.jpg/1920px-L.jpg')
+    expect(imageLargeur('https://upload.wikimedia.org/wikipedia/commons/thumb/a/b/Lisbon.jpg/330px-Lisbon.jpg', 1280)).toBe('https://upload.wikimedia.org/wikipedia/commons/thumb/a/b/Lisbon.jpg/1280px-Lisbon.jpg')
+    expect(imageLargeur('https://example.org/photo.jpg', 1280)).toBe('https://example.org/photo.jpg')
+  })
+
+  it('compte les églises comme gratuites', () => {
+    expect(estLieuDeCulte('Église Saint-François d’Annecy')).toBe(true)
+    expect(estLieuDeCulte('Musée-Château d’Annecy')).toBe(false)
+  })
+
+  it('reconnaît les images qui ne sont pas des photos', () => {
+    expect(estUnePhoto('https://upload.wikimedia.org/thumb/a/ab/Bras%C3%A3o_de_Lisboa.svg/320px-Bras%C3%A3o_de_Lisboa.svg.png')).toBe(false)
+    expect(estUnePhoto('https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/Bandeira_municipal_de_Lisboa.png/330px-Bandeira_municipal_de_Lisboa.png')).toBe(false)
+    expect(estUnePhoto('https://upload.wikimedia.org/x/Flag_of_New_York_City.png')).toBe(false)
+    expect(estUnePhoto('https://upload.wikimedia.org/thumb/x/Lisbon_skyline.jpg/400px-Lisbon_skyline.jpg')).toBe(true)
+  })
+
+  it('garde le texte français mais emprunte la photo de l’article anglais si besoin', async () => {
+    simulerFetch([
+      ['fr.wikipedia.org/api/rest_v1/page/summary/Lisbonne', { type: 'standard', title: 'Lisbonne', extract: 'Capitale du Portugal.', thumbnail: { source: 'https://x/Bandeira_de_Lisboa.png' } }],
+      ['en.wikipedia.org/api/rest_v1/page/summary/Lisbonne', { type: 'standard', title: 'Lisbon', extract: 'Capital of Portugal.', thumbnail: { source: 'https://x/Lisbon_panorama.jpg' } }],
+    ])
+    const r = await resumeWikipedia('Lisbonne')
+    expect(r).toMatchObject({ langue: 'fr', extrait: 'Capitale du Portugal.', image: 'https://x/Lisbon_panorama.jpg' })
   })
 
   it('renvoie null sans planter si Wikipédia ne répond pas', async () => {

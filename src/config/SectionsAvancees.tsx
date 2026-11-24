@@ -1,4 +1,4 @@
-import { BedDouble, Coins, Route, Ticket, UtensilsCrossed } from 'lucide-react'
+import { BedDouble, Coins, Luggage, Ticket, UtensilsCrossed } from 'lucide-react'
 import type { CleAvancee, ClasseVoyage, NiveauResto, Quartier, ReglagesAvances, RepartitionBudget, Rythme, TransportLocal, TypeActivite, TypeLogement } from '../domain/types'
 import { ajusterRepartition, estModifie, reglagesEffectifs } from '../engine/reglages'
 import { useVoyage } from '../store/voyage'
@@ -31,7 +31,7 @@ export function SectionsAvancees({ estimation }: { estimation: Estimation }) {
 
   return (
     <>
-      <CarteReglage titre="Transport" icone={Route} resume={`${formatEuros(p.transport + p.transportLocal)} · sur place : ${TRANSPORT_LOCAL_UI[av.transportLocal].libelle.toLowerCase()}`} {...section(SECTIONS_AVANCEES.transport)}>
+      <CarteReglage titre="Transport" icone={Luggage} resume={`${formatEuros(p.transport + p.transportLocal)} · sur place : ${TRANSPORT_LOCAL_UI[av.transportLocal].libelle.toLowerCase()}`} {...section(SECTIONS_AVANCEES.transport)}>
         {mode === 'voiture' && (
           <>
             <Reglage libelle="Nombre de véhicules" {...etat('vehicules')}>

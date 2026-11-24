@@ -63,6 +63,12 @@
   }
 }
 
+/* Focus clavier toujours visible */
+:where(a, button, input:not([role='combobox']), select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-ocean-500);
+  outline-offset: 2px;
+}
+
 body {
   @apply bg-ocean-50 text-slate-900 antialiased dark:bg-ocean-950 dark:text-slate-100;
 }
@@ -183,4 +189,14 @@ body {
   color: #fff;
   font: 700 12px/1 'Inter Variable', system-ui, sans-serif;
   box-shadow: 0 3px 8px -2px rgb(0 0 0 / 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

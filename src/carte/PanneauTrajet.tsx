@@ -2,6 +2,7 @@ import { ArrowRight, Bus, Car, Clock, ExternalLink, Info, LocateFixed, Plane, Ro
 import type { Lieu, ModeTransport, ResumeWikipedia } from '../domain/types'
 import { apercuPrix } from '../engine/apercu'
 import { moisDe } from '../engine/dates'
+import { imageLargeur } from '../services/wikipedia'
 import { formatDuree, formatEuros, formatKm } from '../ui/format'
 import type { ItineraireCarte } from './itineraire'
 
@@ -39,7 +40,7 @@ export function PanneauTrajet({ depart, arrivee, itineraire, resume, nuits, date
   return (
     <article aria-label={`Trajet vers ${arrivee.nom}`}>
       <div className="relative h-28 overflow-hidden rounded-2xl bg-gradient-to-br from-ocean-300 to-ocean-700 sm:h-44">
-        {resume?.image && <img src={resume.image} alt={`Vue de ${arrivee.nom}`} className="absolute inset-0 size-full object-cover" />}
+        {resume?.image && <img src={imageLargeur(resume.image, 500)} alt={`Vue de ${arrivee.nom}`} className="absolute inset-0 size-full object-cover" />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/5 to-transparent" />
         <div className="absolute inset-x-4 bottom-3 text-white">
           <h2 className="text-2xl leading-tight font-bold [text-wrap:balance]">{arrivee.nom}</h2>

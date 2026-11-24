@@ -46,14 +46,26 @@ export function versLieu(p: ProprietesPhoton, [lon, lat]: [number, number]): Lie
   }
 }
 
+const TYPES_LOCALITE = new Set(['city', 'town', 'village', 'locality', 'district', 'county', 'state', 'country', 'region', 'island'])
+
+/**
+ * On cherche surtout des destinations : villes, régions et pays passent devant les commerces
+ * et les rues homonymes (« New York » ne doit pas proposer d'abord un café parisien).
+ * Le tri est stable : l'ordre de pertinence de Photon est conservé à l'intérieur de chaque groupe.
+ */
+export function classerLieux(lieux: Lieu[]): Lieu[] {
+  const rang = (l: Lieu) => (l.type && TYPES_LOCALITE.has(l.type) ? 0 : l.type === 'street' ? 1 : 2)
+  return lieux.map((l, i) => ({ l, i })).sort((a, b) => rang(a.l) - rang(b.l) || a.i - b.i).map(({ l }) => l)
+}
+
 export async function rechercherPhoton(texte: string, proximite?: Coordonnees, signal?: AbortSignal): Promise<Lieu[]> {
-  const params = new URLSearchParams({ q: texte.trim(), limit: '6', lang: 'fr' })
+  const params = new URLSearchParams({ q: texte.trim(), limit: '10', lang: 'fr' })
   if (proximite) {
     params.set('lat', proximite.lat.toFixed(3))
     params.set('lon', proximite.lon.toFixed(3))
   }
   return avecCache(`photon:${params}`, async () => {
     const reponse = await lireJson<ReponsePhoton>(`${URL_PHOTON}?${params}`, { service: 'Photon', delaiMs: 5000, signal })
-    return reponse.features.map((f) => versLieu(f.properties, f.geometry.coordinates))
+    return classerLieux(reponse.features.map((f) => versLieu(f.properties, f.geometry.coordinates))).slice(0, 6)
   })
 }
