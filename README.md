@@ -108,6 +108,26 @@ Le workflow [.github/workflows/deploy.yml](.github/workflows/deploy.yml) se lanc
 
 Réglages à faire une seule fois : dépôt public, puis **Settings → Pages → Source : GitHub Actions**. Si le dépôt change de nom, modifier aussi `base` dans [vite.config.ts](vite.config.ts).
 
+## Qui paie quoi (v7)
+
+- **Voyageurs** (configuration) : une carte par personne, avec prénom, adulte / enfant (âge) / bébé, et profil de paiement : paie sa part, ne paie rien, certains postes, montant fixe ou pourcentage. Par défaut, les adultes partagent à parts égales et les enfants ne paient rien. La barre du bas montre ce que paie chacun, en direct.
+- **Coût et paiement sont séparés** : un enfant qui ne paie rien compte quand même dans le prix (repas et activités à 70 %). Un bébé (moins de 2 ans) ne coûte rien en logement ni en transport, et ses repas comptent pour 30 %.
+- **Moteur** [`src/engine/repartition.ts`](src/engine/repartition.ts) (fonctions pures, testées) :
+  - chaque dépense est attribuée à ceux qui y participent ;
+  - la part de ceux qui ne la paient pas est redistribuée entre ceux qui paient leur part (poids réglables en Avancé) ;
+  - les montants fixes et les pourcentages passent en premier ;
+  - tout est calculé au centime, et la somme des parts vaut toujours le total (test sur 1 000 tirages) ;
+  - les cas impossibles (personne ne paie, fixes ou pourcentages trop élevés) affichent un message.
+- **Mon voyage → « Qui paie quoi »** :
+  - un donut et une carte par voyageur (gros montant, badge Invité / Gratuit, barre par poste, détail) ;
+  - une feuille « Modifier la répartition », mise à jour en direct ;
+  - un bouton « Copier le résumé » pour un groupe de discussion ;
+  - le tableau de répartition dans la version imprimée.
+- **Mode Avancé** :
+  - activité par activité, qui participe et qui paie sa place ;
+  - le logement réparti par chambre ;
+  - « Équilibrer après le voyage » : on saisit qui a avancé quoi, et l'app calcule les remboursements avec le moins de virements possible.
+
 ## Style « Liquid Glass » (v6)
 
 - Références : [`design-ref/`](design-ref/) (« Glassy Sidebar » pour le mode sombre et la navigation, « Glassy Dashboard » pour les cartes sur photo).

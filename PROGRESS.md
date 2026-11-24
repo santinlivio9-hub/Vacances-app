@@ -11,7 +11,7 @@ Décisions validées : le total ne change pas, sauf les bébés (< 2 ans : 0 log
 - [x] 3. Voyageurs et profils de paiement dans la configuration, estimation par personne en direct
 - [x] 4. Onglet « Qui paie quoi » et feuille « Modifier la répartition »
 - [x] 5. Équilibrage des remboursements, partage texte, impression
-- [ ] 6. Vérification finale et captures (exemple 3 adultes + 1 enfant)
+- [x] 6. Vérification finale et captures (exemple 3 adultes + 1 enfant)
 
 ## Étape en cours
-6
+Terminé.
