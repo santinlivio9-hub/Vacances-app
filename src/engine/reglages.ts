@@ -1,5 +1,5 @@
 import { tarifs } from '../data'
-import type { CleAvancee, Interet, ModeTransport, Reglages, ReglagesAvances, ReglagesSimples, Style } from '../domain/types'
+import type { CleAvancee, Interet, ModeTransport, Reglages, ReglagesAvances, ReglagesSimples, RepartitionBudget, Style } from '../domain/types'
 import { ajouterJours } from './dates'
 
 /** Valeurs proposées par défaut au premier lancement. */
@@ -87,4 +87,17 @@ export function modeConseille(distanceKm: number, routeTerrestre: boolean): Mode
   if (distanceKm < 250) return 'voiture'
   if (distanceKm <= 900) return 'train'
   return 'avion'
+}
+
+/**
+ * Change une part de la répartition du budget et redistribue la différence sur les autres
+ * parts, proportionnellement, pour que la somme reste 100 %.
+ */
+export function ajusterRepartition(rep: RepartitionBudget, cle: keyof RepartitionBudget, valeur: number): RepartitionBudget {
+  const v = Math.min(1, Math.max(0, valeur))
+  const autres = (Object.keys(rep) as (keyof RepartitionBudget)[]).filter((k) => k !== cle)
+  const sommeAutres = autres.reduce((s, k) => s + rep[k], 0)
+  const resultat = { ...rep, [cle]: v }
+  for (const k of autres) resultat[k] = sommeAutres > 0 ? (rep[k] / sommeAutres) * (1 - v) : (1 - v) / autres.length
+  return resultat
 }

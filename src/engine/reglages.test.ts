@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { ReglagesSimples } from '../domain/types'
-import { estModifie, modeConseille, reglagesAvancesParDefaut, reglagesEffectifs, reglagesSimplesParDefaut } from './reglages'
+import { ajusterRepartition, estModifie, modeConseille, reglagesAvancesParDefaut, reglagesEffectifs, reglagesSimplesParDefaut } from './reglages'
 
 const simple: ReglagesSimples = reglagesSimplesParDefaut('2027-01-10')
 
@@ -64,5 +64,18 @@ describe('mode de transport conseillé', () => {
     expect(modeConseille(1450, true)).toBe('avion')
     expect(modeConseille(5800, false)).toBe('avion')
     expect(modeConseille(200, false)).toBe('avion') // pas de route : île
+  })
+})
+
+describe('ajusterRepartition', () => {
+  it('garde une somme de 100 % en redistribuant proportionnellement', () => {
+    const r = ajusterRepartition({ transport: 0.25, logement: 0.35, repas: 0.25, activites: 0.15 }, 'logement', 0.55)
+    expect(r.logement).toBe(0.55)
+    expect(Object.values(r).reduce((a, b) => a + b, 0)).toBeCloseTo(1, 10)
+    expect(r.transport / r.activites).toBeCloseTo(0.25 / 0.15)
+  })
+  it('gère le cas où toutes les autres parts sont à zéro', () => {
+    const r = ajusterRepartition({ transport: 1, logement: 0, repas: 0, activites: 0 }, 'transport', 0.4)
+    expect(r.logement).toBeCloseTo(0.2)
   })
 })

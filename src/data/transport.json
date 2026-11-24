@@ -36,7 +36,7 @@
     "bagageSouteParTrajet": 35,
     "vitesseCroisiereKmH": 780,
     "tempsAeroportMin": 150,
-    "distanceMinKm": 300
+    "distanceMinKm": 400
   },
   "accesAeroport": { "prixParKm": 0.12, "seuilKm": 30 },
   "partEnfant": 1

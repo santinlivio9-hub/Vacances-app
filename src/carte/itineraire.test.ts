@@ -23,6 +23,8 @@ describe('itinéraire affiché sur la carte', () => {
   it('bascule sur l’avion si la route estimée est trop longue (Paris → Lisbonne sans OSRM)', () => {
     const it_ = itineraireDepuisTrajet({ lat: 48.86, lon: 2.35 }, lisbonne, { distanceKm: 1810, dureeMin: 1280, trace: [], approximatif: true })
     expect(it_.genre).toBe('vol')
+    expect(it_.routeTerrestre).toBe(true) // la voiture reste possible
+    expect(it_.distanceRouteKm).toBe(1810)
   })
 
   it('affiche une estimation en ligne droite si OSRM est en panne pour un trajet court', () => {

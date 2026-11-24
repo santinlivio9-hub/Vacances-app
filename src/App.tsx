@@ -4,6 +4,7 @@ import { PageProvisoire } from './ui/PageProvisoire'
 
 // Chaque écran est chargé à la demande : la carte (Leaflet) et les graphiques ne pèsent que là où ils servent.
 const Carte = lazy(() => import('./pages/Carte'))
+const Configurer = lazy(() => import('./pages/Configurer'))
 
 export const ROUTES = {
   carte: '/',
@@ -19,7 +20,7 @@ export default function App() {
       <Suspense fallback={<div className="grid min-h-dvh place-items-center text-slate-500">Chargement…</div>}>
         <Routes>
           <Route path={ROUTES.carte} element={<Carte />} />
-          <Route path={ROUTES.configurer} element={<PageProvisoire titre="Configuration" phase={3} />} />
+          <Route path={ROUTES.configurer} element={<Configurer />} />
           <Route path={ROUTES.calcul} element={<PageProvisoire titre="Calcul du voyage" phase={5} />} />
           <Route path={ROUTES.voyage} element={<PageProvisoire titre="Mon voyage" phase={5} />} />
           <Route path={ROUTES.mesVoyages} element={<PageProvisoire titre="Mes voyages" phase={5} />} />
