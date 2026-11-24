@@ -20,8 +20,9 @@ describe('rubriques de « Mes voyages »', () => {
   const voyage = (dateDepart: string, statut: VoyageSauvegarde['statut'] = 'calcule') =>
     ({ statut, reglages: { simple: { ...reglagesSimplesParDefaut('2026-01-01'), dateDepart, nuits: 5 }, modifies: {} } }) as VoyageSauvegarde
   it('range les voyages en à venir, brouillons et passés', () => {
-    expect(rubriqueDe(voyage('2026-12-20'), '2026-11-24')).toBe('a-venir')
-    expect(rubriqueDe(voyage('2026-11-21'), '2026-11-24')).toBe('a-venir') // en cours
+    expect(rubriqueDe(voyage('2026-12-20'), '2026-11-24')).toBe('a-reserver')
+    expect(rubriqueDe(voyage('2026-11-21'), '2026-11-24')).toBe('a-reserver') // en cours
+    expect(rubriqueDe({ ...voyage('2026-12-20'), reserve: true }, '2026-11-24')).toBe('reserves')
     expect(rubriqueDe(voyage('2026-10-01'), '2026-11-24')).toBe('passes')
     expect(rubriqueDe(voyage('2026-10-01', 'brouillon'), '2026-11-24')).toBe('brouillons')
   })

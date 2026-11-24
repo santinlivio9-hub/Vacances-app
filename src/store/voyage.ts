@@ -14,6 +14,8 @@ export interface VoyageSauvegarde {
   majLe: string
   /** Brouillon : configuré mais jamais calculé */
   statut: 'brouillon' | 'calcule'
+  /** Réservation faite (v6, vue en colonnes) : absent = à réserver */
+  reserve?: boolean
   depart: Lieu
   arrivee: Lieu
   reglages: Reglages
@@ -57,6 +59,8 @@ interface EtatVoyage {
   /** Enregistre (ou met à jour) le brouillon du trajet en cours */
   enregistrerBrouillon: () => void
   supprimerSauvegarde: (id: string) => void
+  /** Marque un voyage comme réservé ou à réserver */
+  marquerReserve: (id: string, reserve: boolean) => void
   ouvrirSauvegarde: (id: string) => void
   /** Remplace la liste (fusion avec le compte) */
   remplacerSauvegardes: (liste: VoyageSauvegarde[]) => void
@@ -185,6 +189,7 @@ export const useVoyage = create<EtatVoyage>()(
         const brouillons = autres.filter((v) => v.statut === 'brouillon').slice(0, 4).map((v) => v.id)
         set({ sauvegardes: [brouillon, ...autres.filter((v) => v.statut !== 'brouillon' || brouillons.includes(v.id))] })
       },
+      marquerReserve: (id, reserve) => set(({ sauvegardes }) => ({ sauvegardes: sauvegardes.map((v) => (v.id === id ? { ...v, reserve, majLe: maintenant() } : v)) })),
       supprimerSauvegarde: (id) => set(({ sauvegardes }) => ({ sauvegardes: sauvegardes.filter((v) => v.id !== id) })),
       remplacerSauvegardes: (liste) => set({ sauvegardes: liste }),
       chargerVoyage: ({ depart, arrivee, reglages, graine }) =>
