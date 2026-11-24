@@ -1,49 +1,299 @@
 {
   "_note": "Prix de référence en France (2026), à multiplier par l'indice du pays et le coefficient de saison. Voir SOURCES.md.",
   "logement": {
-    "_unite": "€ par nuit, pour une chambre ou un logement de 2 personnes ; auberge : € par lit et par personne ; camping : € par emplacement ou hébergement (2 pers.)",
-    "camping": { "eco": 25, "equilibre": 40, "confort": 70 },
-    "auberge": { "eco": 28, "equilibre": 36, "confort": 48 },
-    "hotel2": { "eco": 65, "equilibre": 78, "confort": 92 },
-    "hotel3": { "eco": 95, "equilibre": 120, "confort": 145 },
-    "hotel4": { "eco": 150, "equilibre": 190, "confort": 250 },
-    "appartement": { "eco": 75, "equilibre": 105, "confort": 160 },
+    "_unite": "€ par nuit, pour une chambre ou un logement de 2 personnes ; auberge (dortoir) : € par lit et par personne ; camping : € par emplacement ou hébergement (2 pers.) ; gîte : logement entier jusqu'à 4 personnes",
+    "camping": {
+      "eco": 25,
+      "equilibre": 40,
+      "confort": 70
+    },
+    "auberge": {
+      "eco": 28,
+      "equilibre": 36,
+      "confort": 48
+    },
+    "hotel2": {
+      "eco": 65,
+      "equilibre": 78,
+      "confort": 92
+    },
+    "hotel3": {
+      "eco": 95,
+      "equilibre": 120,
+      "confort": 145
+    },
+    "hotel4": {
+      "eco": 150,
+      "equilibre": 190,
+      "confort": 250
+    },
+    "appartement": {
+      "eco": 75,
+      "equilibre": 105,
+      "confort": 160
+    },
     "supplementCentre": 1.15,
     "remiseCalme": 0.92,
-    "petitDejeunerParPersonne": { "eco": 8, "equilibre": 12, "confort": 20 }
+    "petitDejeunerParPersonne": {
+      "eco": 8,
+      "equilibre": 12,
+      "confort": 20
+    },
+    "chambreAirbnb": {
+      "eco": 45,
+      "equilibre": 60,
+      "confort": 85
+    },
+    "habitant": {
+      "eco": 42,
+      "equilibre": 58,
+      "confort": 80
+    },
+    "aubergePrivee": {
+      "eco": 62,
+      "equilibre": 78,
+      "confort": 98
+    },
+    "gite": {
+      "eco": 80,
+      "equilibre": 105,
+      "confort": 150
+    },
+    "menageAirbnb": {
+      "eco": 35,
+      "equilibre": 50,
+      "confort": 80
+    },
+    "serviceAirbnb": 0.14,
+    "taxeSejour": {
+      "_unite": "€ par adulte et par nuit (barème français 2026, moyennes)",
+      "hotel2": 0.9,
+      "hotel3": 1.5,
+      "hotel4": 2.5,
+      "appartement": 2.0,
+      "habitant": 1.0,
+      "auberge": 0.6,
+      "camping": 0.6,
+      "gite": 1.0
+    }
   },
   "repas": {
     "_unite": "€ par adulte et par repas",
-    "courses": { "eco": 6, "equilibre": 8, "confort": 12 },
-    "snack": { "eco": 11, "equilibre": 14, "confort": 18 },
-    "restaurant": { "simple": 18, "moyen": 30, "gastronomique": 65 },
+    "courses": {
+      "eco": 6,
+      "equilibre": 8,
+      "confort": 12
+    },
+    "snack": {
+      "eco": 11,
+      "equilibre": 14,
+      "confort": 18
+    },
+    "restaurant": {
+      "simple": 18,
+      "moyen": 30,
+      "gastronomique": 65
+    },
     "petitDejeunerMaison": 4
   },
   "transportLocal": {
     "_unite": "€ par personne et par jour ; voiture : € par jour et par véhicule (location ou carburant + stationnement)",
-    "transports": { "eco": 5, "equilibre": 7, "confort": 12 },
-    "voiture": { "eco": 45, "equilibre": 60, "confort": 85 },
-    "velo": { "eco": 10, "equilibre": 14, "confort": 20 },
-    "pied": { "eco": 0, "equilibre": 0, "confort": 0 }
+    "transports": {
+      "eco": 5,
+      "equilibre": 7,
+      "confort": 12
+    },
+    "voiture": {
+      "eco": 45,
+      "equilibre": 60,
+      "confort": 85
+    },
+    "velo": {
+      "eco": 10,
+      "equilibre": 14,
+      "confort": 20
+    },
+    "pied": {
+      "eco": 0,
+      "equilibre": 0,
+      "confort": 0
+    }
   },
   "activites": {
     "_unite": "€ par adulte et par activité",
-    "musee": { "eco": 10, "equilibre": 13, "confort": 16 },
-    "monument": { "eco": 8, "equilibre": 11, "confort": 15 },
-    "parc": { "eco": 0, "equilibre": 0, "confort": 0 },
-    "plage": { "eco": 0, "equilibre": 0, "confort": 25 },
-    "point_de_vue": { "eco": 0, "equilibre": 0, "confort": 0 },
-    "zoo": { "eco": 20, "equilibre": 25, "confort": 30 },
-    "parc_attractions": { "eco": 45, "equilibre": 55, "confort": 75 },
-    "visite_guidee": { "eco": 15, "equilibre": 28, "confort": 55 },
-    "nature": { "eco": 0, "equilibre": 0, "confort": 15 },
-    "spectacle": { "eco": 25, "equilibre": 45, "confort": 85 },
-    "marche": { "eco": 0, "equilibre": 0, "confort": 0 },
-    "autre": { "eco": 8, "equilibre": 12, "confort": 20 }
+    "musee": {
+      "eco": 10,
+      "equilibre": 13,
+      "confort": 16
+    },
+    "monument": {
+      "eco": 8,
+      "equilibre": 11,
+      "confort": 15
+    },
+    "parc": {
+      "eco": 0,
+      "equilibre": 0,
+      "confort": 0
+    },
+    "plage": {
+      "eco": 0,
+      "equilibre": 0,
+      "confort": 25
+    },
+    "point_de_vue": {
+      "eco": 0,
+      "equilibre": 0,
+      "confort": 0
+    },
+    "zoo": {
+      "eco": 20,
+      "equilibre": 25,
+      "confort": 30
+    },
+    "parc_attractions": {
+      "eco": 45,
+      "equilibre": 55,
+      "confort": 75
+    },
+    "visite_guidee": {
+      "eco": 15,
+      "equilibre": 28,
+      "confort": 55
+    },
+    "nature": {
+      "eco": 0,
+      "equilibre": 0,
+      "confort": 15
+    },
+    "spectacle": {
+      "eco": 25,
+      "equilibre": 45,
+      "confort": 85
+    },
+    "marche": {
+      "eco": 0,
+      "equilibre": 0,
+      "confort": 0
+    },
+    "autre": {
+      "eco": 8,
+      "equilibre": 12,
+      "confort": 20
+    }
   },
   "divers": {
     "assuranceParPersonneParJour": 3,
-    "souvenirsParPersonneParJour": { "eco": 3, "equilibre": 6, "confort": 12 },
+    "souvenirsParPersonneParJour": {
+      "eco": 3,
+      "equilibre": 6,
+      "confort": 12
+    },
     "partEnfant": 0.7
+  },
+  "sejourLong": {
+    "_note": "Prix au mois pour une personne, dans une grande ville française hors Paris (Lyon, Bordeaux, Nantes…), charges comprises. À multiplier par l'indice du pays et le coefficient de la ville. Voir SOURCES.md.",
+    "loyerMensuel": {
+      "studio": {
+        "eco": 540,
+        "equilibre": 680,
+        "confort": 880
+      },
+      "colocation": {
+        "eco": 430,
+        "equilibre": 520,
+        "confort": 640
+      },
+      "habitant": {
+        "eco": 390,
+        "equilibre": 480,
+        "confort": 600
+      },
+      "residence": {
+        "eco": 500,
+        "equilibre": 630,
+        "confort": 790
+      },
+      "appartement": {
+        "eco": 950,
+        "equilibre": 1250,
+        "confort": 1700
+      },
+      "hotel": {
+        "eco": 1500,
+        "equilibre": 1900,
+        "confort": 2700
+      },
+      "auberge": {
+        "eco": 650,
+        "equilibre": 800,
+        "confort": 1000
+      },
+      "camping": {
+        "eco": 500,
+        "equilibre": 650,
+        "confort": 850
+      },
+      "gite": {
+        "eco": 1100,
+        "equilibre": 1400,
+        "confort": 1900
+      }
+    },
+    "occupantSupplementaire": {
+      "_unite": "part du loyer ajoutée par personne en plus",
+      "studio": 0.35,
+      "colocation": 1,
+      "habitant": 0.6,
+      "residence": 0.5,
+      "appartement": 0.25,
+      "hotel": 0.1,
+      "auberge": 1,
+      "camping": 0.2,
+      "gite": 0.1
+    },
+    "installation": {
+      "_unite": "€ une seule fois (frais de dossier ou de plateforme, assurance habitation)",
+      "studio": 180,
+      "colocation": 90,
+      "habitant": 30,
+      "residence": 150,
+      "appartement": 0,
+      "hotel": 0,
+      "auberge": 0,
+      "camping": 0,
+      "gite": 0
+    },
+    "coursesMois": {
+      "eco": 230,
+      "equilibre": 290,
+      "confort": 390
+    },
+    "sortiesMois": {
+      "eco": 60,
+      "equilibre": 130,
+      "confort": 250
+    },
+    "abonnementTransportMois": 62,
+    "veloMois": 12,
+    "voitureParKm": 0.32,
+    "stationnementMois": 45,
+    "diversMois": {
+      "eco": 25,
+      "equilibre": 40,
+      "confort": 60
+    },
+    "coefZone": {
+      "proche": 1.12,
+      "moyenne": 1,
+      "eloignee": 0.86
+    },
+    "vitessesKmH": {
+      "pied": 4.5,
+      "velo": 14,
+      "transports": 16,
+      "voiture": 24
+    },
+    "petiteVille": 0.85
   }
 }

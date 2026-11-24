@@ -1,5 +1,7 @@
-import { Bike, Bus, Car, Footprints, Landmark, Mountain, Music, PartyPopper, Plane, ShoppingBag, Sofa, TrainFront, Trees, Umbrella, UtensilsCrossed, Dumbbell } from 'lucide-react'
-import type { CleAvancee, Interet, ModeTransport, Style, TransportLocal, TypeActivite } from '../domain/types'
+import { BedDouble, Bike, Briefcase, Building2, Bus, CalendarRange, Car, DoorOpen, Footprints, HandHeart, Hotel, Landmark, Mountain, Music, PartyPopper, Plane, School, ShoppingBag, Sofa, Sunrise, TrainFront, TreePalm, TreePine, Trees, Tent, Umbrella, UsersRound, UtensilsCrossed, Dumbbell } from 'lucide-react'
+import type { CleAvancee, Interet, ModeTransport, Style, TransportLocal, TypeActivite, TypeLogement, TypeVoyage } from '../domain/types'
+import { LOGEMENTS } from '../engine/logements'
+import { TYPES_VOYAGE } from '../tripTypes'
 
 export const MODES_UI: Record<ModeTransport, { libelle: string; icone: typeof Car }> = {
   voiture: { libelle: 'Voiture', icone: Car },
@@ -47,11 +49,32 @@ export const ACTIVITES_UI: Record<TypeActivite, { libelle: string; icone: typeof
   autre: { libelle: 'Autres', icone: Landmark },
 }
 
+/** Cartes de choix du type de voyage : icône et dégradé (le reste vient de src/tripTypes/). */
+export const TYPES_VOYAGE_UI: Record<TypeVoyage, { nom: string; accroche: string; icone: typeof Car; degrade: string; exemple: string }> = {
+  vacances: { ...TYPES_VOYAGE.vacances, icone: TreePalm, degrade: 'from-ocean-400 to-ocean-700', exemple: 'Ex. : une semaine à Annecy en juillet' },
+  flexible: { ...TYPES_VOYAGE.flexible, icone: CalendarRange, degrade: 'from-emerald-400 to-teal-700', exemple: 'Ex. : 1 à 2 semaines, peu importe quand' },
+  weekend: { ...TYPES_VOYAGE.weekend, icone: Sunrise, degrade: 'from-corail-400 to-corail-700', exemple: 'Ex. : vendredi soir → dimanche' },
+  stage: { ...TYPES_VOYAGE.stage, icone: Briefcase, degrade: 'from-violet-400 to-indigo-700', exemple: 'Ex. : 10 semaines de stage à Lyon' },
+}
+
+export const LOGEMENTS_UI: Record<TypeLogement, { libelle: string; icone: typeof Car }> = {
+  hotel: { libelle: LOGEMENTS.hotel.nom, icone: Hotel },
+  appartement: { libelle: LOGEMENTS.appartement.nom, icone: Building2 },
+  habitant: { libelle: LOGEMENTS.habitant.nom, icone: HandHeart },
+  auberge: { libelle: 'Auberge', icone: BedDouble },
+  camping: { libelle: LOGEMENTS.camping.nom, icone: Tent },
+  gite: { libelle: LOGEMENTS.gite.nom, icone: TreePine },
+  studio: { libelle: LOGEMENTS.studio.nom, icone: DoorOpen },
+  colocation: { libelle: LOGEMENTS.colocation.nom, icone: UsersRound },
+  residence: { libelle: 'Résidence', icone: School },
+}
+
 /** Réglages avancés regroupés par carte (pour le badge « modifié » et la réinitialisation par section). */
 export const SECTIONS_AVANCEES = {
   transport: ['vehicules', 'consommationL100', 'prixCarburant', 'peages', 'classe', 'bagagesSoute', 'transportLocal'],
-  logement: ['typeLogement', 'etoiles', 'chambres', 'petitDejeuner', 'quartier'],
+  logement: ['typeLogement', 'etoiles', 'chambres', 'petitDejeuner', 'quartier', 'airbnbEntier', 'aubergeDortoir', 'fraisAirbnb', 'taxeSejour'],
   repas: ['partRestaurant', 'restosParJour', 'niveauResto'],
   activites: ['rythme', 'gratuitesUniquement', 'budgetMaxActivite', 'activitesIncluses', 'activitesExclues', 'tempsLibre'],
   divers: ['repartition', 'tauxImprevus', 'assurance', 'souvenirs'],
+  sejour: ['remboursementTransport', 'activitesWeekend'],
 } satisfies Record<string, CleAvancee[]>

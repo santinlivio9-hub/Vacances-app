@@ -60,7 +60,10 @@ describe('donneesPays', () => {
 describe('prixBase.json', () => {
   it('a des prix croissants avec le confort', () => {
     const series = [
-      ...Object.entries(prixBase.logement).filter(([k]) => !['supplementCentre', 'remiseCalme', '_unite'].includes(k)),
+      ...Object.entries(prixBase.logement).filter(([k]) => !['supplementCentre', 'remiseCalme', '_unite', 'serviceAirbnb', 'taxeSejour'].includes(k)),
+      ...Object.entries(prixBase.sejourLong.loyerMensuel),
+      ['coursesMois', prixBase.sejourLong.coursesMois],
+      ['sortiesMois', prixBase.sejourLong.sortiesMois],
       ['courses', prixBase.repas.courses],
       ['snack', prixBase.repas.snack],
       ['transports', prixBase.transportLocal.transports],

@@ -64,7 +64,7 @@ export default function Voyage() {
   }, [pret, resultat, depart, arrivee, reglages])
 
   if (!depart || !arrivee) return <Navigate to="/" replace />
-  if (!pret || !resultat || !donnees) return <Navigate to="/calcul" replace />
+  if (!pret || !resultat || !donnees) return <Navigate to="/calcul?vers=voyage" replace />
 
   const { couts, entree } = donnees
   const s = reglages.simple
@@ -165,7 +165,7 @@ export default function Voyage() {
         <div className="mx-auto grid max-w-3xl grid-cols-5 gap-1 px-2 py-1.5 sm:flex sm:py-2">
           {[
             { icone: Pencil, libelle: 'Modifier', action: () => navigate('/configurer') },
-            { icone: Shuffle, libelle: 'Régénérer', action: () => { regenerer(); navigate('/calcul') } },
+            { icone: Shuffle, libelle: 'Régénérer', action: () => { regenerer(); navigate('/calcul?vers=voyage') } },
             { icone: Bookmark, libelle: 'Sauvegarder', action: () => { setNomSauvegarde(`${arrivee.nom}, ${dateMoyenne(s.dateDepart)}`); dialogue.current?.showModal() } },
             { icone: Share2, libelle: 'Partager', action: partager },
             { icone: Printer, libelle: 'PDF', action: () => window.print() },
@@ -192,7 +192,7 @@ export default function Voyage() {
               total={couts.total}
               onAppliquer={(c) => {
                 appliquerChangements(c)
-                navigate('/calcul')
+                navigate('/calcul?vers=voyage')
               }}
             />
           </div>
@@ -253,7 +253,7 @@ export default function Voyage() {
       </main>
 
       {message && (
-        <p role="status" className="fixed inset-x-4 bottom-4 z-30 mx-auto max-w-sm rounded-2xl bg-slate-900 px-4 py-3 text-center text-sm text-white shadow-lg print:hidden">
+        <p role="status" className="fixed inset-x-4 bottom-[calc(var(--nav-bas)+1rem)] z-40 mx-auto max-w-sm rounded-2xl bg-slate-900 px-4 py-3 text-center text-sm text-white shadow-lg print:hidden">
           {message}
         </p>
       )}

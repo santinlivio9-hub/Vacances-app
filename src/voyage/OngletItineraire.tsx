@@ -4,6 +4,7 @@ import type { ActivitePlanifiee, Itineraire } from '../domain/types'
 import { liensActivite } from '../engine/liens'
 import { resumeWikipedia } from '../services/wikipedia'
 import { formatEuros } from '../ui/format'
+import { BoutonFavori } from '../ui/BoutonFavori'
 import { COULEURS_JOURS, dateCourte, TYPES_ACTIVITE_UI } from './libelles'
 
 /** Photo Wikipédia d'un lieu, chargée seulement quand la carte devient visible. */
@@ -43,9 +44,15 @@ function CarteActivite({ activite, ville, numero, couleur, onRemplacer }: { acti
         </span>
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          {activite.heure} · {TYPES_ACTIVITE_UI[lieu.type]}
-        </p>
+        <div className="flex items-start gap-1">
+          <p className="min-w-0 flex-1 pt-0.5 text-xs text-slate-500 dark:text-slate-400">
+            {activite.heure} · {TYPES_ACTIVITE_UI[lieu.type]}
+          </p>
+          <BoutonFavori
+            className="-mt-1.5 -mr-1 print:hidden"
+            favori={{ id: `activite:${lieu.id}`, type: 'activite', nom: lieu.nom, detail: `${TYPES_ACTIVITE_UI[lieu.type]} · ${ville}`, image: photo ?? undefined, lieu: { lat: lieu.lat, lon: lieu.lon }, ville, lien: liens.infos }}
+          />
+        </div>
         <h4 className="leading-snug font-semibold [text-wrap:pretty]">{lieu.nom}</h4>
         <p className={`text-sm font-semibold ${activite.prix === 0 ? 'text-(--statut-ok-texte)' : ''}`}>{activite.prix === 0 ? 'Gratuit' : `≈ ${formatEuros(activite.prix)}`}</p>
         <div className="mt-auto flex flex-wrap gap-1 pt-1.5 print:hidden">

@@ -1,4 +1,5 @@
 import { ArrowLeft, Info, MapPin, RotateCcw, SlidersHorizontal } from 'lucide-react'
+import { useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { BarreEstimation } from '../config/BarreEstimation'
 import { MODES_UI } from '../config/libelles'
@@ -14,6 +15,15 @@ export default function Configurer() {
   const { depart, arrivee, reglages, modeAvance, basculerModeAvance, reinitialiserTousLesAvances } = useVoyage()
   const estimation = useEstimation()
   const nbModifies = Object.keys(reglages.modifies).length
+  const enregistrerBrouillon = useVoyage((s) => s.enregistrerBrouillon)
+  // En quittant la configuration sans calculer, le voyage est gardé dans « Brouillons »
+  const versCalcul = useRef(false)
+  useEffect(
+    () => () => {
+      if (!versCalcul.current) enregistrerBrouillon()
+    },
+    [enregistrerBrouillon],
+  )
 
   if (!depart || !arrivee || !estimation) {
     return (
@@ -116,7 +126,10 @@ export default function Configurer() {
         budget={reglages.simple.budget}
         provisoire={estimation.provisoire}
         bloque={transportImpossible ? 'Choisissez un mode de transport possible pour ce trajet.' : null}
-        onCalculer={() => navigate('/calcul')}
+        onCalculer={() => {
+          versCalcul.current = true
+          navigate('/calcul')
+        }}
       />
     </div>
   )

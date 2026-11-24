@@ -3,6 +3,8 @@ import { destinationsPopulaires, type DestinationPopulaire } from '../data'
 import type { Lieu } from '../domain/types'
 import { enParallele } from '../services/reseau'
 import { resumeWikipedia } from '../services/wikipedia'
+import { idFavoriDestination } from '../store/favoris'
+import { BoutonFavori } from '../ui/BoutonFavori'
 
 /** Vignettes (≈ 400 px) des destinations populaires, chargées en arrière-plan, 3 à la fois. */
 function useVignettes(destinations: DestinationPopulaire[]) {
@@ -29,7 +31,7 @@ export function DestinationsPopulaires({ onChoisir }: { onChoisir: (lieu: Lieu) 
       </h2>
       <ul className="mt-3 flex snap-x gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none]">
         {destinationsPopulaires.map((d) => (
-          <li key={d.nom} className="snap-start">
+          <li key={d.nom} className="relative snap-start">
             <button
               type="button"
               onClick={() => onChoisir({ nom: d.nom, detail: d.detail, lat: d.lat, lon: d.lon, pays: d.pays, type: 'city' })}
@@ -44,6 +46,11 @@ export function DestinationsPopulaires({ onChoisir }: { onChoisir: (lieu: Lieu) 
                 <span className="block truncate text-[11px] text-white/85">{d.detail.split(', ').at(-1)}</span>
               </span>
             </button>
+            <BoutonFavori
+              surImage
+              className="absolute top-1 right-1 !size-9"
+              favori={{ id: idFavoriDestination(d), type: 'destination', nom: d.nom, detail: d.detail, image: images[d.nom], lieu: { lat: d.lat, lon: d.lon, pays: d.pays } }}
+            />
           </li>
         ))}
       </ul>

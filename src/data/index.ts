@@ -2,7 +2,8 @@ import paysJson from './pays.json'
 import prixBaseJson from './prixBase.json'
 import transportJson from './transport.json'
 import aeroportsJson from './aeroports.json'
-import type { Coordonnees, Saison, Style, TypeActivite } from '../domain/types'
+import type { Coordonnees, Saison, Style, TypeActivite, TypeLogement } from '../domain/types'
+import villesJson from './villes.json'
 
 export type ParStyle = Record<Style, number>
 
@@ -27,6 +28,13 @@ export interface PrixBase {
     supplementCentre: number
     remiseCalme: number
     petitDejeunerParPersonne: ParStyle
+    chambreAirbnb: ParStyle
+    habitant: ParStyle
+    aubergePrivee: ParStyle
+    gite: ParStyle
+    menageAirbnb: ParStyle
+    serviceAirbnb: number
+    taxeSejour: Record<'hotel2' | 'hotel3' | 'hotel4' | 'appartement' | 'habitant' | 'auberge' | 'camping' | 'gite', number>
   }
   repas: {
     courses: ParStyle
@@ -37,6 +45,29 @@ export interface PrixBase {
   transportLocal: Record<'transports' | 'voiture' | 'velo' | 'pied', ParStyle>
   activites: Record<TypeActivite, ParStyle>
   divers: { assuranceParPersonneParJour: number; souvenirsParPersonneParJour: ParStyle; partEnfant: number }
+  sejourLong: {
+    loyerMensuel: Record<TypeLogement, ParStyle>
+    occupantSupplementaire: Record<TypeLogement, number>
+    installation: Record<TypeLogement, number>
+    coursesMois: ParStyle
+    sortiesMois: ParStyle
+    abonnementTransportMois: number
+    veloMois: number
+    voitureParKm: number
+    stationnementMois: number
+    diversMois: ParStyle
+    coefZone: Record<'proche' | 'moyenne' | 'eloignee', number>
+    vitessesKmH: Record<'pied' | 'velo' | 'transports' | 'voiture', number>
+    petiteVille: number
+  }
+}
+
+export interface Ville extends Coordonnees {
+  nom: string
+  /** Coefficient du loyer (grande ville du pays = 1) */
+  loyer: number
+  /** Abonnement mensuel de transport, s'il est connu */
+  abonnement?: number
 }
 
 interface TrancheAvion {
@@ -88,6 +119,7 @@ const pays = paysJson as unknown as { continents: Record<string, Omit<DonneesPay
 export const prixBase = prixBaseJson as unknown as PrixBase
 export const tarifs = transportJson as unknown as Tarifs
 export const aeroports = aeroportsJson as Aeroport[]
+export const villes = (villesJson as { villes: Ville[] }).villes
 export const tousLesPays = pays.pays
 export const continents = pays.continents
 
