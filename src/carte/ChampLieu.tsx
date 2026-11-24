@@ -88,7 +88,7 @@ export function ChampLieu({ libelle, placeholder, valeur, onChoisir, proximite, 
       <label htmlFor={id} className="sr-only">
         {libelle}
       </label>
-      <div className="flex h-12 items-center gap-2 rounded-2xl bg-white/80 pr-1 pl-3 ring-1 ring-slate-900/10 focus-within:ring-2 focus-within:ring-ocean-500 dark:bg-slate-900/60 dark:ring-white/10">
+      <div className="flex h-12 items-center gap-2 rounded-2xl bg-white/80 pr-1 pl-3 ring-1 ring-slate-900/10 focus-within:ring-2 focus-within:ring-ocean-500 dark:bg-[#0e1f45]/60 dark:ring-white/10">
         {pastille}
         <input
           ref={refChamp}
@@ -184,7 +184,7 @@ export function ChampLieu({ libelle, placeholder, valeur, onChoisir, proximite, 
         </div>
       )}
       {message && (
-        <p role="status" className="mt-2 rounded-xl bg-white/90 px-3 py-2 text-sm text-slate-700 dark:bg-slate-900/80 dark:text-slate-200">
+        <p role="status" className="mt-2 rounded-xl bg-white/90 px-3 py-2 text-sm text-slate-700 dark:bg-[#0e1f45]/80 dark:text-slate-200">
           {message}
         </p>
       )}

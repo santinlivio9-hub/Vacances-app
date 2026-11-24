@@ -4,7 +4,9 @@ import { MotionConfig } from 'framer-motion'
 import { HashRouter, Navigate, Outlet, Route, Routes, useLocation } from 'react-router'
 import { useLarge } from './carte/hooks'
 import { Navigation } from './ui/Navigation'
-import { useTheme } from './ui/theme'
+import { useEffetVerre, useTheme } from './ui/theme'
+import { FiltresVerre } from './ui/glass'
+import { usePreferences } from './store/preferences'
 
 // Chaque écran est chargé à la demande : la carte (Leaflet) et les graphiques ne pèsent que là où ils servent.
 const Carte = lazy(() => import('./pages/Carte'))
@@ -16,6 +18,7 @@ const MesVoyages = lazy(() => import('./pages/MesVoyages'))
 const Favoris = lazy(() => import('./pages/Favoris'))
 const Compte = lazy(() => import('./pages/Compte'))
 const Partage = lazy(() => import('./pages/Partage'))
+const Design = lazy(() => import('./pages/Design'))
 
 export const ROUTES = {
   carte: '/',
@@ -29,7 +32,7 @@ export const ROUTES = {
 } as const
 
 /** Écrans sans barre d'onglets : on y garde la place pour « Calculer mon voyage ». */
-const SANS_NAVIGATION = [ROUTES.configurer, ROUTES.calcul, '/partage']
+const SANS_NAVIGATION = [ROUTES.configurer, ROUTES.calcul, '/partage', '/design']
 
 const chargement = <div className="grid min-h-dvh place-items-center text-slate-500">Chargement…</div>
 
@@ -46,15 +49,18 @@ function Coque() {
   useEffect(() => {
     void chargerPrixCarburant()
   }, [])
+  const barreOuverte = usePreferences((p) => p.barreOuverte)
+  // Place réservée à la navigation flottante : capsule en bas (mobile), barre à gauche (ordinateur)
   const style = {
-    '--nav-bas': visible && !large ? 'calc(4rem + env(safe-area-inset-bottom))' : '0px',
-    '--nav-gauche': visible && large ? '5.5rem' : '0px',
+    '--nav-bas': visible && !large ? 'calc(5.5rem + env(safe-area-inset-bottom))' : '0px',
+    '--nav-gauche': visible && large ? (barreOuverte ? '17.5rem' : '6.25rem') : '0px',
   } as CSSProperties
   return (
     <div style={style} className="pb-(--nav-bas) pl-(--nav-gauche) print:p-0">
       <Suspense fallback={chargement}>
         <Outlet />
       </Suspense>
+      <FiltresVerre />
       {visible && <Navigation large={large} />}
     </div>
   )
@@ -62,6 +68,7 @@ function Coque() {
 
 export default function App() {
   useTheme()
+  useEffetVerre()
   return (
     <MotionConfig reducedMotion="user">
       <HashRouter>
@@ -76,6 +83,8 @@ export default function App() {
             <Route path={ROUTES.favoris} element={<Favoris />} />
             <Route path={ROUTES.compte} element={<Compte />} />
             <Route path="/partage" element={<Partage />} />
+            {/* Page cachée : démonstration des composants de verre */}
+            <Route path="/design" element={<Design />} />
             <Route path="*" element={<Navigate to={ROUTES.carte} replace />} />
           </Route>
         </Routes>

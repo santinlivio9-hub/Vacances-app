@@ -105,6 +105,15 @@ Le workflow [.github/workflows/deploy.yml](.github/workflows/deploy.yml) se lanc
 
 Réglages à faire une seule fois : dépôt public, puis **Settings → Pages → Source : GitHub Actions**. Si le dépôt change de nom, modifier aussi `base` dans [vite.config.ts](vite.config.ts).
 
+## Style « Liquid Glass » (v6)
+
+- Références : [`design-ref/`](design-ref/) (« Glassy Sidebar » pour le mode sombre et la navigation, « Glassy Dashboard » pour les cartes sur photo).
+- Composants dans [`src/ui/glass/`](src/ui/glass/) : `<Glass>` (variantes regular, clear, thick ; formes capsule, rounded, circle ; teintes ; interactif), `<LiquidSelector>` (sélection dessinée par un seul tracé SVG animé, qui s'étire en glissant et se fond dans le rail de la barre latérale), `<Montant>` (grand chiffre, symbole plus pâle), filtre de réfraction SVG (Chrome seulement).
+- Jetons dans [`src/ui/tokens.ts`](src/ui/tokens.ts), avec un test de contraste (4,5:1 minimum, sur le pire fond possible).
+- Navigation : capsule flottante sur mobile (elle rétrécit quand on descend dans la page), barre latérale repliable sur ordinateur.
+- Compte → Apparence → « Effet verre : Complet / Léger / Désactivé / Auto » (Auto = léger sur téléphone). Si le système demande de réduire la transparence ou les animations, l'app suit.
+- Page cachée de démonstration : `#/design`.
+
 ## Trajets combinés et prix (v5)
 
 - **Comparatif des trajets** : voiture, covoiturage, autocar (FlixBus), train, voiture + train, train + transport local, avion, voiture + avion. Chaque trajet est une suite d'étapes, avec une durée, une fourchette de prix et un lien par étape (badge « pré-rempli » seulement si le lien transmet vraiment les dates et les voyageurs).

@@ -13,7 +13,7 @@ export function Economies({ entree, budget, total, onAppliquer }: { entree: Entr
   const idsPlan = new Set(ajustement.plan.map((p) => p.id))
 
   return (
-    <section aria-labelledby="titre-economies" className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-(--statut-depasse)/30 dark:bg-slate-900">
+    <section aria-labelledby="titre-economies" className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-(--statut-depasse)/30 dark:bg-[#0e1f45]">
       <h2 id="titre-economies" className="flex items-center gap-2 font-semibold">
         <PiggyBank className="size-5 text-(--statut-depasse-texte)" aria-hidden />
         {formatEuros(depassement)} au-dessus de votre budget

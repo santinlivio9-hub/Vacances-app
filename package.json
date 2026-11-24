@@ -1,7 +1,7 @@
 {
   "name": "budget-voyage",
   "private": true,
-  "version": "5.0.0",
+  "version": "6.0.0",
   "type": "module",
   "description": "Valise & Cap : carte, configurateur et carnet de voyage avec estimation du budget",
   "scripts": {

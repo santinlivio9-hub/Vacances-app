@@ -7,7 +7,7 @@ export function OngletReservations({ liens, checklist, coche, onCocher }: { lien
   const faits = checklist.filter((c) => coche(c.id)).length
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:items-start">
-      <section aria-labelledby="titre-checklist" className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-900/5 dark:bg-slate-900 dark:ring-white/10">
+      <section aria-labelledby="titre-checklist" className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-900/5 dark:bg-[#0e1f45] dark:ring-white/10">
         <h3 id="titre-checklist" className="font-semibold">
           Avant de partir <span className="font-normal text-slate-500 dark:text-slate-400">· {faits} / {checklist.length}</span>
         </h3>
@@ -42,7 +42,7 @@ export function OngletReservations({ liens, checklist, coche, onCocher }: { lien
                   .filter((l) => l.categorie === cat)
                   .map((l) => (
                     <li key={l.url}>
-                      <a href={l.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-900/5 hover:ring-ocean-400 dark:bg-slate-900 dark:ring-white/10">
+                      <a href={l.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-900/5 hover:ring-ocean-400 dark:bg-[#0e1f45] dark:ring-white/10">
                         <span className="min-w-0 flex-1">
                           <span className="block font-medium break-words">{l.titre}</span>
                           <span className="block truncate text-sm text-slate-500 dark:text-slate-400">{l.description}</span>

@@ -23,7 +23,7 @@ export function CarteReglage({
   const [ouverte, setOuverte] = useState(ouverteParDefaut)
   const id = useId()
   return (
-    <section className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-900/5 dark:bg-slate-900 dark:ring-white/10">
+    <section className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-900/5 dark:bg-[#0e1f45] dark:ring-white/10">
       <h2>
         <button
           type="button"
@@ -161,13 +161,13 @@ export function Segments<T extends string | number>({ nom, valeur, options, onCh
             onClick={() => onChange(o.valeur)}
             className={`flex min-h-12 min-w-0 flex-col items-center justify-center gap-0.5 rounded-2xl py-2 text-center text-sm ring-1 transition ${compact ? 'px-1 whitespace-nowrap' : 'px-2'} ${
               choisi
-                ? 'bg-ocean-700 font-semibold text-white ring-ocean-700'
-                : 'bg-white text-slate-700 ring-slate-900/10 hover:ring-ocean-400 dark:bg-white/5 dark:text-slate-200 dark:ring-white/10'
+                ? 'bg-ocean-700 font-semibold text-white ring-ocean-700 dark:bg-white dark:text-[#0c2452] dark:shadow-[0_6px_16px_-6px_rgb(0_0_0/0.5)] dark:ring-white'
+                : 'bg-white text-slate-700 ring-slate-900/10 hover:ring-ocean-400 dark:bg-white/8 dark:text-slate-100 dark:shadow-[inset_0_1px_0_rgb(255_255_255/0.12)] dark:ring-white/12'
             } disabled:cursor-not-allowed disabled:opacity-45`}
           >
             {Icone && <Icone className="size-5" aria-hidden />}
             <span>{o.libelle}</span>
-            {o.detail && <span className={`text-xs ${choisi ? 'text-white/85' : 'text-slate-500 dark:text-slate-400'}`}>{o.detail}</span>}
+            {o.detail && <span className={`text-xs ${choisi ? 'text-white/85 dark:text-[#0c2452]/75' : 'text-slate-500 dark:text-slate-300'}`}>{o.detail}</span>}
           </button>
         )
       })}

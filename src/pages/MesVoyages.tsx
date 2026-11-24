@@ -29,7 +29,7 @@ function CarteVoyage({ v, onOuvrir, onSupprimer }: { v: VoyageSauvegarde; onOuvr
   const Icone = MODES_UI[s.transport].icone
   const type = TYPES_VOYAGE_UI[s.typeVoyage]
   return (
-    <li className="flex items-stretch overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-900/5 dark:bg-slate-900 dark:ring-white/10">
+    <li className="flex items-stretch overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-900/5 dark:bg-[#0e1f45] dark:ring-white/10">
       <button type="button" onClick={onOuvrir} className="min-w-0 flex-1 p-4 text-left hover:bg-slate-50 dark:hover:bg-white/5">
         <span className="flex items-center gap-2">
           <span className="truncate font-semibold">{v.nom}</span>

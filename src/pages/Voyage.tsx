@@ -12,6 +12,7 @@ import { cleTrajet, dateDuJour, useVoyage } from '../store/voyage'
 import { formatEntre, formatEuros } from '../ui/format'
 import { comparatifTrajets } from '../engine/transport'
 import { CartesTrajets } from '../voyage/CartesTrajets'
+import { Glass, Montant } from '../ui/glass'
 import { MentionDonnees } from '../ui/MentionDonnees'
 import { imageLargeur } from '../services/wikipedia'
 import { coutsDuResultat } from '../voyage/calcul'
@@ -169,10 +170,10 @@ export default function Voyage() {
               <Users className="size-4" aria-hidden /> {voyageurs} voyageur{voyageurs > 1 ? 's' : ''}
             </span>
           </p>
-          <div className="mt-4 flex flex-wrap items-end gap-x-6 gap-y-2">
+          <Glass variante="clear" refraction className="mt-4 flex flex-wrap items-end gap-x-6 gap-y-2 border-white/25! bg-black/30! p-4 text-white shadow-2xl print:border-0! print:bg-transparent! print:p-0">
             <p>
               <span className="block text-xs text-white/80 print:text-slate-600">{sejour ? 'Tout le séjour' : 'Estimation totale'}</span>
-              <span className="text-4xl font-bold tabular-nums">{formatEuros(total)}</span>
+              <Montant valeur={total} className="block text-4xl" />
               {!sejour && <span className="block text-sm text-white/85 print:text-slate-600">{formatEntre(couts.fourchette)}</span>}
             </p>
             <p className="pb-1 text-lg font-semibold tabular-nums">
@@ -186,7 +187,7 @@ export default function Voyage() {
                 </>
               )}
             </p>
-          </div>
+          </Glass>
           {sejour && sejour.gratification.total > 0 && (
             <p className="mt-1 text-sm text-white/90 print:text-slate-700">
               {sejour.resteAChargeTotal >= 0
@@ -216,7 +217,7 @@ export default function Voyage() {
       </header>
 
       {/* Actions */}
-      <nav aria-label="Actions sur le voyage" className="sticky top-0 z-30 border-b border-slate-900/5 bg-ocean-50 print:hidden dark:border-white/10 dark:bg-ocean-950">
+      <nav aria-label="Actions sur le voyage" className="sticky top-0 z-30 border-b border-slate-900/5 bg-ocean-50 print:hidden dark:border-white/10 dark:bg-[#071433]">
         <div className="mx-auto grid max-w-3xl grid-cols-5 gap-1 px-2 py-1.5 sm:flex sm:py-2">
           {[
             { icone: Pencil, libelle: 'Modifier', action: () => navigate('/configurer') },
@@ -376,7 +377,7 @@ export default function Voyage() {
       <dialog
         ref={dialogue}
         aria-labelledby="titre-sauvegarde"
-        className="m-auto w-[min(26rem,calc(100vw-2rem))] rounded-3xl bg-white p-5 text-slate-900 shadow-2xl backdrop:bg-black/40 dark:bg-slate-900 dark:text-slate-100"
+        className="m-auto w-[min(26rem,calc(100vw-2rem))] rounded-3xl bg-white p-5 text-slate-900 shadow-2xl backdrop:bg-black/40 dark:bg-[#0e1f45] dark:text-slate-100"
       >
         <form
           method="dialog"

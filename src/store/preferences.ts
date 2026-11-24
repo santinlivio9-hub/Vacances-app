@@ -4,6 +4,8 @@ import { stockageSur } from './stockageSur'
 import type { Interet, Lieu, ReglagesSimples, Style, TypeLogement } from '../domain/types'
 
 export type Theme = 'auto' | 'clair' | 'sombre'
+/** Effet verre : complet (flou et reflets), léger (moins de flou, plus fluide), désactivé (surfaces opaques) ; auto = léger sur mobile */
+export type EffetVerre = 'auto' | 'complet' | 'leger' | 'desactive'
 
 /** Préférences par défaut, réutilisées dans chaque nouveau voyage. */
 export interface Preferences {
@@ -15,6 +17,9 @@ export interface Preferences {
   interets: Interet[]
   modeAvance: boolean
   theme: Theme
+  effetVerre: EffetVerre
+  /** Barre latérale ouverte sur ordinateur (repliée par défaut) */
+  barreOuverte: boolean
   /** Vrai dès que l'utilisateur a enregistré ses préférences (sinon on garde les valeurs de l'app) */
   definies: boolean
   majLe: string
@@ -29,6 +34,8 @@ export const preferencesParDefaut = (): Preferences => ({
   interets: ['culture', 'gastronomie'],
   modeAvance: false,
   theme: 'auto',
+  effetVerre: 'auto',
+  barreOuverte: false,
   definies: false,
   majLe: new Date(0).toISOString(),
 })
@@ -39,6 +46,8 @@ export function appliquerPreferences(s: ReglagesSimples, p: Preferences): Reglag
   return { ...s, adultes: p.adultes, enfants: p.enfants, style: p.style, interets: p.interets, logements: p.logements.length ? p.logements : s.logements }
 }
 
+const AFFICHAGE = ['theme', 'effetVerre', 'barreOuverte']
+
 interface EtatPreferences extends Preferences {
   modifier: (p: Partial<Preferences>) => void
   remplacer: (p: Preferences) => void
@@ -48,8 +57,8 @@ export const usePreferences = create<EtatPreferences>()(
   persist(
     (set) => ({
       ...preferencesParDefaut(),
-      // Changer seulement le thème ne compte pas comme « préférences de voyage définies »
-      modifier: (p) => set({ ...p, ...(Object.keys(p).some((k) => k !== 'theme') ? { definies: true } : {}), majLe: new Date().toISOString() }),
+      // Changer seulement l'affichage (thème, verre, barre) ne compte pas comme « préférences de voyage définies »
+      modifier: (p) => set({ ...p, ...(Object.keys(p).some((k) => !AFFICHAGE.includes(k)) ? { definies: true } : {}), majLe: new Date().toISOString() }),
       remplacer: (p) => set(p),
     }),
     {

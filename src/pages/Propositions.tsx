@@ -75,7 +75,7 @@ export default function Propositions() {
 
   return (
     <div className="min-h-dvh pb-[calc(7rem+env(safe-area-inset-bottom))]">
-      <header className="sticky top-0 z-30 border-b border-slate-900/5 bg-ocean-50 dark:border-white/10 dark:bg-ocean-950">
+      <header className="sticky top-0 z-30 border-b border-slate-900/5 bg-ocean-50 dark:border-white/10 dark:bg-[#071433]">
         <div className="mx-auto flex max-w-6xl items-center gap-2 px-3 py-2">
           <button
             type="button"
@@ -117,7 +117,7 @@ export default function Propositions() {
         )}
 
         {calcul.periodes && calcul.periodes.meilleures.length > 0 && (
-          <section aria-labelledby="titre-periodes" className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-900/5 dark:bg-slate-900 dark:ring-white/10">
+          <section aria-labelledby="titre-periodes" className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-900/5 dark:bg-[#0e1f45] dark:ring-white/10">
             <h2 id="titre-periodes" className="flex items-center gap-2 font-semibold">
               <CalendarRange className="size-5 text-teal-700 dark:text-teal-300" aria-hidden /> Les périodes les moins chères
             </h2>
@@ -229,7 +229,7 @@ export default function Propositions() {
       <dialog
         ref={dialogue}
         aria-labelledby="titre-comparaison"
-        className="m-auto max-h-[90dvh] w-[min(48rem,calc(100vw-1.5rem))] rounded-3xl bg-white p-4 text-slate-900 shadow-2xl backdrop:bg-black/40 dark:bg-slate-900 dark:text-slate-100"
+        className="m-auto max-h-[90dvh] w-[min(48rem,calc(100vw-1.5rem))] rounded-3xl bg-white p-4 text-slate-900 shadow-2xl backdrop:bg-black/40 dark:bg-[#0e1f45] dark:text-slate-100"
         onClick={(e) => e.target === dialogue.current && dialogue.current.close()}
       >
         <div className="mb-3 flex items-center justify-between gap-2">

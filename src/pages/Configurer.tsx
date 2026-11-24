@@ -154,7 +154,7 @@ export default function Configurer() {
 
 function EnTete({ depart, arrivee, sousTitre }: { depart: string; arrivee: string; sousTitre: string }) {
   return (
-    <header className="sticky top-0 z-30 border-b border-slate-900/5 bg-ocean-50 dark:border-white/10 dark:bg-ocean-950">
+    <header className="sticky top-0 z-30 border-b border-slate-900/5 bg-ocean-50 dark:border-white/10 dark:bg-[#071433]">
       <div className="mx-auto flex max-w-2xl items-center gap-2 px-3 py-2">
         <Link to="/" className="grid size-11 shrink-0 place-items-center rounded-full hover:bg-slate-900/5 dark:hover:bg-white/10" aria-label="Retour à la carte">
           <ArrowLeft className="size-5" />

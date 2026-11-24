@@ -49,7 +49,7 @@ export function CarteProposition({ p, depart, arrivee, graine, image, budget, vo
   return (
     <article
       aria-labelledby={`titre-${p.id}`}
-      className={`flex flex-col overflow-hidden rounded-3xl bg-white shadow-sm ring-1 transition dark:bg-slate-900 ${coche ? 'ring-2 ring-ocean-500' : 'ring-slate-900/5 dark:ring-white/10'}`}
+      className={`flex flex-col overflow-hidden rounded-3xl bg-white shadow-sm ring-1 transition dark:bg-[#0e1f45] ${coche ? 'ring-2 ring-ocean-500' : 'ring-slate-900/5 dark:ring-white/10'}`}
     >
       <div className="relative h-32 shrink-0 bg-gradient-to-br from-ocean-300 to-ocean-700">
         {image && <img src={imageLargeur(image, 640)} alt="" loading="lazy" onError={(e) => (e.currentTarget.style.display = 'none')} className="absolute inset-0 size-full object-cover" />}

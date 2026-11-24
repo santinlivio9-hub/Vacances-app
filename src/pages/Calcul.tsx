@@ -106,7 +106,7 @@ export default function Calcul() {
           })}
         </ol>
         {erreur && (
-          <div role="alert" className="mt-4 rounded-2xl bg-white p-4 text-center text-sm shadow dark:bg-slate-900">
+          <div role="alert" className="mt-4 rounded-2xl bg-white p-4 text-center text-sm shadow dark:bg-[#0e1f45]">
             <p>Le calcul n’a pas pu aboutir. Vérifiez votre connexion puis réessayez.</p>
             <button type="button" onClick={() => location.reload()} className="mt-3 h-11 rounded-full bg-ocean-700 px-5 font-semibold text-white">
               Réessayer

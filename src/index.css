@@ -103,13 +103,50 @@ textarea {
 }
 
 body {
-  @apply bg-ocean-50 text-slate-900 antialiased dark:bg-ocean-950 dark:text-slate-100;
+  @apply bg-ocean-50 text-slate-900 antialiased dark:text-slate-100;
 }
 
 /*
- * « Liquid Glass » léger : surface translucide et floutée posée sur un fond coloré.
- * Repli opaque si l'utilisateur a demandé moins de transparence dans son système.
+ * Mode sombre : nuit bleue étoilée (référence « Glassy Sidebar »). Le fond est fixe :
+ * le verre a toujours quelque chose à flouter derrière lui.
  */
+.dark body {
+  background:
+    radial-gradient(ellipse 90% 60% at 50% -10%, rgb(29 63 138 / 0.75), transparent 65%),
+    radial-gradient(ellipse 70% 50% at 85% 110%, rgb(18 48 107 / 0.7), transparent 60%),
+    #050b1f;
+  background-attachment: fixed;
+}
+.dark body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.55;
+  background-image:
+    radial-gradient(1px 1px at 20px 30px, #fff, transparent),
+    radial-gradient(1px 1px at 120px 80px, rgb(255 255 255 / 0.8), transparent),
+    radial-gradient(1.5px 1.5px at 200px 160px, rgb(255 255 255 / 0.9), transparent),
+    radial-gradient(1px 1px at 60px 210px, rgb(255 255 255 / 0.7), transparent),
+    radial-gradient(1px 1px at 260px 40px, rgb(255 255 255 / 0.6), transparent);
+  background-size: 300px 260px;
+}
+
+/*
+ * « Liquid Glass » : surface translucide et floutée posée sur un fond coloré.
+ * Réglages globaux sur <html> : data-verre = complet | leger | desactive (Compte → Effet verre),
+ * data-refraction = oui dans Chrome (filtre SVG de réfraction sur les bords).
+ */
+:root {
+  --verre-flou: 18px;
+  --verre-saturation: 170%;
+}
+:root[data-verre='leger'] {
+  --verre-flou: 8px;
+  --verre-saturation: 140%;
+}
+
 @utility verre {
   /* --verre-fond règle l’opacité (1 = opaque, pour les menus posés sur du texte) */
   background-color: rgb(255 255 255 / var(--verre-fond, 0.58));
@@ -117,28 +154,84 @@ body {
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.85),
     0 12px 32px -12px rgb(15 71 98 / 0.28);
-  backdrop-filter: blur(18px) saturate(170%);
-  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  -webkit-backdrop-filter: blur(var(--verre-flou)) saturate(var(--verre-saturation));
+  backdrop-filter: blur(var(--verre-flou)) saturate(var(--verre-saturation));
 
   :where(.dark) & {
-    background-color: rgb(16 40 56 / var(--verre-fond, 0.55));
-    border-color: rgb(255 255 255 / 0.12);
+    background-color: rgb(22 46 96 / var(--verre-fond, 0.5));
+    border-color: rgb(255 255 255 / 0.14);
     box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.1),
-      0 12px 32px -12px rgb(0 0 0 / 0.6);
-  }
-
-  @media (prefers-reduced-transparency: reduce) {
-    background-color: rgb(255 255 255 / 0.96);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+      inset 0 1px 0 rgb(255 255 255 / 0.16),
+      0 16px 40px -16px rgb(0 0 0 / 0.7);
   }
 }
 
+/* Verre bleu de la navigation, dans les deux thèmes (texte blanc, contraste ≥ 4,5:1) */
+@utility verre-bleu {
+  background-color: rgb(28 62 132 / var(--verre-fond, 0.86));
+  border: 1px solid rgb(255 255 255 / 0.22);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.3),
+    inset 0 -1px 0 rgb(0 0 0 / 0.15),
+    0 18px 40px -16px rgb(5 11 31 / 0.6);
+  /* La navigation flotte sur du texte : flou plus fort, même en effet léger */
+  -webkit-backdrop-filter: blur(max(var(--verre-flou), 16px)) saturate(var(--verre-saturation));
+  backdrop-filter: blur(max(var(--verre-flou), 16px)) saturate(var(--verre-saturation));
+  color: #fff;
+}
+
+/* Réfraction des bords (Chrome seulement, effet complet) */
+:root[data-refraction='oui'][data-verre='complet'] :is(.verre, .verre-bleu).refraction {
+  backdrop-filter: url(#refraction-verre) blur(var(--verre-flou)) saturate(var(--verre-saturation));
+}
+
+/* Effet désactivé, ou « réduire la transparence » demandé au système : surfaces opaques */
+:root[data-verre='desactive'] :is(.verre, .verre-bleu) {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+:root[data-verre='desactive'] .verre {
+  background-color: rgb(255 255 255 / 0.97);
+}
+:root[data-verre='desactive'].dark .verre {
+  background-color: rgb(16 32 66 / 0.98);
+}
+:root[data-verre='desactive'] .verre-bleu {
+  background-color: rgb(24 54 116);
+}
 @media (prefers-reduced-transparency: reduce) {
-  .dark .verre {
-    background-color: rgb(16 40 56 / 0.97);
+  :is(.verre, .verre-bleu) {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
   }
+  .verre {
+    background-color: rgb(255 255 255 / 0.97) !important;
+  }
+  .dark .verre {
+    background-color: rgb(16 32 66 / 0.98) !important;
+  }
+  .verre-bleu {
+    background-color: rgb(24 54 116) !important;
+  }
+}
+
+/* Reflet de lumière en haut des surfaces épaisses */
+.reflet {
+  position: relative;
+}
+.reflet::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.28), transparent 38%);
+}
+
+/* Texte vertical du rail de la barre latérale */
+.texte-vertical {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
 }
 
 /* Champs de saisie : même cible tactile partout */
@@ -155,12 +248,14 @@ body {
     background: #fff !important;
     color: #000 !important;
   }
-  .verre {
+  .verre,
+  .verre-bleu {
     background: #fff !important;
+    color: #000 !important;
     border: 1px solid #d4d4d4 !important;
     box-shadow: none !important;
-    backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
     break-inside: avoid;
   }
   a {

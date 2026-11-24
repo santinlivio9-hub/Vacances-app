@@ -39,7 +39,7 @@ export function TableauComparaison({ propositions }: { propositions: Proposition
         <caption className="sr-only">Comparaison des propositions sélectionnées</caption>
         <thead>
           <tr>
-            <th scope="col" className="sticky left-0 z-10 bg-white p-2 text-left font-medium text-slate-500 dark:bg-slate-900 dark:text-slate-400">
+            <th scope="col" className="sticky left-0 z-10 bg-white p-2 text-left font-medium text-slate-500 dark:bg-[#0e1f45] dark:text-slate-400">
               <span className="sr-only">Critère</span>
             </th>
             {propositions.map((p) => (
@@ -56,7 +56,7 @@ export function TableauComparaison({ propositions }: { propositions: Proposition
             const cible = l.meilleur && nombres.length > 1 && new Set(nombres.map((n) => Math.round(n))).size > 1 ? (l.meilleur === 'min' ? Math.min(...nombres) : Math.max(...nombres)) : null
             return (
               <tr key={l.libelle} className="border-t">
-                <th scope="row" className="sticky left-0 z-10 border-t border-slate-900/5 bg-white p-2 text-left font-medium text-slate-600 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300">
+                <th scope="row" className="sticky left-0 z-10 border-t border-slate-900/5 bg-white p-2 text-left font-medium text-slate-600 dark:border-white/10 dark:bg-[#0e1f45] dark:text-slate-300">
                   {l.libelle}
                 </th>
                 {l.valeurs.map((v, i) => {

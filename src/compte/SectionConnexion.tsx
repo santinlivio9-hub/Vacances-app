@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { compteConfigure, connexionGoogle, deconnexion, envoyerLienMagique, repondreImport, supprimerCompte, synchroniserMaintenant, useCompte } from './compte'
 import { effacerDonneesLocales } from './donnees'
 
-const carte = 'rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-900/5 dark:bg-slate-900 dark:ring-white/10'
+const carte = 'rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-900/5 dark:bg-[#0e1f45] dark:ring-white/10'
 const texteErreur = (e: unknown) => (e && typeof e === 'object' && 'message' in e ? String((e as { message: string }).message) : 'Une erreur est survenue.')
 
 function LogoGoogle() {

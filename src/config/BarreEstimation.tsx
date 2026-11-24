@@ -2,6 +2,7 @@ import { AlertTriangle, ArrowRight, CheckCircle2, CircleAlert } from 'lucide-rea
 import { useEffect, useRef, useState } from 'react'
 import { etatBudget } from '../engine/couts'
 import { formatEntre, formatEuros } from '../ui/format'
+import { Montant } from '../ui/glass'
 
 /** Nombre qui glisse vers sa nouvelle valeur (désactivé si l'utilisateur préfère moins d'animations). */
 export function useNombreAnime(cible: number, dureeMs = 350): number {
@@ -45,7 +46,7 @@ export function BarreEstimation({ total, parPersonne, budget, provisoire, bloque
         <div className="min-w-0 flex-1" aria-live="polite" aria-atomic="true">
           <p className="truncate text-xs text-slate-500 dark:text-slate-400">{libelle}{provisoire ? ' (trajet en cours de calcul)' : ''}</p>
           <p className="flex items-baseline gap-2">
-            <span className="text-2xl leading-tight font-bold tabular-nums">{formatEuros(anime)}</span>
+            <Montant valeur={anime} className="text-2xl leading-tight" />
             {!precision && <span className="truncate text-sm text-slate-500 dark:text-slate-400">{formatEuros(parPersonne)} / pers.</span>}
           </p>
           {fourchette && fourchette.haut > 0 && <p className="text-xs leading-snug text-slate-600 dark:text-slate-300">{formatEntre(fourchette)}</p>}

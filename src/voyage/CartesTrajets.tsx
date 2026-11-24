@@ -85,7 +85,7 @@ function LigneEtape({ e, contexte }: { e: Etape; contexte?: ContexteLiens }) {
           {e.tarifOfficiel && ' · tarifs SNCF'}
         </p>
         {lien && (
-          <a href={lien.url} target="_blank" rel="noopener noreferrer" className="mt-1.5 inline-flex min-h-9 items-center gap-1.5 rounded-full bg-white px-3 text-xs font-semibold text-ocean-800 ring-1 ring-ocean-700/20 hover:ring-ocean-500 dark:bg-slate-900 dark:text-ocean-200 dark:ring-white/15">
+          <a href={lien.url} target="_blank" rel="noopener noreferrer" className="mt-1.5 inline-flex min-h-9 items-center gap-1.5 rounded-full bg-white px-3 text-xs font-semibold text-ocean-800 ring-1 ring-ocean-700/20 hover:ring-ocean-500 dark:bg-[#0e1f45] dark:text-ocean-200 dark:ring-white/15">
             {lien.titre}
             <ExternalLink className="size-3.5" aria-hidden />
             <span className="sr-only">(nouvel onglet)</span>
@@ -137,7 +137,7 @@ export function CartesTrajets({
           const estChoisi = o.type === choisi
           const deplie = ouverte === o.type
           return (
-            <li key={o.type} className={`rounded-2xl bg-white ring-1 transition dark:bg-slate-900 ${estChoisi ? 'ring-2 ring-ocean-600 dark:ring-ocean-400' : 'ring-slate-900/10 dark:ring-white/10'}`}>
+            <li key={o.type} className={`rounded-2xl bg-white ring-1 transition dark:bg-[#0e1f45] ${estChoisi ? 'ring-2 ring-ocean-600 dark:ring-ocean-400' : 'ring-slate-900/10 dark:ring-white/10'}`}>
               <div className="flex items-stretch">
                 <button
                   type="button"

@@ -29,7 +29,7 @@ const ONGLETS = [
 ] as const
 type Onglet = (typeof ONGLETS)[number]['id']
 
-const carte = 'rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-900/5 dark:bg-slate-900 dark:ring-white/10'
+const carte = 'rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-900/5 dark:bg-[#0e1f45] dark:ring-white/10'
 
 function BudgetMensuel({ b, entree }: { b: BudgetSejourLong; entree: EntreeSejourLong }) {
   const max = Math.max(...POSTES_MENSUELS.map((p) => b.parMois[p]))
@@ -216,7 +216,7 @@ function Weekends({ itineraire, ville, actives }: { itineraire: Itineraire; vill
         {activites.map(({ lieu, prix }) => {
           const liens = liensActivite(lieu, ville)
           return (
-            <li key={lieu.id} className="flex items-center gap-2 rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-900/5 dark:bg-slate-900 dark:ring-white/10">
+            <li key={lieu.id} className="flex items-center gap-2 rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-900/5 dark:bg-[#0e1f45] dark:ring-white/10">
               <a href={liens.infos} target="_blank" rel="noopener noreferrer" className="min-w-0 flex-1">
                 <span className="block truncate font-semibold">{lieu.nom}</span>
                 <span className="block text-sm text-slate-500 dark:text-slate-400">

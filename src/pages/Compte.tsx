@@ -7,11 +7,11 @@ import { Compteur, Puces, Reglage, Segments } from '../config/Controles'
 import { INTERETS_UI, LOGEMENTS_UI, STYLES_UI } from '../config/libelles'
 import type { Interet, Style, TypeLogement } from '../domain/types'
 import { LOGEMENTS_COURTS } from '../engine/logements'
-import { usePreferences, type Theme } from '../store/preferences'
+import { usePreferences, type EffetVerre, type Theme } from '../store/preferences'
 import { useVoyage } from '../store/voyage'
 import { EnTetePage } from '../ui/EnTetePage'
 
-const carte = 'rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-900/5 dark:bg-slate-900 dark:ring-white/10'
+const carte = 'rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-900/5 dark:bg-[#0e1f45] dark:ring-white/10'
 
 export default function Compte() {
   const prefs = usePreferences()
@@ -106,6 +106,21 @@ export default function Compte() {
                 { valeur: 'auto', libelle: 'Automatique', icone: Monitor },
               ]}
             />
+          </div>
+          <div className="mt-4">
+            <Reglage libelle="Effet verre" aide="Léger : moins de flou, plus fluide et plus économe en batterie (choisi automatiquement sur téléphone). Désactivé : surfaces opaques, plus lisibles. Si votre appareil demande de réduire la transparence, l’effet est coupé.">
+              <Segments<EffetVerre>
+                nom="Effet verre"
+                valeur={prefs.effetVerre}
+                onChange={(effetVerre) => prefs.modifier({ effetVerre })}
+                options={[
+                  { valeur: 'complet', libelle: 'Complet' },
+                  { valeur: 'leger', libelle: 'Léger' },
+                  { valeur: 'desactive', libelle: 'Désactivé' },
+                  { valeur: 'auto', libelle: 'Auto' },
+                ]}
+              />
+            </Reglage>
           </div>
         </section>
 
