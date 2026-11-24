@@ -139,3 +139,33 @@ export interface Trajet {
   /** Vrai si calculé à vol d'oiseau faute de réponse du service de routage */
   approximatif: boolean
 }
+
+/** Une activité placée dans l'itinéraire. */
+export interface ActivitePlanifiee {
+  lieu: LieuVisite
+  /** « 9 h 30 » */
+  heure: string
+  moment: 'matin' | 'apres-midi' | 'soir'
+  /** Prix pour tout le groupe (0 = gratuit) */
+  prix: number
+}
+
+export interface JourItineraire {
+  /** 0 = jour d'arrivée */
+  index: number
+  /** AAAA-MM-JJ */
+  date: string
+  titre: string
+  type: 'arrivee' | 'plein' | 'libre' | 'depart'
+  activites: ActivitePlanifiee[]
+  /** Conseils pratiques (horaires de départ, temps libre…) */
+  notes: string[]
+}
+
+export interface Itineraire {
+  jours: JourItineraire[]
+  totalActivites: number
+  /** D'où viennent les lieux */
+  source: 'osm' | 'wikipedia' | 'aucun'
+  graine: number
+}
