@@ -25,6 +25,9 @@ const HEURES = { matin: '9 h 30', 'apres-midi': '14 h 30', soir: '18 h 30' } as 
 const MOMENTS = ['matin', 'apres-midi', 'soir'] as const
 
 /** Activités de secours quand aucun service n'a trouvé de lieux. */
+/** « de Paris », « d’Annecy », « du Havre » n'est pas géré (rare) */
+export const deVille = (ville: string) => (/^[aeiouyàâäéèêëîïôöûùüœh]/i.test(ville) ? `d’${ville}` : `de ${ville}`)
+
 export function activitesGeneriques(ville: string, centre: Coordonnees): LieuVisite[] {
   const g = (id: string, nom: string, type: TypeActivite, dLat = 0, dLon = 0): LieuVisite => ({
     id: `gen-${id}`,
@@ -36,21 +39,21 @@ export function activitesGeneriques(ville: string, centre: Coordonnees): LieuVis
     source: 'generique',
   })
   return [
-    g('centre', `Balade dans le centre de ${ville}`, 'monument'),
-    g('marche', `Marché local de ${ville}`, 'marche', 0.004, -0.003),
-    g('musee', `Musée principal de ${ville}`, 'musee', -0.003, 0.004),
-    g('parc', `Parc ou jardin de ${ville}`, 'parc', 0.006, 0.006),
+    g('centre', `Balade dans le centre ${deVille(ville)}`, 'monument'),
+    g('marche', `Marché local ${deVille(ville)}`, 'marche', 0.004, -0.003),
+    g('musee', `Musée principal ${deVille(ville)}`, 'musee', -0.003, 0.004),
+    g('parc', `Parc ou jardin ${deVille(ville)}`, 'parc', 0.006, 0.006),
     g('vue', `Point de vue sur ${ville}`, 'point_de_vue', -0.008, -0.006),
-    g('visite', `Visite guidée de ${ville}`, 'visite_guidee', 0.001, 0.001),
-    g('nature', `Escapade nature autour de ${ville}`, 'nature', 0.03, -0.02),
+    g('visite', `Visite guidée ${deVille(ville)}`, 'visite_guidee', 0.001, 0.001),
+    g('nature', `Escapade nature autour ${deVille(ville)}`, 'nature', 0.03, -0.02),
     g('spectacle', `Soirée spectacle à ${ville}`, 'spectacle', -0.002, -0.002),
-    g('vieille-ville', `Quartier historique de ${ville}`, 'monument', -0.005, 0.002),
+    g('vieille-ville', `Quartier historique ${deVille(ville)}`, 'monument', -0.005, 0.002),
     g('art', `Musée d’art ou galerie à ${ville}`, 'musee', 0.003, -0.006),
     g('eau', `Promenade au bord de l’eau à ${ville}`, 'nature', -0.01, 0.01),
     g('gourmand', `Balade gourmande et produits locaux à ${ville}`, 'visite_guidee', 0.002, -0.001),
-    g('monument', `Monument emblématique de ${ville}`, 'monument', 0.0015, 0.0035),
+    g('monument', `Monument emblématique ${deVille(ville)}`, 'monument', 0.0015, 0.0035),
     g('coucher', `Coucher de soleil sur ${ville}`, 'point_de_vue', -0.006, 0.008),
-    g('quartiers', `Découverte d’un quartier moins touristique de ${ville}`, 'autre', 0.012, -0.01),
+    g('quartiers', `Découverte d’un quartier moins touristique ${deVille(ville)}`, 'autre', 0.012, -0.01),
     g('excursion', `Excursion d’une journée aux environs de ${ville}`, 'visite_guidee', 0.05, 0.04),
   ]
 }
@@ -213,7 +216,7 @@ export function genererItineraire(entree: EntreeItineraire): Itineraire {
       notesJour.push('Après-midi libre : flânerie, repos ou découverte au hasard.')
     } else {
       const principal = activites.find((a) => a.lieu.source !== 'generique')?.lieu.nom
-      titre = principal ? `Autour de ${principal}` : activites.length ? `Découverte de ${entree.ville}` : 'Journée libre'
+      titre = principal ? `${principal} et alentours` : activites.length ? `Découverte ${deVille(entree.ville)}` : 'Journée libre'
     }
     if (j.type !== 'depart' && j.type !== 'arrivee' && activites.length < j.places) notesJour.push('Peu de lieux trouvés ici : profitez-en pour explorer librement.')
     return { index, date: ajouterJours(s.dateDepart, index), titre, type: j.type, activites, notes: notesJour }

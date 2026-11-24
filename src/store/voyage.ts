@@ -25,6 +25,8 @@ interface EtatVoyage {
   sauvegardes: VoyageSauvegarde[]
   /** Trajet (« lat,lon→lat,lon ») pour lequel on a déjà proposé le mode conseillé */
   trajetConseille: string | null
+  /** Cases cochées de la checklist, par trajet : « clé du trajet:identifiant » */
+  coches: Record<string, true>
 
   definirDepart: (lieu: Lieu | null) => void
   definirArrivee: (lieu: Lieu | null) => void
@@ -41,6 +43,11 @@ interface EtatVoyage {
   sauvegarder: (nom: string) => VoyageSauvegarde | null
   supprimerSauvegarde: (id: string) => void
   ouvrirSauvegarde: (id: string) => void
+  /** Charge un voyage reçu par une adresse de partage */
+  chargerVoyage: (v: { depart: Lieu; arrivee: Lieu; reglages: Reglages; graine: number }) => void
+  /** Applique un ensemble de changements (économies) aux réglages */
+  appliquerChangements: (c: { simple?: Partial<ReglagesSimples>; avances?: Partial<ReglagesAvances> }) => void
+  basculerCoche: (cle: string) => void
 }
 
 export function dateDuJour(maintenant = new Date()): string {
@@ -56,6 +63,7 @@ export const etatInitial = () => ({
   graine: 1,
   sauvegardes: [] as VoyageSauvegarde[],
   trajetConseille: null as string | null,
+  coches: {} as Record<string, true>,
 })
 
 export const cleTrajet = (depart: Lieu, arrivee: Lieu) =>
@@ -106,17 +114,30 @@ export const useVoyage = create<EtatVoyage>()(
         return voyage
       },
       supprimerSauvegarde: (id) => set(({ sauvegardes }) => ({ sauvegardes: sauvegardes.filter((v) => v.id !== id) })),
+      chargerVoyage: ({ depart, arrivee, reglages, graine }) => set({ depart, arrivee, reglages, graine, trajetConseille: cleTrajet(depart, arrivee) }),
+      appliquerChangements: (c) =>
+        set(({ reglages }) => ({
+          reglages: { simple: { ...reglages.simple, ...c.simple }, modifies: { ...reglages.modifies, ...c.avances } },
+        })),
+      basculerCoche: (cle) =>
+        set(({ coches }) => {
+          const suivant = { ...coches }
+          if (suivant[cle]) delete suivant[cle]
+          else suivant[cle] = true
+          return { coches: suivant }
+        }),
       ouvrirSauvegarde: (id) => {
         const v = get().sauvegardes.find((s) => s.id === id)
-        if (v) set({ depart: v.depart, arrivee: v.arrivee, reglages: v.reglages, graine: v.graine })
+        if (v) set({ depart: v.depart, arrivee: v.arrivee, reglages: v.reglages, graine: v.graine, trajetConseille: cleTrajet(v.depart, v.arrivee) })
       },
     }),
     {
       name: 'budget-voyage:v2',
       version: 1,
       storage: createJSONStorage(() => stockageSur),
-      partialize: ({ depart, arrivee, reglages, modeAvance, graine, sauvegardes, trajetConseille }) => ({
+      partialize: ({ depart, arrivee, reglages, modeAvance, graine, sauvegardes, trajetConseille, coches }) => ({
         trajetConseille,
+        coches,
         depart,
         arrivee,
         reglages,

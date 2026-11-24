@@ -32,6 +32,7 @@
   --poste-activites: #eda100;
   --poste-transport-local: #e87ba4;
   --poste-imprevus: #898781;
+  --poste-divers: #8a63d2;
   --surface-graphique: #f6fafc;
   --encre-graphique: #52514e;
 
@@ -52,6 +53,7 @@
     --poste-activites: #c98500;
     --poste-transport-local: #d55181;
     --poste-imprevus: #898781;
+    --poste-divers: #a07fe3;
     --surface-graphique: #0f2131;
     --encre-graphique: #c3c2b7;
 
@@ -168,4 +170,17 @@ body {
   .fond-adouci {
     filter: grayscale(0.8) invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.85);
   }
+}
+
+/* Numéros des activités sur la carte du voyage */
+.numero-carte {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  border: 2px solid #fff;
+  color: #fff;
+  font: 700 12px/1 'Inter Variable', system-ui, sans-serif;
+  box-shadow: 0 3px 8px -2px rgb(0 0 0 / 0.4);
 }

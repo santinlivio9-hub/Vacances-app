@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Reglages, ReglagesSimples } from '../domain/types'
-import { estimerCouts, etatBudget, POSTES } from './couts'
+import { coutsAvecActivites, estimerCouts, etatBudget, POSTES } from './couts'
 import { reglagesAvancesParDefaut, reglagesSimplesParDefaut } from './reglages'
 import { estimerTransport, type DonneesTrajet } from './transport'
 
@@ -113,5 +113,16 @@ describe('etatBudget', () => {
     expect(etatBudget(800, 1000).statut).toBe('ok')
     expect(etatBudget(950, 1000).statut).toBe('juste')
     expect(etatBudget(1200, 1000)).toEqual({ statut: 'depasse', ratio: 1.2 })
+  })
+})
+
+describe('coutsAvecActivites', () => {
+  it('remplace le poste activités et recalcule imprévus et total', () => {
+    const e = estimer(troyesAnnecy, 'fr', reglages({ adultes: 2 }))
+    const r = coutsAvecActivites(e, 100, 0.1)
+    expect(r.postes.activites).toBe(100)
+    expect(r.total).toBeCloseTo(Object.values(r.postes).reduce((a, b) => a + b, 0))
+    expect(r.postes.imprevus).toBeCloseTo((r.total - r.postes.imprevus) * 0.1)
+    expect(r.parPersonne).toBeCloseTo(r.total / 2)
   })
 })

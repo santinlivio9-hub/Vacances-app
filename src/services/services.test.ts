@@ -214,6 +214,11 @@ describe('Wikipédia', () => {
     expect(r).toMatchObject({ langue: 'en', titre: 'Belém', image: 'https://upload.wikimedia.org/x.jpg' })
   })
 
+  it('écarte les drapeaux et blasons (images SVG)', async () => {
+    simulerFetch([['summary/Lisbonne', { type: 'standard', title: 'Lisbonne', extract: 'Capitale.', thumbnail: { source: 'https://upload.wikimedia.org/thumb/a/ab/Bras%C3%A3o_de_Lisboa.svg/320px-Bras%C3%A3o_de_Lisboa.svg.png' } }]])
+    expect((await resumeWikipedia('Lisbonne'))?.image).toBeUndefined()
+  })
+
   it('renvoie null sans planter si Wikipédia ne répond pas', async () => {
     simulerFetch([])
     expect(await resumeWikipedia('Annecy')).toBeNull()

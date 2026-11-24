@@ -170,3 +170,26 @@ export function etatBudget(total: number, budget: number | null): { statut: 'lib
   const ratio = total / budget
   return { statut: ratio > 1 ? 'depasse' : ratio > 0.9 ? 'juste' : 'ok', ratio }
 }
+
+/**
+ * Remplace l'estimation moyenne des activités par le coût réel de l'itinéraire généré,
+ * et recalcule la marge pour imprévus et le total.
+ */
+export function coutsAvecActivites(e: EstimationCouts, totalActivites: number, tauxImprevus: number): EstimationCouts {
+  const postes = { ...e.postes, activites: totalActivites, imprevus: 0 }
+  const sousTotal = Object.values(postes).reduce((a, b) => a + b, 0)
+  postes.imprevus = sousTotal * tauxImprevus
+  const total = sousTotal + postes.imprevus
+  const voyageurs = e.total > 0 && e.parPersonne > 0 ? e.total / e.parPersonne : 1
+  return {
+    ...e,
+    postes,
+    details: {
+      ...e.details,
+      activites: [{ libelle: 'Activités de l’itinéraire (gratuites comprises)', montant: totalActivites }],
+      imprevus: [{ libelle: `Marge pour imprévus (${Math.round(tauxImprevus * 100)} %)`, montant: postes.imprevus }],
+    },
+    total,
+    parPersonne: total / voyageurs,
+  }
+}

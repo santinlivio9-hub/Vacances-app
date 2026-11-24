@@ -123,8 +123,10 @@ describe('genererItineraire', () => {
     expect(it_.jours.flatMap((d) => d.activites.map((a) => a.lieu.id))).not.toContain(nouveau)
   })
 
-  it('activités génériques : tous les types ont un prix connu', () => {
+  it('activités génériques : nom de la ville, avec élision', () => {
     for (const g of activitesGeneriques('Lisbonne', centre)) expect(g.nom).toContain('Lisbonne')
+    expect(activitesGeneriques('Annecy', centre)[0].nom).toBe('Balade dans le centre d’Annecy')
+    expect(activitesGeneriques('Rome', centre)[0].nom).toBe('Balade dans le centre de Rome')
   })
 })
 

@@ -36,7 +36,8 @@ async function resumeDansLangue(titre: string, langue: Langue, signal?: AbortSig
       return {
         titre: r.title,
         extrait: r.extract,
-        image: r.thumbnail?.source,
+        // Les images SVG sont des drapeaux, blasons ou logos : pas de vraies photos
+        image: r.thumbnail?.source && !/\.svg\//i.test(r.thumbnail.source) ? r.thumbnail.source : undefined,
         lien: r.content_urls?.desktop?.page ?? `https://${langue}.wikipedia.org/wiki/${encodeURIComponent(titre)}`,
         langue,
       }
