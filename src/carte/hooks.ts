@@ -12,15 +12,15 @@ export function useDebounce<T>(valeur: T, delaiMs = 300): T {
   return retardee
 }
 
-const requeteSombre = '(prefers-color-scheme: dark)'
+/** Vrai si l'app est en mode sombre (classe .dark sur <html>, posée par le thème). */
 export function useSombre(): boolean {
   return useSyncExternalStore(
     (rappel) => {
-      const mq = window.matchMedia(requeteSombre)
-      mq.addEventListener('change', rappel)
-      return () => mq.removeEventListener('change', rappel)
+      const obs = new MutationObserver(rappel)
+      obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+      return () => obs.disconnect()
     },
-    () => window.matchMedia(requeteSombre).matches,
+    () => document.documentElement.classList.contains('dark'),
     () => false,
   )
 }

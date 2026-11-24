@@ -28,6 +28,10 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+        env:
+          # Facultatif : sans ces secrets, le site est publié en mode invité
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - uses: actions/configure-pages@v5
 

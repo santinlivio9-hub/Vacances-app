@@ -1,6 +1,8 @@
 import { tarifs } from '../data'
-import type { CleAvancee, Interet, ModeTransport, Reglages, ReglagesAvances, ReglagesSimples, RepartitionBudget, Style } from '../domain/types'
-import { ajouterJours } from './dates'
+import type { CleAvancee, Interet, ModeTransport, Reglages, ReglagesAvances, ReglagesSimples, RepartitionBudget, Style, TypeLogement } from '../domain/types'
+import { harmoniserSimple, typeVoyage, TYPES_VOYAGE } from '../tripTypes'
+import { ajouterJours, lireDate } from './dates'
+import { estTypeLogement } from './logements'
 
 /** Valeurs proposées par défaut au premier lancement. */
 export function reglagesSimplesParDefaut(aujourdhui: string): ReglagesSimples {
@@ -13,7 +15,65 @@ export function reglagesSimplesParDefaut(aujourdhui: string): ReglagesSimples {
     style: 'equilibre',
     interets: ['culture', 'gastronomie'],
     budget: null,
+    typeVoyage: 'vacances',
+    logements: ['hotel', 'appartement'],
+    flexible: { dureeMin: 7, dureeMax: 14, moisDebut: null, moisFin: null },
+    stage: {
+      dateFin: ajouterJours(aujourdhui, 30 + 70),
+      joursParSemaine: 5,
+      heureDebut: '09:00',
+      heureFin: '17:30',
+      trajetMaxMin: 30,
+      retours: 'deux',
+    },
   }
+}
+
+const dateOk = (iso: unknown): iso is string => {
+  try {
+    return typeof iso === 'string' && !!lireDate(iso)
+  } catch {
+    return false
+  }
+}
+const entier = (v: unknown, min: number, max: number, defaut: number) => (Number.isFinite(v) ? Math.min(max, Math.max(min, Math.round(v as number))) : defaut)
+
+/**
+ * Complète des réglages simples venant d'une ancienne version, d'un lien de partage
+ * ou d'un compte (champs ajoutés depuis : type de voyage, logements, dates flexibles, stage).
+ */
+export function normaliserSimple(brut: Partial<ReglagesSimples> & Record<string, unknown>, aujourdhui: string, typeLogementAncien?: unknown): ReglagesSimples {
+  const defaut = reglagesSimplesParDefaut(aujourdhui)
+  const s: ReglagesSimples = { ...defaut, ...brut } as ReglagesSimples
+  if (!(s.typeVoyage in TYPES_VOYAGE)) s.typeVoyage = 'vacances'
+  const f = (brut.flexible ?? {}) as Partial<ReglagesSimples['flexible']>
+  const mois = (m: unknown) => (Number.isInteger(m) && (m as number) >= 1 && (m as number) <= 12 ? (m as number) : null)
+  s.flexible = {
+    dureeMin: entier(f.dureeMin, 1, 60, defaut.flexible.dureeMin),
+    dureeMax: entier(f.dureeMax, 1, 60, defaut.flexible.dureeMax),
+    moisDebut: mois(f.moisDebut),
+    moisFin: mois(f.moisFin),
+  }
+  const st = (brut.stage ?? {}) as Partial<ReglagesSimples['stage']>
+  s.stage = {
+    dateFin: dateOk(st.dateFin) ? st.dateFin : ajouterJours(dateOk(s.dateDepart) ? s.dateDepart : defaut.dateDepart, 70),
+    joursParSemaine: entier(st.joursParSemaine, 1, 7, 5),
+    heureDebut: typeof st.heureDebut === 'string' && /^\d{2}:\d{2}$/.test(st.heureDebut) ? st.heureDebut : '09:00',
+    heureFin: typeof st.heureFin === 'string' && /^\d{2}:\d{2}$/.test(st.heureFin) ? st.heureFin : '17:30',
+    trajetMaxMin: entier(st.trajetMaxMin, 10, 90, 30),
+    retours: st.retours === 'jamais' || st.retours === 'chaque' ? st.retours : 'deux',
+    ...(st.zone === 'proche' || st.zone === 'moyenne' || st.zone === 'eloignee' ? { zone: st.zone } : {}),
+  }
+  const logements = Array.isArray(brut.logements) ? (brut.logements.filter(estTypeLogement) as TypeLogement[]) : []
+  s.logements = logements.length ? [...new Set(logements)] : estTypeLogement(typeLogementAncien) ? [typeLogementAncien] : typeVoyage(s).logementsParDefaut(s)
+  return harmoniserSimple(s)
+}
+
+/** Version complète de réglages enregistrés avec une version précédente. */
+export function normaliserReglages(r: { simple: Record<string, unknown>; modifies?: Partial<ReglagesAvances> }, aujourdhui: string): Reglages {
+  const modifies = r.modifies && typeof r.modifies === 'object' ? { ...r.modifies } : {}
+  if (modifies.typeLogement !== undefined && !estTypeLogement(modifies.typeLogement)) delete modifies.typeLogement
+  return { simple: normaliserSimple(r.simple as Partial<ReglagesSimples>, aujourdhui, modifies.typeLogement), modifies }
 }
 
 export const REPARTITION_PAR_DEFAUT = { transport: 0.25, logement: 0.35, repas: 0.25, activites: 0.15 } as const
@@ -28,11 +88,14 @@ const aime = (s: ReglagesSimples, ...interets: Interet[]) => interets.some((i) =
 export function reglagesAvancesParDefaut(s: ReglagesSimples): ReglagesAvances {
   const voyageurs = s.adultes + s.enfants
   const groupe = voyageurs >= 3
-  const typeLogement = parStyle(s.style, {
+  // Logement calculé quand on ne compare pas : le plus logique parmi ceux cochés
+  const logique = parStyle(s.style, {
     eco: groupe ? 'appartement' : 'hotel',
     equilibre: groupe && s.nuits >= 5 ? 'appartement' : 'hotel',
     confort: 'hotel',
   } as const)
+  const coches = s.logements ?? []
+  const typeLogement: TypeLogement = coches.length === 0 || coches.includes(logique) ? logique : coches[0]
   const rythme = aime(s, 'detente') ? 1 : 2
 
   return {
@@ -66,6 +129,13 @@ export function reglagesAvancesParDefaut(s: ReglagesSimples): ReglagesAvances {
     tauxImprevus: 0.1,
     assurance: s.transport === 'avion',
     souvenirs: s.style !== 'eco',
+    airbnbEntier: true,
+    aubergeDortoir: s.style === 'eco' || voyageurs === 1,
+    fraisAirbnb: true,
+    taxeSejour: true,
+    remboursementTransport: true,
+    activitesWeekend: s.interets.length > 0,
+    ...typeVoyage(s).avancesParDefaut?.(s),
   }
 }
 

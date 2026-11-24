@@ -1,7 +1,7 @@
-import { ArrowUpDown, Bookmark, ChevronDown, LocateFixed, Loader2 } from 'lucide-react'
+import { ArrowUpDown, ChevronDown, LocateFixed, Loader2 } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 import { ChampLieu } from '../carte/ChampLieu'
 import { DestinationsPopulaires } from '../carte/DestinationsPopulaires'
 import { useItineraire, useLarge, useResume } from '../carte/hooks'
@@ -144,7 +144,7 @@ export default function Carte() {
   )
 
   return (
-    <main className="fixed inset-0 overflow-hidden">
+    <main className="fixed top-0 right-0 bottom-(--nav-bas) left-(--nav-gauche) overflow-hidden print:static">
       <h1 className="sr-only">Budget Voyage : choisissez votre trajet sur la carte</h1>
       <Suspense fallback={<div className="absolute inset-0 bg-[#e8eef2] dark:bg-[#1b2530]" />}>
         <FondCarte
@@ -161,13 +161,7 @@ export default function Carte() {
       {/* Colonne de gauche sur ordinateur ; haut et bas de l'écran sur mobile */}
       <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-3 sm:p-4 lg:inset-y-0 lg:right-auto lg:w-[26rem] lg:justify-start lg:gap-3">
         <div ref={refHaut} className="verre pointer-events-auto rounded-3xl p-3 [--verre-fond:0.82]">
-          <div className="mb-2 flex items-center justify-between pl-1">
-            <p className="text-sm font-bold tracking-tight text-ocean-800 dark:text-ocean-200">Budget Voyage</p>
-            <Link to="/mes-voyages" className="flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-ocean-800 hover:bg-ocean-100/80 dark:text-ocean-200 dark:hover:bg-white/10">
-              <Bookmark className="size-4" aria-hidden />
-              Mes voyages
-            </Link>
-          </div>
+          <p className="mb-2 pl-1 text-sm font-bold tracking-tight text-ocean-800 lg:hidden dark:text-ocean-200">Budget Voyage</p>
           <div className="relative space-y-2">
             <ChampLieu
               libelle="Départ"
@@ -179,7 +173,7 @@ export default function Carte() {
             />
             <ChampLieu
               libelle="Arrivée"
-              placeholder="Où allez-vous ?"
+              placeholder="Où allez-vous ? (ou lieu de stage)"
               valeur={arrivee}
               onChoisir={definirArrivee}
               pastille={<Pastille lettre="B" couleur="bg-corail-700" />}

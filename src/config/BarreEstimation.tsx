@@ -34,7 +34,7 @@ const STATUTS = {
   depasse: { libelle: 'Budget dépassé', icone: AlertTriangle, couleur: 'var(--statut-depasse)', texte: 'var(--statut-depasse-texte)' },
 }
 
-export function BarreEstimation({ total, parPersonne, budget, provisoire, bloque, onCalculer }: { total: number; parPersonne: number; budget: number | null; provisoire: boolean; bloque: string | null; onCalculer: () => void }) {
+export function BarreEstimation({ total, parPersonne, budget, provisoire, bloque, onCalculer, libelle = 'Estimation', precision }: { total: number; parPersonne: number; budget: number | null; provisoire: boolean; bloque: string | null; onCalculer: () => void; libelle?: string; precision?: string }) {
   const anime = useNombreAnime(total)
   const { statut, ratio } = etatBudget(total, budget)
   const s = statut === 'libre' ? null : STATUTS[statut]
@@ -43,10 +43,10 @@ export function BarreEstimation({ total, parPersonne, budget, provisoire, bloque
     <div className="verre fixed inset-x-0 bottom-0 z-20 rounded-t-3xl px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] [--verre-fond:0.94]">
       <div className="mx-auto flex max-w-2xl items-center gap-3">
         <div className="min-w-0 flex-1" aria-live="polite" aria-atomic="true">
-          <p className="text-xs text-slate-500 dark:text-slate-400">Estimation{provisoire ? ' (trajet en cours de calcul)' : ''}</p>
+          <p className="truncate text-xs text-slate-500 dark:text-slate-400">{libelle}{provisoire ? ' (trajet en cours de calcul)' : ''}</p>
           <p className="flex items-baseline gap-2">
             <span className="text-2xl leading-tight font-bold tabular-nums">{formatEuros(anime)}</span>
-            <span className="truncate text-sm text-slate-500 dark:text-slate-400">{formatEuros(parPersonne)} / pers.</span>
+            <span className="truncate text-sm text-slate-500 dark:text-slate-400">{precision ?? `${formatEuros(parPersonne)} / pers.`}</span>
           </p>
           {s && budget != null && (
             <div className="mt-1">

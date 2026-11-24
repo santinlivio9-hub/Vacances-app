@@ -1,6 +1,7 @@
 import type { Lieu, LieuVisite, ModeTransport, Reglages } from '../domain/types'
 import { ajouterJours } from './dates'
 import { reglagesEffectifs } from './reglages'
+import { villeProche } from './sejourLong'
 
 export type CategorieLien = 'transport' | 'logement' | 'activites' | 'pratique'
 
@@ -45,6 +46,15 @@ const FORMALITES: Record<string, string> = {
 }
 
 const q = (v: string) => encodeURIComponent(v)
+/** « Saint-Étienne » → « saint-etienne » */
+const slug = (v: string) => v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+/** Grande ville française connue (pour les pages de ville de Studapart). */
+const villeFrancaise = (l: Lieu) => {
+  const v = villeProche(l)
+  // Les communes voisines de Paris n'ont pas leur page : on renvoie vers Paris
+  if (!v || v.pays !== 'fr') return null
+  return v.abonnement === 90.8 ? 'Paris' : v.nom
+}
 const ville = (l: Lieu) => (l.type && !['city', 'town', 'village', 'municipality'].includes(l.type) ? l.detail.split(',')[0] || l.nom : l.nom)
 
 /**
@@ -95,28 +105,48 @@ export function genererLiensReservation({ depart, arrivee, reglages }: EntreeLie
   }
   liens.push(...transport[s.transport]())
 
-  // Logement
+  // Logement : un lien par type coché (pour un stage, les sites de location au mois)
   const chambres = av.typeLogement === 'hotel' ? av.chambres : 1
-  liens.push({
+  const enfantsBooking = s.enfants ? Array.from({ length: s.enfants }, () => '&age=8').join('') : ''
+  const booking = (titre: string, filtre: string, checkout = retour): LienReservation => ({
     categorie: 'logement',
-    titre: av.typeLogement === 'hotel' ? `Hôtels ${av.etoiles} étoiles (Booking.com)` : 'Hébergements (Booking.com)',
-    description: `${a}, du ${jj(aller)} au ${jj(retour)}, ${s.adultes} adulte(s)${s.enfants ? `, ${s.enfants} enfant(s)` : ''}`,
-    url:
-      `https://www.booking.com/searchresults.fr.html?ss=${q(a)}&checkin=${aller}&checkout=${retour}&group_adults=${s.adultes}&group_children=${s.enfants}&no_rooms=${chambres}` +
-      (s.enfants ? Array.from({ length: s.enfants }, () => '&age=8').join('') : '') +
-      (av.typeLogement === 'hotel' ? `&nflt=${q(`class=${av.etoiles}`)}` : ''),
+    titre,
+    description: `${a}, du ${jj(aller)} au ${jj(checkout)}, ${s.adultes} adulte(s)${s.enfants ? `, ${s.enfants} enfant(s)` : ''}`,
+    url: `https://www.booking.com/searchresults.fr.html?ss=${q(a)}&checkin=${aller}&checkout=${checkout}&group_adults=${s.adultes}&group_children=${s.enfants}&no_rooms=${chambres}${enfantsBooking}${filtre}`,
     preRempli: true,
   })
-  if (av.typeLogement === 'appartement' || s.adultes + s.enfants >= 3) {
-    liens.push({
-      categorie: 'logement',
-      titre: 'Appartements (Airbnb)',
-      description: `${a}, du ${jj(aller)} au ${jj(retour)}`,
-      url: `https://www.airbnb.fr/s/${q(a)}/homes?checkin=${aller}&checkout=${retour}&adults=${s.adultes}&children=${s.enfants}`,
-      preRempli: true,
-    })
+  const airbnb = (titre: string, chambrePrivee: boolean, description = `${a}, du ${jj(aller)} au ${jj(retour)}`): LienReservation => ({
+    categorie: 'logement',
+    titre,
+    description,
+    url: `https://www.airbnb.fr/s/${q(a)}/homes?checkin=${aller}&checkout=${retour}&adults=${s.adultes}&children=${s.enfants}${chambrePrivee ? `&room_types%5B%5D=${q('Private room')}` : ''}`,
+    preRempli: true,
+  })
+  const logements = new Set(s.logements.length ? s.logements : [av.typeLogement])
+  if (s.typeVoyage === 'stage') {
+    const ville = villeFrancaise(arrivee)
+    if (logements.has('appartement') || logements.has('studio')) liens.push(airbnb('Logements au mois (Airbnb)', false, `${a}, du ${jj(aller)} au ${jj(retour)} : au-delà de 28 nuits, Airbnb affiche le prix au mois avec la réduction`))
+    if (logements.has('habitant') || logements.has('colocation')) liens.push(airbnb('Chambres au mois (Airbnb)', true))
+    liens.push({ categorie: 'logement', titre: 'Locations meublées (Leboncoin)', description: `Recherche « location meublée ${a} »`, url: `https://www.leboncoin.fr/recherche?text=${q(`location meublée ${a}`)}`, preRempli: true })
+    if (logements.has('colocation')) liens.push({ categorie: 'logement', titre: 'Colocations (La Carte des Colocs)', description: `Cherchez « ${a} » sur la carte du site.`, url: 'https://www.lacartedescolocs.com/', preRempli: false })
+    if (logements.has('residence') || logements.has('studio') || logements.has('colocation'))
+      liens.push({
+        categorie: 'logement',
+        titre: 'Logements pour étudiants et stagiaires (Studapart)',
+        description: ville ? `Annonces vérifiées à ${ville}` : `Cherchez « ${a} » sur le site.`,
+        url: ville ? `https://www.studapart.com/fr/logement-etudiant-${slug(ville)}` : 'https://www.studapart.com/fr/',
+        preRempli: !!ville,
+      })
+    liens.push(booking('Premières nuits à l’hôtel (Booking.com)', '', ajouterJours(aller, 3)))
+  } else {
+    if (logements.has('hotel')) liens.push(booking(`Hôtels ${av.etoiles} étoiles (Booking.com)`, `&nflt=${q(`class=${av.etoiles}`)}`))
+    if (logements.has('appartement')) liens.push(airbnb(av.airbnbEntier ? 'Logements entiers (Airbnb)' : 'Chambres (Airbnb)', !av.airbnbEntier))
+    if (logements.has('habitant')) liens.push(airbnb('Chambres chez l’habitant (Airbnb)', true))
+    if (logements.has('auberge')) liens.push({ categorie: 'logement', titre: 'Auberges de jeunesse (Hostelworld)', description: `Cherchez « ${a} » sur le site.`, url: 'https://www.hostelworld.com/fr/', preRempli: false })
+    if (logements.has('camping')) liens.push({ categorie: 'logement', titre: 'Campings (Google Maps)', description: `Campings autour de ${a}`, url: `https://www.google.com/maps/search/?api=1&query=${q(`camping ${a}`)}`, preRempli: true })
+    if (logements.has('gite')) liens.push({ categorie: 'logement', titre: 'Gîtes (Gîtes de France)', description: `Cherchez « ${a} » sur le site.`, url: 'https://www.gites-de-france.com/fr', preRempli: false })
+    if (!logements.has('hotel') && !logements.has('auberge')) liens.push(booking('Tous les hébergements (Booking.com)', ''))
   }
-  if (av.typeLogement === 'auberge') liens.push({ categorie: 'logement', titre: 'Auberges de jeunesse (Hostelworld)', description: `Cherchez « ${a} » sur le site.`, url: 'https://www.hostelworld.com/fr/', preRempli: false })
 
   // Activités
   liens.push(
@@ -151,14 +181,19 @@ export function checklistVoyage({ arrivee, reglages }: Pick<EntreeLiens, 'arrive
   const horsSchengen = !!pays && !PAYS_UE_SCHENGEN.has(pays)
   const items: ElementChecklist[] = [
     { id: 'transport', categorie: 'transport', libelle: s.transport === 'voiture' ? 'Vérifier la voiture (pneus, niveaux) et préparer l’itinéraire' : `Réserver les billets de ${s.transport === 'car' ? 'car' : s.transport}` },
-    { id: 'logement', categorie: 'logement', libelle: `Réserver le logement (${s.nuits} nuit${s.nuits > 1 ? 's' : ''})` },
+    s.typeVoyage === 'stage'
+      ? { id: 'logement', categorie: 'logement', libelle: 'Trouver le logement (dossier : pièce d’identité, convention de stage, garant ou Visale)' }
+      : { id: 'logement', categorie: 'logement', libelle: `Réserver le logement (${s.nuits} nuit${s.nuits > 1 ? 's' : ''})` },
     { id: 'papiers', categorie: 'pratique', libelle: horsSchengen ? 'Vérifier la validité des passeports' : 'Prendre une carte d’identité ou un passeport valide' },
   ]
   if (pays && FORMALITES[pays]) items.push({ id: 'formalites', categorie: 'pratique', libelle: FORMALITES[pays] })
   if (pays && PAYS_UE_SCHENGEN.has(pays) && pays !== 'fr') items.push({ id: 'cesam', categorie: 'pratique', libelle: 'Demander la carte européenne d’assurance maladie' })
   if (av.assurance) items.push({ id: 'assurance', categorie: 'pratique', libelle: 'Souscrire une assurance voyage (ou vérifier celle de votre carte bancaire)' })
   if (s.transport === 'avion') items.push({ id: 'enregistrement', categorie: 'transport', libelle: 'S’enregistrer en ligne 24 à 48 h avant le vol' })
-  items.push({ id: 'activites', categorie: 'activites', libelle: 'Réserver les visites les plus demandées' })
+  if (s.typeVoyage === 'stage') {
+    items.push({ id: 'assurance-habitation', categorie: 'logement', libelle: 'Souscrire une assurance habitation (souvent demandée à l’entrée)' })
+    items.push({ id: 'abonnement', categorie: 'transport', libelle: 'Prendre l’abonnement de transports et demander le remboursement à l’employeur' })
+  } else items.push({ id: 'activites', categorie: 'activites', libelle: 'Réserver les visites les plus demandées' })
   if (horsSchengen) items.push({ id: 'banque', categorie: 'pratique', libelle: 'Prévenir sa banque et vérifier les frais de paiement à l’étranger' })
   return items
 }

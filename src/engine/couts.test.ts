@@ -126,3 +126,33 @@ describe('coutsAvecActivites', () => {
     expect(r.parPersonne).toBeCloseTo(r.total / 2)
   })
 })
+
+describe('types de logement', () => {
+  const logement = (modifies: Reglages['modifies'], s: Partial<ReglagesSimples> = {}) => estimer(troyesAnnecy, 'fr', reglages({ nuits: 5, ...s }, modifies))
+  it('Airbnb : frais de ménage et de service en plus, désactivables', () => {
+    const avec = logement({ typeLogement: 'appartement' })
+    const sans = logement({ typeLogement: 'appartement', fraisAirbnb: false })
+    expect(avec.postes.logement).toBeGreaterThan(sans.postes.logement)
+    expect(avec.details.logement.map((l) => l.libelle).join(' ')).toMatch(/ménage.*service/)
+  })
+  it('auberge : un lit en dortoir coûte moins cher qu’une chambre privée pour une personne seule', () => {
+    const dortoir = logement({ typeLogement: 'auberge', aubergeDortoir: true }, { adultes: 1 })
+    const privee = logement({ typeLogement: 'auberge', aubergeDortoir: false }, { adultes: 1 })
+    expect(dortoir.postes.logement).toBeLessThan(privee.postes.logement)
+  })
+  it('taxe de séjour par adulte et par nuit', () => {
+    const avec = logement({ typeLogement: 'hotel', etoiles: 3 })
+    const sans = logement({ typeLogement: 'hotel', etoiles: 3, taxeSejour: false })
+    expect(avec.postes.logement - sans.postes.logement).toBeCloseTo(1.5 * 2 * 5)
+  })
+  it('avec une cuisine, les repas hors restaurant coûtent moins cher', () => {
+    const hotel = logement({ typeLogement: 'hotel' })
+    const gite = logement({ typeLogement: 'gite' })
+    expect(gite.postes.repas).toBeLessThan(hotel.postes.repas)
+  })
+  it('chaque type a un prix', () => {
+    for (const t of ['hotel', 'appartement', 'habitant', 'auberge', 'camping', 'gite', 'studio', 'colocation', 'residence'] as const) {
+      expect(logement({ typeLogement: t }).postes.logement, t).toBeGreaterThan(50)
+    }
+  })
+})

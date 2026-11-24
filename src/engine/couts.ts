@@ -3,6 +3,7 @@ import type { Coordonnees, Interet, Reglages, ReglagesAvances, ReglagesSimples, 
 import { saisonDuMois } from './apercu'
 import { moisDe } from './dates'
 import { reglagesEffectifs } from './reglages'
+import { LOGEMENTS } from './logements'
 import { estimerTransport, type DonneesTrajet, type EstimationTransport, type LigneDetail } from './transport'
 
 export type Poste = 'transport' | 'logement' | 'repas' | 'activites' | 'transportLocal' | 'divers' | 'imprevus'
@@ -46,6 +47,88 @@ export function prixMoyenActivite(simple: ReglagesSimples, av: Pick<ReglagesAvan
   return av.budgetMaxActivite == null ? moyenne : Math.min(moyenne, av.budgetMaxActivite)
 }
 
+const pluriel = (n: number, mot: string) => `${n} ${mot}${n > 1 ? 's' : ''}`
+
+/**
+ * Coût du logement pour tout le séjour : nuitées (prix France × indice du pays × saison × quartier),
+ * frais de ménage et de service (Airbnb), taxe de séjour.
+ */
+export function coutLogement(
+  av: ReglagesAvances,
+  s: Pick<ReglagesSimples, 'adultes' | 'enfants' | 'nuits' | 'style'>,
+  contexte: { indice: number; saison: number; france: boolean },
+): { nuits: number; total: number; lignes: LigneDetail[] } {
+  const L = prixBase.logement
+  const st = s.style
+  const nuits = Math.max(1, s.nuits)
+  const voyageurs = s.adultes + s.enfants
+  const chambresParDeux = Math.max(1, Math.ceil(voyageurs / 2))
+  let nuitee: number
+  let libelle: string
+  let cleTaxe: keyof typeof L.taxeSejour = 'habitant'
+  switch (av.typeLogement) {
+    case 'hotel':
+      nuitee = L[`hotel${av.etoiles}`][st] * av.chambres
+      libelle = `Hôtel ${av.etoiles} étoiles, ${pluriel(av.chambres, 'chambre')}`
+      cleTaxe = `hotel${av.etoiles}`
+      break
+    case 'appartement':
+      if (av.airbnbEntier) {
+        nuitee = L.appartement[st] * (1 + 0.15 * Math.max(0, voyageurs - 2)) * Math.max(1, av.chambres)
+        libelle = av.chambres > 1 ? `${av.chambres} logements entiers (Airbnb)` : 'Logement entier (Airbnb)'
+      } else {
+        nuitee = L.chambreAirbnb[st] * chambresParDeux
+        libelle = `${pluriel(chambresParDeux, 'chambre')} dans un logement (Airbnb)`
+      }
+      cleTaxe = 'appartement'
+      break
+    case 'habitant':
+      nuitee = L.habitant[st] * chambresParDeux
+      libelle = `Chez l’habitant, ${pluriel(chambresParDeux, 'chambre')}`
+      break
+    case 'auberge':
+      if (av.aubergeDortoir) {
+        nuitee = L.auberge[st] * voyageurs
+        libelle = `Auberge, ${pluriel(voyageurs, 'lit')} en dortoir`
+      } else {
+        nuitee = L.aubergePrivee[st] * chambresParDeux
+        libelle = `Auberge, ${pluriel(chambresParDeux, 'chambre privée')}`
+      }
+      cleTaxe = 'auberge'
+      break
+    case 'camping':
+      nuitee = L.camping[st] * (1 + 0.2 * Math.max(0, voyageurs - 2))
+      libelle = 'Camping'
+      cleTaxe = 'camping'
+      break
+    case 'gite':
+      nuitee = L.gite[st] * (1 + 0.12 * Math.max(0, voyageurs - 4))
+      libelle = 'Gîte (logement entier)'
+      cleTaxe = 'gite'
+      break
+    default: {
+      // Logements au mois (studio, colocation, résidence) : prix mensuel ramené à la nuit
+      const SL = prixBase.sejourLong
+      nuitee = (SL.loyerMensuel[av.typeLogement][st] * (1 + SL.occupantSupplementaire[av.typeLogement] * Math.max(0, voyageurs - 1))) / 30
+      libelle = LOGEMENTS[av.typeLogement].nom
+    }
+  }
+  const coefQuartier = av.quartier === 'centre' ? L.supplementCentre : L.remiseCalme
+  const montantNuits = nuitee * coefQuartier * contexte.indice * contexte.saison * nuits
+  const lignes: LigneDetail[] = [{ libelle: `${libelle}, ${pluriel(nuits, 'nuit')}`, montant: montantNuits }]
+
+  if (av.typeLogement === 'appartement' && av.fraisAirbnb) {
+    const menage = L.menageAirbnb[st] * contexte.indice * (av.airbnbEntier ? Math.max(1, av.chambres) : 1)
+    lignes.push({ libelle: 'Frais de ménage', montant: menage }, { libelle: `Frais de service (≈ ${Math.round(L.serviceAirbnb * 100)} %)`, montant: (montantNuits + menage) * L.serviceAirbnb })
+  }
+  if (av.taxeSejour && LOGEMENTS[av.typeLogement].court) {
+    // Barème français ; à l'étranger, ordre de grandeur ajusté au coût de la vie
+    const taxe = L.taxeSejour[cleTaxe] * s.adultes * nuits * (contexte.france ? 1 : contexte.indice)
+    lignes.push({ libelle: 'Taxe de séjour', montant: taxe })
+  }
+  return { nuits: montantNuits, total: lignes.reduce((a, l) => a + l.montant, 0), lignes }
+}
+
 export interface EntreeCouts {
   trajet: DonneesTrajet
   arrivee: Coordonnees & { pays?: string }
@@ -74,38 +157,18 @@ export function estimerCouts({ trajet, arrivee, reglages }: EntreeCouts): Estima
   if (!transport.possible && transport.raison) avertissements.push(transport.raison)
 
   // Logement
-  const L = prixBase.logement
+  const logement = coutLogement(av, s, { indice: k, saison: pays.saison[saison], france: pays.code === 'fr' })
+  const petitDej = av.petitDejeuner && ['hotel', 'habitant', 'auberge', 'gite'].includes(av.typeLogement) ? prixBase.logement.petitDejeunerParPersonne[s.style] * k * equivalentsAdultes * nuits : 0
+  const cuisine = LOGEMENTS[av.typeLogement].cuisine
   const st = s.style
-  let nuitee: number
-  let libelleLogement: string
-  switch (av.typeLogement) {
-    case 'hotel':
-      nuitee = L[`hotel${av.etoiles}`][st] * av.chambres
-      libelleLogement = `Hôtel ${av.etoiles} étoiles, ${av.chambres} chambre${av.chambres > 1 ? 's' : ''}`
-      break
-    case 'appartement':
-      nuitee = L.appartement[st] * (1 + 0.15 * Math.max(0, voyageurs - 2)) * Math.max(1, av.chambres)
-      libelleLogement = av.chambres > 1 ? `${av.chambres} appartements` : 'Appartement'
-      break
-    case 'auberge':
-      nuitee = L.auberge[st] * voyageurs
-      libelleLogement = `Auberge, ${voyageurs} lit${voyageurs > 1 ? 's' : ''}`
-      break
-    case 'camping':
-      nuitee = L.camping[st] * (1 + 0.2 * Math.max(0, voyageurs - 2))
-      libelleLogement = 'Camping'
-      break
-  }
-  nuitee *= (av.quartier === 'centre' ? L.supplementCentre : L.remiseCalme) * k * pays.saison[saison]
-  const logementNuits = nuitee * nuits
-  const petitDej = av.petitDejeuner && av.typeLogement !== 'camping' ? L.petitDejeunerParPersonne[st] * k * equivalentsAdultes * nuits : 0
 
   // Repas : 2 repas par jour, une part au restaurant, le reste en snack ou courses ; petit-déjeuner maison sauf s'il est inclus
   const R = prixBase.repas
   const restosParJour = Math.min(2, av.restosParJour * Math.min(1, av.partRestaurant))
   const autres = 2 - restosParJour
-  const parJour =
-    restosParJour * R.restaurant[av.niveauResto] + autres * ((R.courses[st] + R.snack[st]) / 2) + (av.petitDejeuner ? 0 : R.petitDejeunerMaison)
+  // Avec une cuisine, les autres repas sont des courses ; sinon moitié courses, moitié snack
+  const repasHorsResto = cuisine ? R.courses[st] : (R.courses[st] + R.snack[st]) / 2
+  const parJour = restosParJour * R.restaurant[av.niveauResto] + autres * repasHorsResto + (av.petitDejeuner ? 0 : R.petitDejeunerMaison)
   const repas = parJour * k * equivalentsAdultes * jours
 
   // Activités : rythme = activités par jour plein ; le premier et le dernier jour comptent pour moitié
@@ -125,7 +188,7 @@ export function estimerCouts({ trajet, arrivee, reglages }: EntreeCouts): Estima
 
   const postes: Record<Poste, number> = {
     transport: transport.total,
-    logement: logementNuits + petitDej,
+    logement: logement.total + petitDej,
     repas,
     activites,
     transportLocal: local,
@@ -141,10 +204,7 @@ export function estimerCouts({ trajet, arrivee, reglages }: EntreeCouts): Estima
     postes,
     details: {
       transport: transport.details,
-      logement: [
-        { libelle: `${libelleLogement}, ${nuits} nuit${nuits > 1 ? 's' : ''}`, montant: logementNuits },
-        ...(petitDej ? [{ libelle: 'Petits-déjeuners', montant: petitDej }] : []),
-      ],
+      logement: [...logement.lignes, ...(petitDej ? [{ libelle: 'Petits-déjeuners', montant: petitDej }] : [])],
       repas: [{ libelle: `${jours} jours de repas (≈ ${Math.round(parJour * k)} € par adulte et par jour)`, montant: repas }],
       activites: [{ libelle: `≈ ${Math.round(activitesPrevues)} activités, dont un tiers gratuites`, montant: activites }],
       transportLocal: [{ libelle: NOMS_LOCAL[av.transportLocal], montant: local }],

@@ -5,6 +5,8 @@ import { moisDe } from '../engine/dates'
 import { imageLargeur } from '../services/wikipedia'
 import { formatDuree, formatEuros, formatKm } from '../ui/format'
 import type { ItineraireCarte } from './itineraire'
+import { idFavoriDestination } from '../store/favoris'
+import { BoutonFavori } from '../ui/BoutonFavori'
 
 export const ICONES_MODE: Record<ModeTransport, typeof Car> = { voiture: Car, train: TrainFront, avion: Plane, car: Bus }
 export const NOMS_MODE: Record<ModeTransport, string> = { voiture: 'voiture', train: 'train', avion: 'avion', car: 'car' }
@@ -40,8 +42,13 @@ export function PanneauTrajet({ depart, arrivee, itineraire, resume, nuits, date
   return (
     <article aria-label={`Trajet vers ${arrivee.nom}`}>
       <div className="relative h-28 overflow-hidden rounded-2xl bg-gradient-to-br from-ocean-300 to-ocean-700 sm:h-44">
-        {resume?.image && <img src={imageLargeur(resume.image, 500)} alt={`Vue de ${arrivee.nom}`} className="absolute inset-0 size-full object-cover" />}
+        {resume?.image && <img onError={(e) => (e.currentTarget.style.display = 'none')} src={imageLargeur(resume.image, 500)} alt={`Vue de ${arrivee.nom}`} className="absolute inset-0 size-full object-cover" />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/5 to-transparent" />
+        <BoutonFavori
+          surImage
+          className="absolute top-2 right-2"
+          favori={{ id: idFavoriDestination(arrivee), type: 'destination', nom: arrivee.nom, detail: arrivee.detail, image: resume?.image ? imageLargeur(resume.image, 400) : undefined, lieu: { lat: arrivee.lat, lon: arrivee.lon, pays: arrivee.pays } }}
+        />
         <div className="absolute inset-x-4 bottom-3 text-white">
           <h2 className="text-2xl leading-tight font-bold [text-wrap:balance]">{arrivee.nom}</h2>
           {arrivee.detail && <p className="truncate text-sm text-white/90">{arrivee.detail}</p>}

@@ -24,7 +24,41 @@ export type Style = 'eco' | 'equilibre' | 'confort'
 export type Saison = 'basse' | 'moyenne' | 'haute'
 export type Interet = 'culture' | 'nature' | 'plage' | 'gastronomie' | 'sport' | 'fete' | 'detente' | 'shopping'
 
-export type TypeLogement = 'hotel' | 'appartement' | 'auberge' | 'camping'
+export type TypeVoyage = 'vacances' | 'flexible' | 'weekend' | 'stage'
+
+/**
+ * Types de logement. Séjours courts : hôtel, appartement (Airbnb), chambre chez l'habitant,
+ * auberge, camping, gîte. Séjours longs (au mois) : studio meublé, colocation, résidence.
+ */
+export type TypeLogement = 'hotel' | 'appartement' | 'habitant' | 'auberge' | 'camping' | 'gite' | 'studio' | 'colocation' | 'residence'
+
+/** Dates flexibles : une durée souple et une période possible. */
+export interface DatesFlexibles {
+  /** Nuits */
+  dureeMin: number
+  dureeMax: number
+  /** Mois de 1 à 12 ; null = peu importe */
+  moisDebut: number | null
+  moisFin: number | null
+}
+
+/** Allers-retours chez soi pendant un séjour long. */
+export type FrequenceRetour = 'jamais' | 'deux' | 'chaque'
+
+/** Stage ou séjour long : l'arrivée est le lieu de travail. */
+export interface ReglagesStage {
+  /** AAAA-MM-JJ, dernier jour */
+  dateFin: string
+  joursParSemaine: number
+  /** « 09:00 » */
+  heureDebut: string
+  heureFin: string
+  /** Temps de trajet maximum accepté entre le logement et le travail (minutes) */
+  trajetMaxMin: number
+  retours: FrequenceRetour
+  /** Zone de logement retenue autour du lieu de travail (proposition choisie) */
+  zone?: 'proche' | 'moyenne' | 'eloignee'
+}
 export type TransportLocal = 'transports' | 'voiture' | 'velo' | 'pied'
 export type ClasseVoyage = 'eco' | 'premium' | 'premiere'
 export type Rythme = 1 | 2 | 3
@@ -33,6 +67,7 @@ export type Quartier = 'centre' | 'calme'
 
 /** Les quelques questions du mode Simple. */
 export interface ReglagesSimples {
+  typeVoyage: TypeVoyage
   /** AAAA-MM-JJ */
   dateDepart: string
   nuits: number
@@ -43,6 +78,10 @@ export interface ReglagesSimples {
   interets: Interet[]
   /** Budget total en euros ; null = pas de limite */
   budget: number | null
+  /** Types de logement cochés : chacun est calculé et comparé */
+  logements: TypeLogement[]
+  flexible: DatesFlexibles
+  stage: ReglagesStage
 }
 
 /** Tous les réglages détaillés du mode Avancé. Leurs valeurs par défaut sont déduites des réglages simples. */
@@ -61,6 +100,13 @@ export interface ReglagesAvances {
   chambres: number
   petitDejeuner: boolean
   quartier: Quartier
+  /** Airbnb : logement entier (sinon une chambre) */
+  airbnbEntier: boolean
+  /** Auberge : lit en dortoir (sinon chambre privée) */
+  aubergeDortoir: boolean
+  /** Frais de ménage et de service (Airbnb) */
+  fraisAirbnb: boolean
+  taxeSejour: boolean
   // Repas
   partRestaurant: number // 0 à 1
   restosParJour: number // 0 à 3
@@ -77,6 +123,11 @@ export interface ReglagesAvances {
   tauxImprevus: number // 0 à 0,3
   assurance: boolean
   souvenirs: boolean
+  // Séjour long
+  /** L'employeur rembourse la moitié de l'abonnement de transport (obligatoire en France) */
+  remboursementTransport: boolean
+  /** Activités proposées pour les week-ends */
+  activitesWeekend: boolean
 }
 
 /** Répartition du budget entre postes, en parts dont la somme vaut 1. */
