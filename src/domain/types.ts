@@ -77,6 +77,53 @@ export type NiveauResto = 'simple' | 'moyen' | 'gastronomique'
 export type Quartier = 'centre' | 'calme'
 
 /** Les quelques questions du mode Simple. */
+/** Postes de dépense (mêmes noms que le moteur de coûts) */
+export type PosteDepense = 'transport' | 'logement' | 'repas' | 'activites' | 'transportLocal' | 'divers' | 'imprevus'
+
+export type TypeVoyageur = 'adulte' | 'enfant' | 'bebe'
+
+/**
+ * Qui paie quoi :
+ * - part : paie sa part, et celle des voyageurs qui ne paient pas
+ * - rien : invité, ne paie rien
+ * - postes : paie seulement sa propre part des postes cochés (et des activités où il est payeur)
+ * - fixe : donne un montant total
+ * - pourcentage : paie un pourcentage du total
+ */
+export type ProfilPaiement = 'part' | 'rien' | 'postes' | 'fixe' | 'pourcentage'
+
+export interface Voyageur {
+  id: string
+  /** Facultatif : « Adulte 1 », « Enfant 1 » sinon */
+  prenom?: string
+  type: TypeVoyageur
+  /** Âge (enfants et bébés) */
+  age?: number
+  paiement: ProfilPaiement
+  /** Profil « postes » : postes auxquels il participe */
+  postes?: PosteDepense[]
+  /** Profil « fixe » : montant en euros */
+  montant?: number
+  /** Profil « pourcentage » : 0 à 100 */
+  pourcentage?: number
+  /** Mode Avancé : poids dans la redistribution entre ceux qui paient leur part (1 par défaut) */
+  poids?: number
+}
+
+/** Mode Avancé : participants et payeurs d'une activité (ids de voyageurs ; absent = tout le monde / règle par défaut) */
+export interface RegleActivite {
+  participants?: string[]
+  payeurs?: string[]
+}
+
+export interface ReglagesRepartition {
+  activites?: Record<string, RegleActivite>
+  /** Logement réparti par chambre plutôt que par personne */
+  logementParChambre?: boolean
+  /** Chambres : listes d'ids de voyageurs (logementParChambre) */
+  chambres?: string[][]
+}
+
 export interface ReglagesSimples {
   typeVoyage: TypeVoyage
   /** AAAA-MM-JJ */
