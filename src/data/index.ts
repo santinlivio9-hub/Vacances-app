@@ -64,6 +64,7 @@ export interface PrixBase {
 
 export interface Ville extends Coordonnees {
   nom: string
+  pays: string
   /** Coefficient du loyer (grande ville du pays = 1) */
   loyer: number
   /** Abonnement mensuel de transport, s'il est connu */
