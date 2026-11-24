@@ -46,7 +46,7 @@ Un fichier par type déclare ses questions Simple et Avancé, ses logements poss
 | Vacances | dates fixes | itinéraire jour par jour |
 | Dates flexibles | durée souple (ex. 7 à 14 nuits), période ou « peu importe » | 12 mois testés, les 3 moins chers proposés avec l'écart de prix |
 | Week-end | 1 ou 2 nuits | trajets de plus de 6 h écartés, programme serré |
-| Stage / séjour long | début et fin, jours travaillés, horaires, trajet maximum, retours le week-end | budget par mois (loyer, trajets, courses, sorties, retours), zones de logement autour du lieu de travail, total du séjour |
+| Stage / séjour long | début et fin, jours travaillés, horaires, trajet maximum, retours le week-end, gratification | dépenses par mois + frais ponctuels, gratification (minimum légal 4,50 €/h en 2026) et reste à charge, dépôt de garantie à part, zones de logement autour du lieu de travail |
 
 ## Activer les comptes (Supabase, gratuit)
 
@@ -94,6 +94,7 @@ Il faut [Node.js](https://nodejs.org) 22 ou plus.
 npm install
 npm run dev      # puis ouvrir http://localhost:5173/Vacances-app/
 npm test         # tests du moteur, des données, des services (réseau simulé) et des stores
+npm run test:mobile  # après npm run build : chaque écran en 390 px, sans défilement horizontal (Playwright)
 npm run build    # version de production dans dist/
 npm run preview  # sert dist/ en local
 ```

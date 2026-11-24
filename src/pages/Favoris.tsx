@@ -64,7 +64,7 @@ export default function Favoris() {
             </button>
           </div>
         ) : (
-          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+          <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
             {visibles.map((f) => {
               const Icone = TYPES.find((t) => t.id === f.type)!.icone
               return (

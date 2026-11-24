@@ -1,15 +1,14 @@
 import { useMemo } from 'react'
 import { useItineraire } from '../carte/hooks'
 import { itineraireProvisoire, versDonneesTrajet, type ItineraireCarte } from '../carte/itineraire'
-import { estimerCouts, type EstimationCouts } from '../engine/couts'
-import { meilleuresPeriodes, nomPeriode, type ResultatPeriodes } from '../engine/periodes'
+import type { EstimationCouts } from '../engine/couts'
+import { estimationEnDirect } from '../engine/estimation'
+import type { ResultatPeriodes } from '../engine/periodes'
 import { reglagesEffectifs } from '../engine/reglages'
-import { budgetSejourLong, type BudgetSejourLong } from '../engine/sejourLong'
+import type { BudgetSejourLong } from '../engine/sejourLong'
 import { estimerTransport, MODES, type DonneesTrajet, type EstimationTransport } from '../engine/transport'
 import type { ModeTransport } from '../domain/types'
-import { typeVoyage } from '../tripTypes'
 import { dateDuJour, useVoyage } from '../store/voyage'
-import { formatEuros } from '../ui/format'
 
 export interface Estimation {
   itineraire: ItineraireCarte
@@ -39,24 +38,9 @@ export function useEstimation(): Estimation | null {
     const itineraire = etat.statut === 'ok' ? etat.valeur : itineraireProvisoire(depart, arrivee)
     const trajet = versDonneesTrajet(depart, arrivee, itineraire)
     const entree = { trajet, arrivee, reglages }
-    const couts = estimerCouts(entree)
+    const e = estimationEnDirect(entree, dateDuJour())
     const av = reglagesEffectifs(reglages)
-    const parMode = Object.fromEntries(MODES.map((m) => [m, estimerTransport(m, trajet, reglages.simple, av, couts.saison)])) as Record<ModeTransport, EstimationTransport>
-    const base = { itineraire, provisoire, trajet, couts, parMode }
-    const calcul = typeVoyage(reglages.simple).calcul
-
-    if (calcul === 'sejourLong') {
-      const sejourLong = budgetSejourLong(entree)
-      return { ...base, sejourLong, total: sejourLong.total, parPersonne: sejourLong.parPersonne, libelle: 'Séjour complet', precision: `≈ ${formatEuros(sejourLong.totalMensuel)} par mois` }
-    }
-    if (calcul === 'periodes') {
-      const periodes = meilleuresPeriodes(entree, dateDuJour())
-      const meilleure = periodes.meilleures[0]
-      if (meilleure) {
-        const voyageurs = reglages.simple.adultes + reglages.simple.enfants
-        return { ...base, periodes, total: meilleure.total, parPersonne: meilleure.total / voyageurs, libelle: `À partir de (${nomPeriode(meilleure)})`, precision: `${meilleure.nuits} nuits` }
-      }
-    }
-    return { ...base, total: couts.total, parPersonne: couts.parPersonne, libelle: 'Estimation' }
+    const parMode = Object.fromEntries(MODES.map((m) => [m, estimerTransport(m, trajet, reglages.simple, av, e.couts.saison)])) as Record<ModeTransport, EstimationTransport>
+    return { itineraire, provisoire, trajet, parMode, ...e }
   }, [depart, arrivee, reglages, etat])
 }

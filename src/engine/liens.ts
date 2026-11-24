@@ -10,7 +10,7 @@ export interface LienReservation {
   titre: string
   description: string
   url: string
-  /** Vrai si les dates, lieux et voyageurs sont déjà remplis sur le site */
+  /** Vrai seulement si l'adresse contient les dates ET le nombre de voyageurs (sinon : simple recherche) */
   preRempli: boolean
 }
 
@@ -56,6 +56,9 @@ const villeFrancaise = (l: Lieu) => {
   return v.abonnement === 90.8 ? 'Paris' : v.nom
 }
 const ville = (l: Lieu) => (l.type && !['city', 'town', 'village', 'municipality'].includes(l.type) ? l.detail.split(',')[0] || l.nom : l.nom)
+
+/** Vrai si l'adresse transmet vraiment une date et un nombre de voyageurs au site. */
+export const contientDatesEtVoyageurs = (url: string) => /\d{4}-\d{2}-\d{2}/.test(url) && /[?&](adults|group_adults|seats)=\d/.test(url)
 
 /**
  * Liens vers les sites de réservation, pré-remplis quand le site accepte des paramètres
@@ -158,7 +161,8 @@ export function genererLiensReservation({ depart, arrivee, reglages }: EntreeLie
   if (arrivee.pays && !PAYS_UE_SCHENGEN.has(arrivee.pays)) {
     liens.push({ categorie: 'pratique', titre: 'Conseils aux voyageurs (diplomatie.gouv.fr)', description: 'Formalités d’entrée, santé et sécurité du pays', url: 'https://www.diplomatie.gouv.fr/fr/conseils-aux-voyageurs/', preRempli: false })
   }
-  return liens
+  // Le badge « dates et voyageurs pré-remplis » ne s'affiche que si l'adresse les contient vraiment
+  return liens.map((l) => ({ ...l, preRempli: contientDatesEtVoyageurs(l.url) }))
 }
 
 /** Liens « Réserver » et « Infos » d'une activité de l'itinéraire. */

@@ -71,6 +71,37 @@
   outline-offset: 2px;
 }
 
+/*
+ * Pas de zoom ni de défilement horizontal : les vraies corrections sont dans les composants
+ * (min-w-0, grid-cols-1, textes coupés) ; ceci n'est qu'un filet de sécurité.
+ * La carte Leaflet garde son propre zoom à deux doigts (elle gère ses gestes elle-même).
+ */
+html,
+body,
+#root {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+@supports (overflow: clip) {
+  /* « clip » ne crée pas de conteneur de défilement : les en-têtes collants (sticky) continuent de marcher */
+  html,
+  body,
+  #root {
+    overflow-x: clip;
+  }
+}
+html {
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* 16 px minimum dans les champs, sinon iOS zoome tout seul quand on touche le champ */
+input,
+select,
+textarea {
+  font-size: max(16px, 1rem) !important;
+}
+
 body {
   @apply bg-ocean-50 text-slate-900 antialiased dark:bg-ocean-950 dark:text-slate-100;
 }

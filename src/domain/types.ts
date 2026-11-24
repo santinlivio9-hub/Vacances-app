@@ -58,6 +58,10 @@ export interface ReglagesStage {
   retours: FrequenceRetour
   /** Zone de logement retenue autour du lieu de travail (proposition choisie) */
   zone?: 'proche' | 'moyenne' | 'eloignee'
+  /** Stage gratifié : minimum légal, montant personnalisé, ou pas de gratification */
+  gratification: 'legale' | 'personnalisee' | 'aucune'
+  /** Montant mensuel quand il est personnalisé (€ net par mois) */
+  gratificationMois: number
 }
 export type TransportLocal = 'transports' | 'voiture' | 'velo' | 'pied'
 export type ClasseVoyage = 'eco' | 'premium' | 'premiere'

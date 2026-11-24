@@ -1,5 +1,5 @@
 import { donneesPays, prixBase, villes, type Ville } from '../data'
-import type { Coordonnees, TransportLocal, TypeLogement } from '../domain/types'
+import type { Coordonnees, ReglagesSimples, TransportLocal, TypeLogement } from '../domain/types'
 import { saisonDuMois } from './apercu'
 import type { EntreeCouts } from './couts'
 import { moisDe } from './dates'
@@ -49,10 +49,77 @@ export interface BudgetSejourLong {
   totalMensuel: number
   /** Dépenses faites une seule fois */
   ponctuel: { voyage: number; installation: number }
+  /** Somme des dépenses ponctuelles */
+  fraisPonctuels: number
+  /** À avancer, remboursé à la fin : pas une dépense, donc hors du total */
+  depotGarantie: number
+  /** Coût d'un aller-retour chez soi et mode le moins cher retenu */
+  retour: { prix: number; mode: string | null; parMois: number }
   transport: EstimationTransport
+  /** Total des dépenses = totalMensuel × mois + frais ponctuels */
   total: number
+  gratification: Gratification
+  /** Dépenses − gratification (négatif : excédent) */
+  resteAChargeMois: number
+  resteAChargeTotal: number
   parPersonne: number
   avertissements: string[]
+}
+
+/**
+ * Gratification minimale des stages en France, 2026 : 15 % du plafond horaire de la Sécurité sociale
+ * (30 € en 2026), soit 4,50 € par heure de présence. Obligatoire au-delà de 2 mois de présence,
+ * c'est-à-dire plus de 44 jours de 7 heures, soit plus de 308 heures (consécutives ou non).
+ * Source : service-public.fr (fiche F32131), vérifiée le 24/11/2026.
+ */
+export const GRATIFICATION = { tauxHoraire: 4.5, seuilHeures: 308, annee: 2026 }
+
+export interface Gratification {
+  mode: 'legale' | 'personnalisee' | 'aucune'
+  /** Vrai si la présence dépasse 2 mois (308 heures) : la gratification est alors obligatoire */
+  obligatoire: boolean
+  joursPresence: number
+  heuresParJour: number
+  heures: number
+  /** Montant légal minimum pour cette présence */
+  minimumLegal: number
+  parMois: number
+  total: number
+}
+
+const minutes = (h: string) => {
+  const [hh, mm] = h.split(':').map(Number)
+  return hh * 60 + (mm || 0)
+}
+
+/** Heures de présence par jour : de l'arrivée au départ, moins une heure de pause au-delà de 6 heures. */
+export function heuresParJour(heureDebut: string, heureFin: string): number {
+  const brut = Math.max(0, minutes(heureFin) - minutes(heureDebut)) / 60
+  return Math.min(12, brut > 6 ? brut - 1 : brut)
+}
+
+/** Jours de présence entre deux dates incluses : les `joursParSemaine` premiers jours de chaque semaine (lundi d'abord). */
+export function joursDePresence(debut: string, fin: string, joursParSemaine: number): number {
+  let n = 0
+  const d = new Date(`${debut}T12:00:00Z`)
+  const f = new Date(`${fin}T12:00:00Z`)
+  while (d <= f) {
+    const rang = (d.getUTCDay() + 6) % 7 // lundi = 0
+    if (rang < joursParSemaine) n++
+    d.setUTCDate(d.getUTCDate() + 1)
+  }
+  return n
+}
+
+/** Gratification du stage, d'après les dates, les jours travaillés et les horaires. */
+export function gratificationStage(stage: ReglagesSimples['stage'], dateDebut: string, mois: number): Gratification {
+  const joursPresence = joursDePresence(dateDebut, stage.dateFin, stage.joursParSemaine)
+  const hj = heuresParJour(stage.heureDebut, stage.heureFin)
+  const heures = joursPresence * hj
+  const obligatoire = heures > GRATIFICATION.seuilHeures
+  const minimumLegal = heures * GRATIFICATION.tauxHoraire
+  const total = stage.gratification === 'aucune' ? 0 : stage.gratification === 'personnalisee' ? stage.gratificationMois * mois : minimumLegal
+  return { mode: stage.gratification, obligatoire, joursPresence, heuresParJour: hj, heures, minimumLegal, parMois: total / mois, total }
 }
 
 const JOURS_PAR_MOIS = 30.44
@@ -158,7 +225,8 @@ export function budgetSejourLong(entree: EntreeSejourLong): BudgetSejourLong {
   const abonnement = proche?.abonnement ?? SL.abonnementTransportMois * k
   const zones = zonesTrajet(s.stage.trajetMaxMin, { abonnement, remboursement: av.remboursementTransport })
   const zone = zones.find((z) => z.id === (entree.zone ?? s.stage.zone)) ?? zones.find((z) => z.id === 'moyenne')!
-  const logement = entree.logement ?? s.logements[0] ?? 'studio'
+  // Même logement que partout ailleurs (configuration, propositions, Mon voyage) : celui des réglages effectifs
+  const logement = entree.logement ?? av.typeLogement
   const occupants = s.adultes + s.enfants
   const equivalentsAdultes = s.adultes + s.enfants * prixBase.divers.partEnfant
 
@@ -194,7 +262,12 @@ export function budgetSejourLong(entree: EntreeSejourLong): BudgetSejourLong {
   if (!transport.possible && transport.raison) avertissements.push(transport.raison)
   const installation = SL.installation[logement] * k
   const ponctuel = { voyage: transport.total, installation }
-  const total = totalMensuel * mois + ponctuel.voyage + ponctuel.installation
+  const fraisPonctuels = ponctuel.voyage + ponctuel.installation
+  const total = totalMensuel * mois + fraisPonctuels
+  // Dépôt de garantie : un mois de loyer hors charges (≈ 90 % du loyer) pour un bail ; rien chez l'habitant ou sur Airbnb
+  const depotGarantie = ['studio', 'colocation', 'residence'].includes(logement) ? Math.round(loyer * 0.9) : 0
+  const gratification = gratificationStage(s.stage, s.dateDepart, mois)
+  const NOMS_RETOUR: Record<string, string> = { voiture: 'en voiture', train: 'en train', avion: 'en avion', car: 'en car' }
 
   const MODES_NOMS = { pied: 'À pied', velo: 'À vélo', transports: 'Abonnement de transports', voiture: 'En voiture' }
   const details: Record<PosteMensuel, LigneDetail[]> = {
@@ -202,7 +275,14 @@ export function budgetSejourLong(entree: EntreeSejourLong): BudgetSejourLong {
     trajets: [{ libelle: zone.coutTrajetMois === 0 ? 'Trajets à pied' : `${MODES_NOMS[zone.mode]}${av.remboursementTransport ? ', remboursé à 50 % par l’employeur' : ''}`, montant: trajets }],
     courses: [{ libelle: 'Courses et repas à la maison', montant: courses }],
     sorties: [{ libelle: av.activitesWeekend ? 'Sorties et activités du week-end' : 'Sorties', montant: sorties }],
-    retours: [{ libelle: nbRetours ? `${s.stage.retours === 'chaque' ? 'Chaque week-end' : 'Un week-end sur deux'} : ≈ ${nbRetours.toLocaleString('fr-FR', { maximumFractionDigits: 1 })} allers-retours par mois` : 'Pas de retour prévu', montant: retours }],
+    retours: [
+      {
+        libelle: nbRetours
+          ? `${s.stage.retours === 'chaque' ? 'Chaque week-end' : 'Un week-end sur deux'} : ${nbRetours.toLocaleString('fr-FR', { maximumFractionDigits: 1 })} allers-retours par mois × ${Math.round(parRetour)} €${retourMoinsCher ? ` (${NOMS_RETOUR[retourMoinsCher.mode]}, le moins cher)` : ''}`
+          : 'Pas de retour prévu',
+        montant: retours,
+      },
+    ],
     divers: [
       { libelle: 'Téléphone, hygiène, assurance habitation', montant: divers },
       { libelle: `Marge pour imprévus (${Math.round(imprevusTaux * 100)} %)`, montant: sousTotal * imprevusTaux },
@@ -221,8 +301,14 @@ export function budgetSejourLong(entree: EntreeSejourLong): BudgetSejourLong {
     details,
     totalMensuel,
     ponctuel,
+    fraisPonctuels,
+    depotGarantie,
+    retour: { prix: parRetour, mode: retourMoinsCher?.mode ?? null, parMois: nbRetours },
     transport,
     total,
+    gratification,
+    resteAChargeMois: totalMensuel - gratification.parMois,
+    resteAChargeTotal: total - gratification.total,
     parPersonne: total / Math.max(1, occupants),
     avertissements,
   }

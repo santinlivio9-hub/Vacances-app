@@ -94,7 +94,7 @@ export function Reglage({
   htmlFor?: string
 }) {
   return (
-    <div>
+    <div className="min-w-0">
       <div className="mb-2 flex min-h-6 items-center gap-2">
         <label htmlFor={htmlFor} className="text-sm font-medium text-slate-700 dark:text-slate-200">
           {libelle}
@@ -143,10 +143,10 @@ export interface Option<T> {
   titre?: string
 }
 
-/** Choix exclusif (boutons radio stylés). */
-export function Segments<T extends string | number>({ nom, valeur, options, onChange, colonnes }: { nom: string; valeur: T; options: Option<T>[]; onChange: (v: T) => void; colonnes?: string }) {
+/** Choix exclusif. `compact` : libellés courts sur une seule ligne (ex. « 20 min »), boutons de même hauteur. */
+export function Segments<T extends string | number>({ nom, valeur, options, onChange, colonnes, compact = false }: { nom: string; valeur: T; options: Option<T>[]; onChange: (v: T) => void; colonnes?: string; compact?: boolean }) {
   return (
-    <div role="radiogroup" aria-label={nom} className={`grid gap-2 ${colonnes ?? (options.length <= 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-4')}`}>
+    <div role="radiogroup" aria-label={nom} className={`grid ${compact ? 'gap-1.5' : 'gap-2'} ${colonnes ?? (options.length <= 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-4')}`}>
       {options.map((o) => {
         const choisi = o.valeur === valeur
         const Icone = o.icone
@@ -159,7 +159,7 @@ export function Segments<T extends string | number>({ nom, valeur, options, onCh
             disabled={o.desactive}
             title={o.titre}
             onClick={() => onChange(o.valeur)}
-            className={`flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-2xl px-2 py-2 text-center text-sm ring-1 transition ${
+            className={`flex min-h-12 min-w-0 flex-col items-center justify-center gap-0.5 rounded-2xl py-2 text-center text-sm ring-1 transition ${compact ? 'px-1 whitespace-nowrap' : 'px-2'} ${
               choisi
                 ? 'bg-ocean-700 font-semibold text-white ring-ocean-700'
                 : 'bg-white text-slate-700 ring-slate-900/10 hover:ring-ocean-400 dark:bg-white/5 dark:text-slate-200 dark:ring-white/10'

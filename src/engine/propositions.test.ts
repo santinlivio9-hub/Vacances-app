@@ -57,7 +57,7 @@ describe('genererPropositions', () => {
       entree(
         troyesLyon,
         'fr',
-        reglages({ typeVoyage: 'stage', adultes: 1, transport: 'train', logements: ['colocation', 'studio'], dateDepart: '2027-03-01', stage: { dateFin: '2027-05-10', joursParSemaine: 5, heureDebut: '09:00', heureFin: '17:30', trajetMaxMin: 45, retours: 'deux' } }),
+        reglages({ typeVoyage: 'stage', adultes: 1, transport: 'train', logements: ['colocation', 'studio'], dateDepart: '2027-03-01', stage: { dateFin: '2027-05-10', joursParSemaine: 5, heureDebut: '09:00', heureFin: '17:30', trajetMaxMin: 45, retours: 'deux', gratification: 'legale', gratificationMois: 700 } }),
       ),
     )
     expect(r.propositions.length).toBeGreaterThanOrEqual(3)

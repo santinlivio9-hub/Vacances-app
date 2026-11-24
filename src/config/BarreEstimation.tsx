@@ -46,8 +46,9 @@ export function BarreEstimation({ total, parPersonne, budget, provisoire, bloque
           <p className="truncate text-xs text-slate-500 dark:text-slate-400">{libelle}{provisoire ? ' (trajet en cours de calcul)' : ''}</p>
           <p className="flex items-baseline gap-2">
             <span className="text-2xl leading-tight font-bold tabular-nums">{formatEuros(anime)}</span>
-            <span className="truncate text-sm text-slate-500 dark:text-slate-400">{precision ?? `${formatEuros(parPersonne)} / pers.`}</span>
+            {!precision && <span className="truncate text-sm text-slate-500 dark:text-slate-400">{formatEuros(parPersonne)} / pers.</span>}
           </p>
+          {precision && <p className="text-xs leading-snug text-slate-500 dark:text-slate-400">{precision}</p>}
           {s && budget != null && (
             <div className="mt-1">
               <div className="h-1.5 overflow-hidden rounded-full bg-slate-900/10 dark:bg-white/10" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(ratio * 100)} aria-label="Part du budget utilisée">

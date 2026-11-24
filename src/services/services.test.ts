@@ -248,6 +248,27 @@ describe('Wikipédia', () => {
     expect(r).toMatchObject({ langue: 'fr', extrait: 'Capitale du Portugal.', image: 'https://x/Lisbon_panorama.jpg' })
   })
 
+  it('écarte les montages de photos et prend une vraie photo de l’article (Pau)', async () => {
+    expect(estUnePhoto('https://upload.wikimedia.org/wikipedia/commons/1/16/Montage_Pau_4.jpg')).toBe(false)
+    simulerFetch([
+      ['fr.wikipedia.org/api/rest_v1/page/summary/Pau', { type: 'standard', title: 'Pau', extract: 'Ville du Béarn.', thumbnail: { source: 'https://x/thumb/Montage_Pau_4.jpg/330px-Montage_Pau_4.jpg' } }],
+      ['en.wikipedia.org/api/rest_v1/page/summary/Pau', { type: 'disambiguation', title: 'Pau', extract: '' }],
+      [
+        'fr.wikipedia.org/api/rest_v1/page/media-list/Pau',
+        {
+          items: [
+            { type: 'image', title: 'Fichier:Montage_Pau_4.jpg', srcset: [{ src: '//x/thumb/Montage_Pau_4.jpg/500px-Montage_Pau_4.jpg' }] },
+            { type: 'image', title: 'Fichier:Coat_of_Arms_of_Pau.svg', srcset: [{ src: '//x/thumb/Coat.svg/500px-Coat.svg.png' }] },
+            { type: 'image', title: 'Fichier:Calcitepau2.jpg', srcset: [{ src: '//x/thumb/Calcitepau2.jpg/500px-Calcitepau2.jpg' }] },
+            { type: 'image', title: 'Fichier:Château_de_Pau_depuis_gave_2.JPG', srcset: [{ src: '//x/thumb/Chateau.JPG/500px-Chateau.JPG' }] },
+          ],
+        },
+      ],
+    ])
+    const r = await resumeWikipedia('Pau')
+    expect(r?.image).toBe('https://x/thumb/Chateau.JPG/500px-Chateau.JPG')
+  })
+
   it('renvoie null sans planter si Wikipédia ne répond pas', async () => {
     simulerFetch([])
     expect(await resumeWikipedia('Annecy')).toBeNull()

@@ -8,7 +8,7 @@ import { remplacerActivite } from '../engine/itineraire'
 import { checklistVoyage, genererLiensReservation } from '../engine/liens'
 import { encoderVoyage } from '../engine/partage'
 import { cleVoyage, useResultat } from '../store/resultat'
-import { cleTrajet, useVoyage } from '../store/voyage'
+import { cleTrajet, dateDuJour, useVoyage } from '../store/voyage'
 import { formatEuros } from '../ui/format'
 import { MentionDonnees } from '../ui/MentionDonnees'
 import { imageLargeur } from '../services/wikipedia'
@@ -19,7 +19,7 @@ import { OngletReservations } from '../voyage/OngletReservations'
 import { TableauBudget } from '../voyage/TableauBudget'
 import { LOGEMENTS_UI, MODES_UI } from '../config/libelles'
 import { reglagesEffectifs } from '../engine/reglages'
-import { budgetSejourLong } from '../engine/sejourLong'
+import { estimationEnDirect } from '../engine/estimation'
 import { typeVoyage } from '../tripTypes'
 import { VueSejourLong } from '../voyage/VueSejourLong'
 
@@ -62,7 +62,8 @@ export default function Voyage() {
     const stage = typeVoyage(reglages.simple).calcul === 'sejourLong'
     return {
       entree,
-      sejour: stage ? budgetSejourLong({ ...entree, logement: reglagesEffectifs(reglages).typeLogement }) : null,
+      // Même calcul que la barre du bas de la configuration
+      sejour: stage ? (estimationEnDirect(entree, dateDuJour()).sejourLong ?? null) : null,
       couts: coutsDuResultat(resultat, depart, arrivee, reglages),
       liens: genererLiensReservation({ depart, arrivee, reglages }),
       checklist: checklistVoyage({ arrivee, reglages }),
@@ -143,11 +144,13 @@ export default function Voyage() {
               </Link>
             )}
           </div>
-          <p className="mt-10 text-sm text-white/85 print:mt-0 print:text-slate-600">
+          <p className="mt-10 text-sm break-words text-white/85 print:mt-0 print:text-slate-600">
             {choisie ? `${choisie.titre} · ` : ''}
-            {sejour
-              ? `Stage · ${LOGEMENTS_UI[sejour.logement].libelle.toLowerCase()}`
-              : `Depuis ${depart.nom} · ${MODES_UI[s.transport].libelle.toLowerCase()} · ${LOGEMENTS_UI[reglagesEffectifs(reglages).typeLogement].libelle.toLowerCase()}`}
+            {sejour ? `Stage · ${LOGEMENTS_UI[sejour.logement].libelle.toLowerCase()}` : `Depuis ${depart.nom} · ${LOGEMENTS_UI[reglagesEffectifs(reglages).typeLogement].libelle.toLowerCase()}`}
+          </p>
+          <p className="text-sm text-white/85 print:text-slate-600">
+            Proposition en {MODES_UI[s.transport].libelle.toLowerCase()}
+            {resultat.itineraireCarte.mode !== s.transport && ` · ${{ voiture: 'la voiture', train: 'le train', avion: 'l’avion', car: 'le car' }[resultat.itineraireCarte.mode]} est conseillé`}
           </p>
           <h1 className="text-3xl font-bold [text-wrap:balance] sm:text-4xl">{arrivee.nom}</h1>
           <p className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-white/90 print:text-slate-700">
@@ -167,7 +170,7 @@ export default function Voyage() {
             <p className="pb-1 text-lg font-semibold tabular-nums">
               {sejour ? (
                 <>
-                  {formatEuros(sejour.totalMensuel)} <span className="text-sm font-normal text-white/80 print:text-slate-600">/ mois</span>
+                  {formatEuros(sejour.totalMensuel)} <span className="text-sm font-normal text-white/80 print:text-slate-600">/ mois + {formatEuros(sejour.fraisPonctuels)} de frais ponctuels</span>
                 </>
               ) : (
                 <>
@@ -176,6 +179,13 @@ export default function Voyage() {
               )}
             </p>
           </div>
+          {sejour && sejour.gratification.total > 0 && (
+            <p className="mt-1 text-sm text-white/90 print:text-slate-700">
+              {sejour.resteAChargeTotal >= 0
+                ? `Reste à charge, gratification déduite : ${formatEuros(sejour.resteAChargeMois)} par mois · ${formatEuros(sejour.resteAChargeTotal)} pour le séjour`
+                : `Gratification déduite : excédent de ${formatEuros(-sejour.resteAChargeTotal)} sur le séjour`}
+            </p>
+          )}
           {st && s.budget != null && (
             <div className="mt-3 max-w-md">
               <div
@@ -198,7 +208,7 @@ export default function Voyage() {
       </header>
 
       {/* Actions */}
-      <nav aria-label="Actions sur le voyage" className="sticky top-0 z-10 border-b border-slate-900/5 bg-ocean-50/90 backdrop-blur print:hidden dark:border-white/10 dark:bg-ocean-950/90">
+      <nav aria-label="Actions sur le voyage" className="sticky top-0 z-30 border-b border-slate-900/5 bg-ocean-50 print:hidden dark:border-white/10 dark:bg-ocean-950">
         <div className="mx-auto grid max-w-3xl grid-cols-5 gap-1 px-2 py-1.5 sm:flex sm:py-2">
           {[
             { icone: Pencil, libelle: 'Modifier', action: () => navigate('/configurer') },
@@ -276,7 +286,7 @@ export default function Voyage() {
         ) : (
           <>
             {/* Onglets */}
-            <div role="tablist" aria-label="Sections du voyage" className="grid grid-cols-4 rounded-2xl bg-slate-900/5 p-1 print:hidden dark:bg-white/10">
+            <div role="tablist" aria-label="Sections du voyage" className="flex gap-1 overflow-x-auto rounded-2xl bg-slate-900/5 p-1 [scrollbar-width:none] print:hidden dark:bg-white/10">
               {ONGLETS.map((o, i) => (
                 <button
                   key={o.id}
@@ -296,7 +306,7 @@ export default function Voyage() {
                     setOnglet(ONGLETS[j].id)
                     refsOnglets.current[j]?.focus()
                   }}
-                  className={`h-10 rounded-xl text-xs font-semibold transition sm:text-sm ${onglet === o.id ? 'bg-white text-ocean-800 shadow-sm dark:bg-ocean-800 dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}
+                  className={`h-10 min-w-fit flex-1 shrink-0 rounded-xl px-3 text-[13px] font-semibold whitespace-nowrap transition sm:text-sm ${onglet === o.id ? 'bg-white text-ocean-800 shadow-sm dark:bg-ocean-800 dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}
                 >
                   {o.libelle}
                 </button>

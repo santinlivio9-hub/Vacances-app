@@ -59,7 +59,7 @@ export default function Configurer() {
   }
 
   return (
-    <div className="min-h-dvh pb-36">
+    <div className="min-h-dvh pb-[calc(10rem+env(safe-area-inset-bottom))]">
       <EnTete
         depart={depart.nom}
         arrivee={def.calcul === 'sejourLong' ? `${arrivee.nom} (lieu de travail)` : arrivee.nom}
@@ -153,7 +153,7 @@ export default function Configurer() {
 
 function EnTete({ depart, arrivee, sousTitre }: { depart: string; arrivee: string; sousTitre: string }) {
   return (
-    <header className="sticky top-0 z-10 border-b border-slate-900/5 bg-ocean-50/90 backdrop-blur dark:border-white/10 dark:bg-ocean-950/90">
+    <header className="sticky top-0 z-30 border-b border-slate-900/5 bg-ocean-50 dark:border-white/10 dark:bg-ocean-950">
       <div className="mx-auto flex max-w-2xl items-center gap-2 px-3 py-2">
         <Link to="/" className="grid size-11 shrink-0 place-items-center rounded-full hover:bg-slate-900/5 dark:hover:bg-white/10" aria-label="Retour à la carte">
           <ArrowLeft className="size-5" />

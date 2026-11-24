@@ -159,3 +159,13 @@ Chaque type de logement coché est combiné avec les modes de transport réalist
 | Leboncoin | `/recherche?text=location meublée Ville` | recherche par mots-clés ; les paramètres de filtre ne sont pas documentés |
 | Studapart | `/fr/logement-etudiant-ville` | pages par ville ([exemple Lyon](https://www.studapart.com/fr/logement-etudiant-lyon)), seulement pour les grandes villes françaises connues ; sinon page d'accueil |
 | La Carte des Colocs | page d'accueil | l'adresse des recherches dépend de la région : simple lien |
+
+## Version 4 : stage, gratification et vérifications (24/11/2026)
+
+- **Gratification minimale des stages** : 4,50 € par heure de présence en 2026, soit 15 % du plafond horaire de la Sécurité sociale (30 € en 2026), exonérée de cotisations jusqu'à ce montant. Obligatoire quand la présence dépasse 2 mois, c'est-à-dire plus de 44 jours de 7 heures, soit plus de 308 heures, consécutives ou non. Source : [service-public.fr, fiche F32131](https://entreprendre.service-public.gouv.fr/vosdroits/F32131) (vérifiée le 24/11/2026), confirmée par [legisocial.fr](https://www.legisocial.fr/reperes-sociaux/gratification-stagiaire-2026.html). Constante `GRATIFICATION` dans `src/engine/sejourLong.ts`. Heures de présence : de l'heure d'arrivée à l'heure de départ, moins une heure de pause au-delà de 6 heures ; jours fériés non déduits.
+- **Abonnement de transports à Pau** (réseau Idelis) : 35 € par mois pour les 26-64 ans, 14 € pour les 18-25 ans ; la moitié est remboursée par l'employeur. Source : [grille tarifaire Idelis](https://idelis.fr/fileadmin/Fichiers_client/Tarifs/Tarifs_A5_WEB3.pdf) (dernière grille publiée, en vigueur depuis janvier 2025). L'app retient le tarif tout public (35 €).
+- **Loyer d'une colocation à Pau** : ≈ 440 € charges comprises (coefficient 0,85), dans la fourchette observée de 350 à 470 €.
+- **Courses** : 230 à 390 € par mois selon le style (290 € en Équilibré), cohérent avec les 200 à 300 € habituels pour un étudiant seul.
+- **Dépôt de garantie** : environ un mois de loyer hors charges pour un studio, une colocation ou une résidence ; il est remboursé à la fin, donc affiché à part et jamais compté dans le total. Avec un bail mobilité, aucun dépôt ne peut être demandé.
+- **Aide au logement** : lien vers le [simulateur de la CAF](https://www.caf.fr/allocataires/aides-et-demarches/mes-demarches), sans calcul de montant.
+- **Photos Wikipédia** : les montages (« Montage_Pau_4.jpg ») sont écartés comme les drapeaux et les blasons ; en dernier recours, l'app prend la première vraie photo de l'article (pour Pau : le château).

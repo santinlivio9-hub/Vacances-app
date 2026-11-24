@@ -3,9 +3,11 @@ import type { ReactNode } from 'react'
 import type { FrequenceRetour, Interet, ModeTransport, Style, TypeLogement } from '../domain/types'
 import { ajouterJours } from '../engine/dates'
 import { NOMS_MOIS } from '../engine/periodes'
+import { GRATIFICATION } from '../engine/sejourLong'
 import { typeVoyage, type IdSectionSimple } from '../tripTypes'
 import { useVoyage, dateDuJour } from '../store/voyage'
 import { formatDuree, formatEuros } from '../ui/format'
+import { ChampDateHeure } from './ChampDateHeure'
 import { CarteReglage, Compteur, Curseur, Interrupteur, Puces, Reglage, Segments } from './Controles'
 import { INTERETS_UI, LOGEMENTS_UI, MODES_UI, STYLES_UI } from './libelles'
 import type { Estimation } from './useEstimation'
@@ -36,12 +38,21 @@ export function SectionsSimples({ estimation, ouvertes }: { estimation: Estimati
   const f = s.flexible
   const st = s.stage
   const semaines = Math.round((s.nuits / 7) * 10) / 10
+  const gratification = estimation.sejourLong?.gratification
+  const aideGratification = () => {
+    if (!gratification) return undefined
+    const h = Math.round(gratification.heures)
+    const base = `${gratification.joursPresence} jours × ${gratification.heuresParJour.toLocaleString('fr-FR')} h = ${h} h de présence.`
+    return gratification.obligatoire
+      ? `${base} Plus de 2 mois (308 h) : gratification obligatoire, au moins ${GRATIFICATION.tauxHoraire.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €/h en ${GRATIFICATION.annee}, soit ${formatEuros(gratification.minimumLegal)} (≈ ${formatEuros(gratification.minimumLegal / Math.max(0.25, s.nuits / 30.44))} par mois).`
+      : `${base} 2 mois ou moins (308 h) : la gratification n’est pas obligatoire ; l’entreprise peut quand même en verser une.`
+  }
 
   const sections: Record<IdSectionSimple, () => ReactNode> = {
     quand: () => (
       <CarteReglage key="quand" titre="Quand" icone={CalendarDays} resume={`Du ${dateLongue(s.dateDepart)} au ${dateLongue(retour)}`} ouverteParDefaut={ouvertes}>
         <Reglage libelle="Date de départ" htmlFor="date-depart">
-          <input id="date-depart" type="date" min={dateDuJour()} value={s.dateDepart} onChange={(e) => e.target.value && modifierSimple({ dateDepart: e.target.value })} className={champ} />
+          <ChampDateHeure id="date-depart" type="date" valeur={s.dateDepart} min={dateDuJour()} onChange={(v) => modifierSimple({ dateDepart: v })} />
         </Reglage>
         <Reglage libelle="Durée" aide={`Retour le ${dateLongue(retour)} · saison ${estimation.couts.saison} à destination`}>
           <Compteur
@@ -75,7 +86,7 @@ export function SectionsSimples({ estimation, ouvertes }: { estimation: Estimati
             options={DUREES.map((d) => ({ valeur: d.id, libelle: d.libelle, detail: d.detail }))}
           />
         </Reglage>
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <Reglage libelle="Au moins">
             <Compteur libelle="Durée minimum" valeur={f.dureeMin} min={1} max={60} onChange={(dureeMin) => modifierSimple({ flexible: { ...f, dureeMin, dureeMax: Math.max(dureeMin, f.dureeMax) } })} unite={(n) => `${n} nuit${n > 1 ? 's' : ''}`} />
           </Reglage>
@@ -114,10 +125,10 @@ export function SectionsSimples({ estimation, ouvertes }: { estimation: Estimati
       <CarteReglage key="stage" titre="Stage" icone={Briefcase} resume={`${semaines.toLocaleString('fr-FR')} semaines, du ${dateCourte(s.dateDepart)} au ${dateCourte(st.dateFin)}`} ouverteParDefaut={ouvertes}>
         <div className="grid grid-cols-2 gap-3">
           <Reglage libelle="Début" htmlFor="stage-debut">
-            <input id="stage-debut" type="date" min={dateDuJour()} value={s.dateDepart} onChange={(e) => e.target.value && modifierSimple({ dateDepart: e.target.value })} className={champ} />
+            <ChampDateHeure id="stage-debut" type="date" valeur={s.dateDepart} min={dateDuJour()} onChange={(v) => modifierSimple({ dateDepart: v })} />
           </Reglage>
           <Reglage libelle="Fin" htmlFor="stage-fin">
-            <input id="stage-fin" type="date" min={ajouterJours(s.dateDepart, 14)} value={st.dateFin} onChange={(e) => e.target.value && modifierSimple({ stage: { ...st, dateFin: e.target.value } })} className={champ} />
+            <ChampDateHeure id="stage-fin" type="date" valeur={st.dateFin} min={ajouterJours(s.dateDepart, 14)} onChange={(v) => modifierSimple({ stage: { ...st, dateFin: v } })} />
           </Reglage>
         </div>
         <p className="-mt-2 text-xs text-slate-500 dark:text-slate-400">
@@ -128,10 +139,10 @@ export function SectionsSimples({ estimation, ouvertes }: { estimation: Estimati
         </Reglage>
         <div className="grid grid-cols-2 gap-3">
           <Reglage libelle="Arrivée au travail" htmlFor="heure-debut">
-            <input id="heure-debut" type="time" value={st.heureDebut} onChange={(e) => e.target.value && modifierSimple({ stage: { ...st, heureDebut: e.target.value } })} className={champ} />
+            <ChampDateHeure id="heure-debut" type="time" valeur={st.heureDebut} onChange={(v) => modifierSimple({ stage: { ...st, heureDebut: v } })} />
           </Reglage>
           <Reglage libelle="Départ du travail" htmlFor="heure-fin">
-            <input id="heure-fin" type="time" value={st.heureFin} onChange={(e) => e.target.value && modifierSimple({ stage: { ...st, heureFin: e.target.value } })} className={champ} />
+            <ChampDateHeure id="heure-fin" type="time" valeur={st.heureFin} onChange={(v) => modifierSimple({ stage: { ...st, heureFin: v } })} />
           </Reglage>
         </div>
         <Reglage libelle="Temps de trajet maximum accepté" aide="Sert à dessiner les zones de logement autour du lieu de travail.">
@@ -140,7 +151,8 @@ export function SectionsSimples({ estimation, ouvertes }: { estimation: Estimati
             valeur={st.trajetMaxMin}
             onChange={(trajetMaxMin) => modifierSimple({ stage: { ...st, trajetMaxMin } })}
             colonnes="grid-cols-5"
-            options={[15, 20, 30, 45, 60].map((m) => ({ valeur: m, libelle: `${m} min` }))}
+            compact
+            options={[15, 20, 30, 45, 60].map((m) => ({ valeur: m, libelle: `${m}\u00a0min` }))}
           />
         </Reglage>
         <Reglage libelle="Rentrer chez soi le week-end">
@@ -155,12 +167,29 @@ export function SectionsSimples({ estimation, ouvertes }: { estimation: Estimati
             ]}
           />
         </Reglage>
+        <Reglage libelle="Stage gratifié ?" aide={aideGratification()}>
+          <Segments<'legale' | 'personnalisee' | 'aucune'>
+            nom="Gratification du stage"
+            valeur={st.gratification}
+            onChange={(gratification) => modifierSimple({ stage: { ...st, gratification } })}
+            options={[
+              { valeur: 'legale', libelle: 'Oui', detail: 'minimum légal' },
+              { valeur: 'personnalisee', libelle: 'Oui', detail: 'autre montant' },
+              { valeur: 'aucune', libelle: 'Non' },
+            ]}
+          />
+        </Reglage>
+        {st.gratification === 'personnalisee' && (
+          <Reglage libelle="Gratification nette par mois" valeur={formatEuros(st.gratificationMois)} htmlFor="gratification">
+            <Curseur id="gratification" libelle="Gratification par mois" min={0} max={2500} pas={10} valeur={st.gratificationMois} onChange={(gratificationMois) => modifierSimple({ stage: { ...st, gratificationMois } })} texte={formatEuros(st.gratificationMois)} />
+          </Reglage>
+        )}
       </CarteReglage>
     ),
 
     qui: () => (
       <CarteReglage key="qui" titre="Qui" icone={Users} resume={`${s.adultes} adulte${s.adultes > 1 ? 's' : ''}${s.enfants ? `, ${s.enfants} enfant${s.enfants > 1 ? 's' : ''}` : ''}`} ouverteParDefaut={ouvertes}>
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <Reglage libelle="Adultes">
             <Compteur libelle="Adultes" valeur={s.adultes} min={1} max={12} onChange={(adultes) => modifierSimple({ adultes })} />
           </Reglage>

@@ -54,3 +54,16 @@ describe('liensActivite', () => {
     expect(liensActivite({ id: 'gen-musee', nom: 'Musée principal', type: 'musee', lat: 0, lon: 0, source: 'generique' }, 'Annecy').reserver).toContain('getyourguide')
   })
 })
+
+describe('badge « dates et voyageurs pré-remplis »', () => {
+  it('n’apparaît que si l’adresse contient les dates et les voyageurs', () => {
+    const tous = liens({ typeVoyage: 'stage', transport: 'voiture', logements: ['colocation', 'studio'] })
+    const parTitre = (t: RegExp) => tous.find((l) => t.test(l.titre))!
+    expect(parTitre(/Leboncoin/).preRempli).toBe(false)
+    expect(parTitre(/Google Maps/).preRempli).toBe(false)
+    expect(parTitre(/GetYourGuide/).preRempli).toBe(false)
+    expect(parTitre(/BlaBlaCar/).preRempli).toBe(true)
+    expect(parTitre(/Booking/).preRempli).toBe(true)
+    expect(parTitre(/Airbnb/).preRempli).toBe(true)
+  })
+})

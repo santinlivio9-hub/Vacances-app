@@ -38,7 +38,7 @@ export function estUnePhoto(url: string): boolean {
   } catch {
     /* adresse mal encodée : on teste telle quelle */
   }
-  return !/\.svg\/|flag|drapeau|bandeira|bandera|bandiera|flagge|blason|armoiries|coat[_ ]of[_ ]arms|brasão|escudo|wappen|stemma|seal[_ ]of|logo|emblem|locator|location[_ ]map|carte[_ ]|map[_ ]of/i.test(nom)
+  return !/\.svg\/|flag|drapeau|bandeira|bandera|bandiera|flagge|blason|armoiries|coat[_ ]of[_ ]arms|brasão|escudo|wappen|stemma|seal[_ ]of|logo|emblem|locator|location[_ ]map|carte[_ ]|map[_ ]of|montage|collage|mosa[iï]que|mosaic|windrose|\.png/i.test(nom)
 }
 
 async function resumeDansLangue(titre: string, langue: Langue, signal?: AbortSignal): Promise<ResumeWikipedia | null> {
@@ -61,6 +61,34 @@ async function resumeDansLangue(titre: string, langue: Langue, signal?: AbortSig
   })
 }
 
+interface ReponseMedias {
+  items?: { type: string; title: string; srcset?: { src: string }[] }[]
+}
+
+/**
+ * Première vraie photo d'un article (liste des médias), en préférant celles dont le nom
+ * contient le titre de l'article (« Château_de_Pau… » plutôt qu'une photo de roche).
+ */
+export async function photoDeLArticle(titre: string, langue: Langue, signal?: AbortSignal): Promise<string | undefined> {
+  return avecCache(`wiki-medias:${langue}:${titre}`, async () => {
+    try {
+      const url = `https://${langue}.wikipedia.org/api/rest_v1/page/media-list/${encodeURIComponent(titre.replaceAll(' ', '_'))}`
+      const r = await lireJson<ReponseMedias>(url, { service: 'Wikipédia', delaiMs: 6000, signal })
+      const photos = (r.items ?? [])
+        .filter((m) => m.type === 'image' && /\.jpe?g$/i.test(m.title) && m.srcset?.[0]?.src)
+        .map((m) => ({ nom: m.title, src: m.srcset![0].src.startsWith('//') ? `https:${m.srcset![0].src}` : m.srcset![0].src }))
+        .filter((m) => estUnePhoto(m.src))
+        .slice(0, 15)
+      const mot = titre.split(/[ ,(]/)[0]
+      const nommee = photos.find((m) => new RegExp(`(^|[^\\p{L}])${mot.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^\\p{L}]|$)`, 'iu').test(m.nom.replace(/^[^:]+:/, '').replaceAll('_', ' ')))
+      return (nommee ?? photos[0])?.src
+    } catch (erreur) {
+      if (signal?.aborted) throw erreur
+      return undefined
+    }
+  })
+}
+
 /** Résumé d'un article : la langue indiquée (ou le français), puis l'anglais. */
 export async function resumeWikipedia(reference: string, signal?: AbortSignal): Promise<ResumeWikipedia | null> {
   const { langue, titre } = lireReferenceWikipedia(reference)
@@ -69,7 +97,10 @@ export async function resumeWikipedia(reference: string, signal?: AbortSignal): 
   // Pas d'article, ou pas de vraie photo : on regarde l'article anglais (souvent illustré d'une photo de la ville)
   const anglais = await resumeDansLangue(premier?.titre ?? titre, 'en', signal)
   if (!premier) return anglais
-  return anglais?.image ? { ...premier, image: anglais.image } : premier
+  if (anglais?.image) return { ...premier, image: anglais.image }
+  // Toujours pas de photo (ex. Pau : un montage, et un article anglais ambigu) : une photo de l'article
+  const photo = await photoDeLArticle(premier.titre, premier.langue, signal)
+  return photo ? { ...premier, image: photo } : premier
 }
 
 /** Églises, cathédrales… : entrée généralement libre. */

@@ -8,7 +8,7 @@ import { POSTES_UI } from './libelles'
 export default function OngletBudget({ couts }: { couts: EstimationCouts }) {
   const donnees = POSTES.filter((p) => couts.postes[p] > 0.5).map((p) => ({ poste: p, nom: POSTES_UI[p].libelle, valeur: couts.postes[p] }))
   return (
-    <div className="grid gap-5 md:grid-cols-[16rem_1fr] md:items-start">
+    <div className="grid grid-cols-1 gap-5 md:grid-cols-[16rem_1fr] md:items-start">
       <div className="relative mx-auto h-64 w-64" aria-hidden>
         <ResponsiveContainer>
           <PieChart>

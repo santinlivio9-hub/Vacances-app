@@ -25,6 +25,8 @@ export function reglagesSimplesParDefaut(aujourdhui: string): ReglagesSimples {
       heureFin: '17:30',
       trajetMaxMin: 30,
       retours: 'deux',
+      gratification: 'legale',
+      gratificationMois: 700,
     },
   }
 }
@@ -62,6 +64,8 @@ export function normaliserSimple(brut: Partial<ReglagesSimples> & Record<string,
     heureFin: typeof st.heureFin === 'string' && /^\d{2}:\d{2}$/.test(st.heureFin) ? st.heureFin : '17:30',
     trajetMaxMin: entier(st.trajetMaxMin, 10, 90, 30),
     retours: st.retours === 'jamais' || st.retours === 'chaque' ? st.retours : 'deux',
+    gratification: st.gratification === 'personnalisee' || st.gratification === 'aucune' ? st.gratification : 'legale',
+    gratificationMois: entier(st.gratificationMois, 0, 5000, 700),
     ...(st.zone === 'proche' || st.zone === 'moyenne' || st.zone === 'eloignee' ? { zone: st.zone } : {}),
   }
   const logements = Array.isArray(brut.logements) ? (brut.logements.filter(estTypeLogement) as TypeLogement[]) : []

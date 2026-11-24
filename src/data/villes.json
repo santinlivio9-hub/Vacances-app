@@ -258,6 +258,14 @@
    "lon": 139.6503,
    "loyer": 1.25,
    "pays": "jp"
+  },
+  {
+   "nom": "Pau",
+   "lat": 43.2951,
+   "lon": -0.3708,
+   "loyer": 0.85,
+   "abonnement": 35,
+   "pays": "fr"
   }
  ]
 }

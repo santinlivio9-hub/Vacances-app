@@ -29,9 +29,19 @@ export function trajetAVolDOiseau(depart: Coordonnees, arrivee: Coordonnees): Tr
   }
 }
 
+/**
+ * Estimations de repli récentes. Sans elles, la configuration (OSRM en panne → vol d'oiseau)
+ * et le calcul final (OSRM revenu → vraie route) donnaient deux totaux différents pour le même voyage.
+ * Gardées 5 minutes en mémoire seulement : plus tard, ou après un rechargement, on retente OSRM.
+ */
+const replis = new Map<string, { trajet: Trajet; le: number }>()
+const DUREE_REPLI_MS = 5 * 60_000
+
 /** Trajet routier ; si OSRM ne répond pas ou ne trouve pas de route (mer, autre continent), estimation à vol d'oiseau. */
 export async function calculerTrajet(depart: Coordonnees, arrivee: Coordonnees, signal?: AbortSignal): Promise<Trajet> {
   const coordonnees = `${depart.lon.toFixed(5)},${depart.lat.toFixed(5)};${arrivee.lon.toFixed(5)},${arrivee.lat.toFixed(5)}`
+  const repli = replis.get(coordonnees)
+  if (repli && Date.now() - repli.le < DUREE_REPLI_MS) return repli.trajet
   try {
     return await avecCache(`osrm:${coordonnees}`, async () => {
       const r = await lireJson<ReponseOsrm>(`${URL_OSRM}/${coordonnees}?overview=simplified&geometries=geojson`, {
@@ -50,6 +60,8 @@ export async function calculerTrajet(depart: Coordonnees, arrivee: Coordonnees, 
     })
   } catch (erreur) {
     if (signal?.aborted) throw erreur
-    return trajetAVolDOiseau(depart, arrivee)
+    const trajet = trajetAVolDOiseau(depart, arrivee)
+    replis.set(coordonnees, { trajet, le: Date.now() })
+    return trajet
   }
 }

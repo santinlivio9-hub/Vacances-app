@@ -74,8 +74,8 @@ export default function Propositions() {
   }
 
   return (
-    <div className="min-h-dvh pb-28">
-      <header className="sticky top-0 z-20 border-b border-slate-900/5 bg-ocean-50/90 backdrop-blur dark:border-white/10 dark:bg-ocean-950/90">
+    <div className="min-h-dvh pb-[calc(7rem+env(safe-area-inset-bottom))]">
+      <header className="sticky top-0 z-30 border-b border-slate-900/5 bg-ocean-50 dark:border-white/10 dark:bg-ocean-950">
         <div className="mx-auto flex max-w-6xl items-center gap-2 px-3 py-2">
           <button
             type="button"
@@ -124,7 +124,7 @@ export default function Propositions() {
             <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-300">
               {calcul.periodes.periodes.length} mois testés, pour {s.flexible.dureeMin === s.flexible.dureeMax ? `${s.flexible.dureeMin} nuits` : `${s.flexible.dureeMin} à ${s.flexible.dureeMax} nuits`}. Prix avec vos réglages ; les propositions ci-dessous cherchent encore moins cher. Écart entre le mois le moins cher et le plus cher : {formatEuros(calcul.periodes.ecartMax)}.
             </p>
-            <ol className="mt-3 grid gap-2 sm:grid-cols-3">
+            <ol className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
               {calcul.periodes.meilleures.map((p, i) => {
                 const plusChere = Math.max(...calcul.periodes!.periodes.map((x) => x.total))
                 return (
@@ -172,7 +172,7 @@ export default function Propositions() {
 
         {comparer && <p className="text-sm text-slate-600 dark:text-slate-300">Sélectionnez 2 ou 3 propositions à comparer côte à côte.</p>}
 
-        <motion.ul layout className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <motion.ul layout className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           <AnimatePresence initial={false}>
             {visibles.map((p) => (
               <motion.li key={p.id} layout initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex">
@@ -241,7 +241,7 @@ export default function Propositions() {
           </button>
         </div>
         {choisies.length >= 2 && <TableauComparaison propositions={choisies} />}
-        <div className="mt-4 grid gap-2" style={{ gridTemplateColumns: `repeat(${Math.max(1, choisies.length)}, minmax(0, 1fr))` }}>
+        <div className="mt-4 grid grid-cols-1 gap-2" style={{ gridTemplateColumns: `repeat(${Math.max(1, choisies.length)}, minmax(0, 1fr))` }}>
           {choisies.map((p) => (
             <button key={p.id} type="button" onClick={() => choisir(p)} className="min-h-11 rounded-2xl bg-corail-700 px-2 py-2 text-sm leading-tight font-semibold text-white hover:bg-[#a83522]">
               Choisir « {p.titre} »

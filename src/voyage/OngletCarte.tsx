@@ -29,7 +29,7 @@ export default function OngletCarte({ itineraire, arrivee }: { itineraire: Itine
 
   return (
     <div>
-      <div className="h-[60dvh] min-h-80 overflow-hidden rounded-3xl ring-1 ring-slate-900/10 dark:ring-white/10">
+      <div className="relative isolate z-0 h-[60dvh] min-h-80 overflow-hidden rounded-3xl ring-1 ring-slate-900/10 dark:ring-white/10">
         <MapContainer bounds={limites} boundsOptions={{ padding: [32, 32], maxZoom: 15 }} className="h-full w-full" scrollWheelZoom={false}>
           <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" attribution={ATTRIBUTION_CARTE} maxZoom={19} className="fond-adouci" />
           {jours.map(({ jour, couleur, points }) => (

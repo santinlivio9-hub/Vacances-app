@@ -44,7 +44,7 @@ export default function Compte() {
                 pastille={<span aria-hidden className="grid size-6 shrink-0 place-items-center rounded-full bg-ocean-700 text-xs font-bold text-white">A</span>}
               />
             </Reglage>
-            <div className="grid gap-5 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <Reglage libelle="Adultes">
                 <Compteur libelle="Adultes" valeur={prefs.adultes} min={1} max={12} onChange={(adultes) => prefs.modifier({ adultes })} />
               </Reglage>

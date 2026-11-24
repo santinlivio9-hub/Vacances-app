@@ -34,9 +34,60 @@ const carte = 'rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-900/5 dark:b
 function BudgetMensuel({ b, entree }: { b: BudgetSejourLong; entree: EntreeSejourLong }) {
   const max = Math.max(...POSTES_MENSUELS.map((p) => b.parMois[p]))
   // Même logement, autres zones : ce que change la distance au travail
-  const parZone = useMemo(() => b.zones.map((z) => ({ z, b: budgetSejourLong({ ...entree, logement: b.logement, zone: z.id }) })), [b, entree])
+  const parZone = useMemo(() => b.zones.map((z) => ({ z, b: budgetSejourLong({ ...entree, zone: z.id }) })), [b, entree])
+  const g = b.gratification
+  const excedentTotal = b.resteAChargeTotal < 0
+  const ligne = (libelle: string, mois: number, total: number, style = '') => (
+    <tr className={`border-t border-slate-900/5 dark:border-white/10 ${style}`}>
+      <th scope="row" className="py-2 pr-2 text-left font-medium">
+        {libelle}
+      </th>
+      <td className="py-2 pl-2 text-right whitespace-nowrap tabular-nums">{formatEuros(mois)}</td>
+      <td className="py-2 pl-2 text-right whitespace-nowrap tabular-nums">{formatEuros(total)}</td>
+    </tr>
+  )
   return (
     <div className="space-y-4">
+      <section className={carte} aria-labelledby="titre-reste">
+        <h3 id="titre-reste" className="font-semibold">
+          Ce qui reste à payer
+        </h3>
+        <table className="mt-2 w-full text-sm">
+          <thead>
+            <tr className="text-xs text-slate-500 dark:text-slate-400">
+              <th className="py-1 text-left font-medium">
+                <span className="sr-only">Poste</span>
+              </th>
+              <th className="py-1 pl-2 text-right font-medium">Par mois</th>
+              <th className="py-1 pl-2 text-right font-medium">Tout le séjour</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ligne('Dépenses', b.totalMensuel, b.total)}
+            {ligne(g.mode === 'aucune' ? 'Gratification (aucune)' : 'Gratification', -g.parMois, -g.total, 'text-(--statut-ok-texte)')}
+            <tr className="border-t-2 border-slate-900/15 text-base font-bold dark:border-white/20">
+              <th scope="row" className="py-2 pr-2 text-left">
+                Reste à charge
+              </th>
+              {[b.resteAChargeMois, b.resteAChargeTotal].map((v, i) => (
+                <td key={i} className={`py-2 pl-2 text-right whitespace-nowrap tabular-nums ${v < 0 ? 'text-(--statut-ok-texte)' : ''}`}>
+                  {v < 0 ? `Excédent ${formatEuros(-v)}` : formatEuros(v)}
+                </td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
+        <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+          {g.mode === 'aucune'
+            ? 'Stage sans gratification.'
+            : g.mode === 'personnalisee'
+              ? 'Gratification : le montant que vous avez indiqué.'
+              : `Gratification minimale : ${g.heures.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} h de présence × 4,50 €/h (2026), exonérée de cotisations.`}{' '}
+          {!g.obligatoire && g.mode !== 'aucune' && 'Pour 2 mois de présence ou moins, elle n’est pas obligatoire : vérifiez avec l’entreprise.'}
+          {excedentTotal && ' La gratification couvre les dépenses estimées.'}
+        </p>
+      </section>
+
       <section className={carte} aria-labelledby="titre-mois">
         <h3 id="titre-mois" className="flex items-baseline justify-between gap-2 font-semibold">
           Chaque mois <span className="text-xl tabular-nums">{formatEuros(b.totalMensuel)}</span>
@@ -64,12 +115,13 @@ function BudgetMensuel({ b, entree }: { b: BudgetSejourLong; entree: EntreeSejou
         <dl className="mt-2 space-y-1.5 text-sm">
           <div className="flex justify-between gap-3">
             <dt>
-              {b.mois.toLocaleString('fr-FR', { maximumFractionDigits: 1 })} mois × {formatEuros(b.totalMensuel)}
+              Dépenses mensuelles : {b.mois.toLocaleString('fr-FR', { maximumFractionDigits: 1 })} mois × {formatEuros(b.totalMensuel)}
             </dt>
             <dd className="font-semibold tabular-nums">{formatEuros(b.totalMensuel * b.mois)}</dd>
           </div>
+          <p className="pt-1 text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Frais ponctuels : {formatEuros(b.fraisPonctuels)}</p>
           <div className="flex justify-between gap-3">
-            <dt>Voyage aller-retour</dt>
+            <dt>Voyage aller-retour du début et de la fin</dt>
             <dd className="font-semibold tabular-nums">{formatEuros(b.ponctuel.voyage)}</dd>
           </div>
           <div className="flex justify-between gap-3">
@@ -77,11 +129,41 @@ function BudgetMensuel({ b, entree }: { b: BudgetSejourLong; entree: EntreeSejou
             <dd className="font-semibold tabular-nums">{formatEuros(b.ponctuel.installation)}</dd>
           </div>
           <div className="flex justify-between gap-3 border-t border-slate-900/10 pt-1.5 text-base dark:border-white/10">
-            <dt className="font-semibold">Total</dt>
+            <dt className="font-semibold">Total des dépenses</dt>
             <dd className="font-bold tabular-nums">{formatEuros(b.total)}</dd>
           </div>
         </dl>
-        <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Le dépôt de garantie (souvent un mois de loyer) n’est pas compté : il vous est rendu à la fin.</p>
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          {b.mois.toLocaleString('fr-FR', { maximumFractionDigits: 1 })} mois × {formatEuros(b.totalMensuel)} + {formatEuros(b.fraisPonctuels)} de frais = {formatEuros(b.total)}
+        </p>
+        <div className="mt-3 rounded-2xl bg-slate-900/5 px-3 py-2 text-sm dark:bg-white/5">
+          <p className="flex justify-between gap-3">
+            <span className="font-medium">À avancer (remboursé à la fin)</span>
+            <span className="font-semibold tabular-nums">{b.depotGarantie ? formatEuros(b.depotGarantie) : 'rien'}</span>
+          </p>
+          <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+            {b.depotGarantie
+              ? 'Dépôt de garantie, environ un mois de loyer hors charges : ce n’est pas une dépense, il n’est pas compté. Avec un bail mobilité, aucun dépôt ne peut être demandé.'
+              : 'Pas de dépôt de garantie habituel pour ce type de logement.'}
+          </p>
+        </div>
+      </section>
+
+      <section className={carte} aria-labelledby="titre-aides">
+        <h3 id="titre-aides" className="font-semibold">
+          Aides possibles
+        </h3>
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+          Une aide au logement (APL) est souvent possible pour un stage, même court. Le montant dépend de vos revenus et du loyer : nous ne le calculons pas.
+        </p>
+        <a
+          href="https://www.caf.fr/allocataires/aides-et-demarches/mes-demarches"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 inline-flex h-11 items-center gap-2 rounded-full bg-ocean-700 px-4 text-sm font-semibold text-white hover:bg-ocean-800"
+        >
+          Simuler mon aide au logement (CAF) <span className="sr-only">(nouvel onglet)</span>
+        </a>
       </section>
 
       <section className={carte} aria-labelledby="titre-zones-cout">
@@ -130,7 +212,7 @@ function Weekends({ itineraire, ville, actives }: { itineraire: Itineraire; vill
           <Info className="mt-0.5 size-4 shrink-0" aria-hidden /> Peu de lieux précis trouvés autour : ce sont des idées types, à compléter sur place.
         </p>
       )}
-      <ul className="grid gap-2 sm:grid-cols-2">
+      <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {activites.map(({ lieu, prix }) => {
           const liens = liensActivite(lieu, ville)
           return (
@@ -171,7 +253,7 @@ export function VueSejourLong(props: {
   const refs = useRef<(HTMLButtonElement | null)[]>([])
   return (
     <>
-      <div role="tablist" aria-label="Sections du séjour" className="grid grid-cols-4 rounded-2xl bg-slate-900/5 p-1 print:hidden dark:bg-white/10">
+      <div role="tablist" aria-label="Sections du séjour" className="flex gap-1 overflow-x-auto rounded-2xl bg-slate-900/5 p-1 [scrollbar-width:none] print:hidden dark:bg-white/10">
         {ONGLETS.map((o, i) => (
           <button
             key={o.id}
@@ -191,7 +273,7 @@ export function VueSejourLong(props: {
               setOnglet(ONGLETS[j].id)
               refs.current[j]?.focus()
             }}
-            className={`h-10 rounded-xl text-xs font-semibold transition sm:text-sm ${onglet === o.id ? 'bg-white text-ocean-800 shadow-sm dark:bg-ocean-800 dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}
+            className={`h-10 min-w-fit flex-1 shrink-0 rounded-xl px-3 text-[13px] font-semibold whitespace-nowrap transition sm:text-sm ${onglet === o.id ? 'bg-white text-ocean-800 shadow-sm dark:bg-ocean-800 dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}
           >
             {o.libelle}
           </button>
