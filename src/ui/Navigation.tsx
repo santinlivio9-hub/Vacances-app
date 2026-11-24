@@ -22,11 +22,13 @@ export function Navigation({ large }: { large: boolean }) {
       }`}
     >
       {large && (
-        <p className="mb-4 text-center text-[11px] leading-tight font-bold tracking-tight text-ocean-800 dark:text-ocean-200">
-          Budget
-          <br />
-          Voyage
-        </p>
+        <div className="mb-4 flex flex-col items-center gap-1">
+          <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="size-9 rounded-xl shadow-sm" />
+          <p className="text-center text-[11px] leading-tight font-bold tracking-tight text-ocean-800 dark:text-ocean-200">
+            Valise
+            <br />& Cap
+          </p>
+        </div>
       )}
       {ONGLETS_APP.map(({ vers, libelle, icone: Icone }) => (
         <NavLink

@@ -5,7 +5,7 @@ import { useVoyage } from '../store/voyage'
 /** Toutes les données de l'utilisateur, telles qu'elles sont sur cet appareil. */
 export function donneesLocales() {
   return {
-    application: 'Budget Voyage',
+    application: 'Valise & Cap',
     exporteLe: new Date().toISOString(),
     preferences: lirePreferences(),
     voyages: useVoyage.getState().sauvegardes,
@@ -19,7 +19,7 @@ export function exporterDonnees() {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `budget-voyage-${new Date().toISOString().slice(0, 10)}.json`
+  a.download = `valise-et-cap-${new Date().toISOString().slice(0, 10)}.json`
   document.body.append(a)
   a.click()
   a.remove()

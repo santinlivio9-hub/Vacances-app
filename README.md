@@ -1,4 +1,4 @@
-# 🧳 Budget Voyage
+# 🧳 Valise & Cap
 
 Préparez un voyage comme sur une carte en ligne : on choisit un départ et une arrivée, le type de voyage (vacances, dates flexibles, week-end, stage), on règle les détails, et l'application compare plusieurs propositions chiffrées poste par poste, avec l'itinéraire jour par jour (ou le budget par mois pour un stage) et les liens pour réserver.
 

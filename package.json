@@ -3,7 +3,7 @@
   "private": true,
   "version": "4.0.0",
   "type": "module",
-  "description": "Budget Voyage : carte, configurateur et carnet de voyage avec estimation du budget",
+  "description": "Valise & Cap : carte, configurateur et carnet de voyage avec estimation du budget",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

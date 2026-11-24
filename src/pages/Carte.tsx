@@ -145,7 +145,7 @@ export default function Carte() {
 
   return (
     <main className="fixed top-0 right-0 bottom-(--nav-bas) left-(--nav-gauche) overflow-hidden print:static">
-      <h1 className="sr-only">Budget Voyage : choisissez votre trajet sur la carte</h1>
+      <h1 className="sr-only">Valise &amp; Cap : choisissez votre trajet sur la carte</h1>
       <Suspense fallback={<div className="absolute inset-0 bg-[#e8eef2] dark:bg-[#1b2530]" />}>
         <FondCarte
           depart={depart}
@@ -161,7 +161,10 @@ export default function Carte() {
       {/* Colonne de gauche sur ordinateur ; haut et bas de l'écran sur mobile */}
       <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-3 sm:p-4 lg:inset-y-0 lg:right-auto lg:w-[26rem] lg:justify-start lg:gap-3">
         <div ref={refHaut} className="verre pointer-events-auto rounded-3xl p-3 [--verre-fond:0.82]">
-          <p className="mb-2 pl-1 text-sm font-bold tracking-tight text-ocean-800 lg:hidden dark:text-ocean-200">Budget Voyage</p>
+          <p className="mb-2 flex items-center gap-1.5 pl-1 text-sm font-bold tracking-tight text-ocean-800 lg:hidden dark:text-ocean-200">
+            <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="size-5 rounded-md" />
+            Valise &amp; Cap
+          </p>
           <div className="relative space-y-2">
             <ChampLieu
               libelle="Départ"

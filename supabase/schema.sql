@@ -1,4 +1,4 @@
--- Budget Voyage : schéma Supabase (à coller dans SQL Editor → New query → Run).
+-- Valise & Cap : schéma Supabase (à coller dans SQL Editor → New query → Run).
 -- Chaque utilisateur ne voit et ne modifie que ses propres lignes (Row Level Security).
 -- Le script peut être relancé sans risque.
 
