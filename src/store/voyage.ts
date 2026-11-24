@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
-import type { CleAvancee, Lieu, Reglages, ReglagesAvances, ReglagesSimples } from '../domain/types'
+import type { CleAvancee, Lieu, ModeTransport, Reglages, ReglagesAvances, ReglagesSimples } from '../domain/types'
 import { reglagesSimplesParDefaut } from '../engine/reglages'
 import { stockageSur } from './stockageSur'
 
@@ -23,6 +23,8 @@ interface EtatVoyage {
   /** Graine de l'itinéraire : « Régénérer » la change */
   graine: number
   sauvegardes: VoyageSauvegarde[]
+  /** Trajet (« lat,lon→lat,lon ») pour lequel on a déjà proposé le mode conseillé */
+  trajetConseille: string | null
 
   definirDepart: (lieu: Lieu | null) => void
   definirArrivee: (lieu: Lieu | null) => void
@@ -33,6 +35,8 @@ interface EtatVoyage {
   reinitialiserAvance: (cle: CleAvancee) => void
   reinitialiserTousLesAvances: () => void
   basculerModeAvance: () => void
+  /** Propose le mode de transport conseillé, une seule fois par trajet (ne réécrase pas un choix ultérieur) */
+  appliquerModeConseille: (mode: ModeTransport) => void
   regenerer: () => void
   sauvegarder: (nom: string) => VoyageSauvegarde | null
   supprimerSauvegarde: (id: string) => void
@@ -51,7 +55,11 @@ export const etatInitial = () => ({
   modeAvance: false,
   graine: 1,
   sauvegardes: [] as VoyageSauvegarde[],
+  trajetConseille: null as string | null,
 })
+
+export const cleTrajet = (depart: Lieu, arrivee: Lieu) =>
+  `${depart.lat.toFixed(4)},${depart.lon.toFixed(4)}→${arrivee.lat.toFixed(4)},${arrivee.lon.toFixed(4)}`
 
 export const useVoyage = create<EtatVoyage>()(
   persist(
@@ -73,6 +81,13 @@ export const useVoyage = create<EtatVoyage>()(
         }),
       reinitialiserTousLesAvances: () => set(({ reglages }) => ({ reglages: { ...reglages, modifies: {} } })),
       basculerModeAvance: () => set(({ modeAvance }) => ({ modeAvance: !modeAvance })),
+      appliquerModeConseille: (mode) => {
+        const { depart, arrivee, trajetConseille, reglages } = get()
+        if (!depart || !arrivee) return
+        const cle = cleTrajet(depart, arrivee)
+        if (cle === trajetConseille) return
+        set({ trajetConseille: cle, reglages: { ...reglages, simple: { ...reglages.simple, transport: mode } } })
+      },
       regenerer: () => set(({ graine }) => ({ graine: graine + 1 })),
 
       sauvegarder: (nom) => {
@@ -100,7 +115,8 @@ export const useVoyage = create<EtatVoyage>()(
       name: 'budget-voyage:v2',
       version: 1,
       storage: createJSONStorage(() => stockageSur),
-      partialize: ({ depart, arrivee, reglages, modeAvance, graine, sauvegardes }) => ({
+      partialize: ({ depart, arrivee, reglages, modeAvance, graine, sauvegardes, trajetConseille }) => ({
+        trajetConseille,
         depart,
         arrivee,
         reglages,

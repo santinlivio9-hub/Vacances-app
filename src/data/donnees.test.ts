@@ -91,3 +91,15 @@ describe('transport.json', () => {
     expect(tarifs.avion.coefficientSaison.haute).toBeGreaterThan(1)
   })
 })
+
+describe('destinations populaires', () => {
+  it('ont toutes un pays connu de la base et des coordonnées valides', async () => {
+    const { destinationsPopulaires } = await import('.')
+    expect(destinationsPopulaires.length).toBeGreaterThanOrEqual(8)
+    for (const d of destinationsPopulaires) {
+      expect(tousLesPays, d.nom).toHaveProperty(d.pays)
+      expect(Math.abs(d.lat)).toBeLessThanOrEqual(90)
+      expect(d.wikipedia).toMatch(/^fr:/)
+    }
+  })
+})

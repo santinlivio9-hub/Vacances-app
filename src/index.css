@@ -127,3 +127,45 @@ body {
     text-decoration: none;
   }
 }
+
+/* Épingles de la carte (Leaflet divIcon) */
+.epingle {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50% 50% 50% 0;
+  background: var(--c);
+  transform: rotate(-45deg);
+  border: 3px solid #fff;
+  box-shadow: 0 6px 14px -4px rgb(0 0 0 / 0.45);
+}
+.epingle span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  transform: rotate(45deg);
+  color: #fff;
+  font: 700 14px/1 'Inter Variable', system-ui, sans-serif;
+}
+.leaflet-container {
+  font-family: inherit;
+}
+.leaflet-control-zoom {
+  margin-bottom: 24px !important;
+  margin-right: 16px !important;
+  border: none !important;
+  border-radius: 14px !important;
+  overflow: hidden;
+  box-shadow: 0 8px 24px -10px rgb(15 71 98 / 0.4) !important;
+}
+
+/* Fond OSM adouci (rendu proche d'un fond « Positron ») ; version sombre par inversion */
+.fond-adouci {
+  filter: grayscale(0.75) brightness(1.06) contrast(0.92);
+}
+@media (prefers-color-scheme: dark) {
+  .fond-adouci {
+    filter: grayscale(0.8) invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.85);
+  }
+}

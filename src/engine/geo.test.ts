@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { aeroports } from '../data'
-import { aeroportLePlusProche, distanceKm, distanceTerrestreKm } from './geo'
+import { aeroportLePlusProche, arcGrandCercle, distanceKm, distanceTerrestreKm } from './geo'
 
 const paris = { lat: 48.8566, lon: 2.3522 }
 const nice = { lat: 43.7102, lon: 7.262 }
@@ -47,5 +47,20 @@ describe('aeroportLePlusProche', () => {
 
   it('refuse une liste vide', () => {
     expect(() => aeroportLePlusProche(paris, [])).toThrow()
+  })
+})
+
+describe('arcGrandCercle', () => {
+  it('relie les deux points et passe plus au nord qu’une ligne droite (Paris → New York)', () => {
+    const arc = arcGrandCercle(paris, newYork, 32)
+    expect(arc).toHaveLength(33)
+    expect(arc[0][0]).toBeCloseTo(paris.lat, 5)
+    expect(arc.at(-1)![1]).toBeCloseTo(newYork.lon, 5)
+    expect(Math.max(...arc.map(([lat]) => lat))).toBeGreaterThan(50)
+  })
+
+  it('ne saute pas d’un bord à l’autre de la carte au passage de l’antiméridien', () => {
+    const arc = arcGrandCercle({ lat: 35.68, lon: 139.69 }, { lat: 37.77, lon: -122.42 }, 32)
+    for (let i = 1; i < arc.length; i++) expect(Math.abs(arc[i][1] - arc[i - 1][1])).toBeLessThan(20)
   })
 })

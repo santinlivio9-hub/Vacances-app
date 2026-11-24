@@ -55,3 +55,19 @@ describe('store du voyage', () => {
     expect(useVoyage.getState().graine).toBe(avant + 1)
   })
 })
+
+describe('mode de transport conseillé', () => {
+  it('est appliqué une fois par trajet, sans écraser un choix fait ensuite', () => {
+    const s = useVoyage.getState()
+    s.definirDepart(troyes)
+    s.definirArrivee(annecy)
+    useVoyage.getState().appliquerModeConseille('train')
+    expect(useVoyage.getState().reglages.simple.transport).toBe('train')
+    useVoyage.getState().modifierSimple({ transport: 'voiture' })
+    useVoyage.getState().appliquerModeConseille('train')
+    expect(useVoyage.getState().reglages.simple.transport).toBe('voiture')
+    useVoyage.getState().inverser()
+    useVoyage.getState().appliquerModeConseille('car')
+    expect(useVoyage.getState().reglages.simple.transport).toBe('car')
+  })
+})

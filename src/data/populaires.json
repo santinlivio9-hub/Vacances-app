@@ -1,0 +1,14 @@
+[
+  { "nom": "Lisbonne", "detail": "Portugal", "pays": "pt", "lat": 38.7223, "lon": -9.1393, "wikipedia": "fr:Lisbonne" },
+  { "nom": "Barcelone", "detail": "Catalogne, Espagne", "pays": "es", "lat": 41.3874, "lon": 2.1686, "wikipedia": "fr:Barcelone" },
+  { "nom": "Rome", "detail": "Latium, Italie", "pays": "it", "lat": 41.8933, "lon": 12.4829, "wikipedia": "fr:Rome" },
+  { "nom": "Annecy", "detail": "Haute-Savoie, France", "pays": "fr", "lat": 45.8992, "lon": 6.1294, "wikipedia": "fr:Annecy" },
+  { "nom": "Amsterdam", "detail": "Pays-Bas", "pays": "nl", "lat": 52.3728, "lon": 4.8936, "wikipedia": "fr:Amsterdam" },
+  { "nom": "Prague", "detail": "Tchéquie", "pays": "cz", "lat": 50.0875, "lon": 14.4214, "wikipedia": "fr:Prague" },
+  { "nom": "Marrakech", "detail": "Maroc", "pays": "ma", "lat": 31.6295, "lon": -7.9811, "wikipedia": "fr:Marrakech" },
+  { "nom": "Biarritz", "detail": "Pyrénées-Atlantiques, France", "pays": "fr", "lat": 43.4832, "lon": -1.5586, "wikipedia": "fr:Biarritz" },
+  { "nom": "Athènes", "detail": "Grèce", "pays": "gr", "lat": 37.9838, "lon": 23.7275, "wikipedia": "fr:Athènes" },
+  { "nom": "Reykjavik", "detail": "Islande", "pays": "is", "lat": 64.1466, "lon": -21.9426, "wikipedia": "fr:Reykjavik" },
+  { "nom": "New York", "detail": "État de New York, États-Unis", "pays": "us", "lat": 40.7128, "lon": -74.006, "wikipedia": "fr:New York" },
+  { "nom": "Tokyo", "detail": "Japon", "pays": "jp", "lat": 35.6812, "lon": 139.7671, "wikipedia": "fr:Tokyo" }
+]

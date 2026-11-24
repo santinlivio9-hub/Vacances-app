@@ -114,3 +114,12 @@ export function donneesPays(code: string | undefined, position: Coordonnees): Do
   const continent = continentDepuisPosition(position)
   return { ...pays.continents[continent], continent, code: code?.toLowerCase(), estimationContinent: true }
 }
+
+export interface DestinationPopulaire extends Coordonnees {
+  nom: string
+  detail: string
+  pays: string
+  wikipedia: string
+}
+
+export { default as destinationsPopulaires } from './populaires.json'
