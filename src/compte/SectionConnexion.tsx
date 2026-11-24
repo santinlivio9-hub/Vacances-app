@@ -1,7 +1,8 @@
 import { Cloud, CloudOff, Loader2, LogOut, Mail, RefreshCw, UserRound, type LucideIcon } from 'lucide-react'
 import { useState } from 'react'
-import { compteConfigure, connexionGoogle, deconnexion, envoyerLienMagique, repondreImport, supprimerCompte, synchroniserMaintenant, useCompte } from './compte'
+import { compteConfigure, connexionGoogle, deconnexion, envoyerLienMagique, repondreImport, verifierCode, supprimerCompte, synchroniserMaintenant, useCompte } from './compte'
 import { effacerDonneesLocales } from './donnees'
+import { SaisieCode } from './SaisieCode'
 
 const carte = 'rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-900/5 dark:bg-[#0e1f45] dark:ring-white/10'
 const texteErreur = (e: unknown) => (e && typeof e === 'object' && 'message' in e ? String((e as { message: string }).message) : 'Une erreur est survenue.')
@@ -32,6 +33,8 @@ export function SectionConnexion({ onMessage }: { onMessage: (t: string) => void
   const [email, setEmail] = useState('')
   const [envoi, setEnvoi] = useState<'idle' | 'envoi' | 'envoye'>('idle')
   const [probleme, setProbleme] = useState<string | null>(null)
+  // Garde l'écran du code affiché le temps de l'animation « Vérifié », même une fois connecté
+  const [celebration, setCelebration] = useState(false)
 
   if (!compteConfigure) {
     return (
@@ -49,6 +52,32 @@ export function SectionConnexion({ onMessage }: { onMessage: (t: string) => void
           <CloudOff className="mt-0.5 size-4 shrink-0" aria-hidden />
           La connexion n’est pas encore activée sur ce site : tout fonctionne sans compte.
         </p>
+      </section>
+    )
+  }
+
+  if (celebration || (envoi === 'envoye' && statut !== 'connecte')) {
+    return (
+      <section aria-label="Connexion par code">
+        <SaisieCode
+          email={email.trim()}
+          verifier={async (code) => {
+            setCelebration(true)
+            try {
+              await verifierCode(email.trim(), code)
+            } catch (e) {
+              setCelebration(false)
+              throw e
+            }
+          }}
+          renvoyer={() => envoyerLienMagique(email.trim())}
+          onTermine={() => {
+            setCelebration(false)
+            setEnvoi('idle')
+            onMessage('Vous êtes connecté.')
+          }}
+          onChangerEmail={() => setEnvoi('idle')}
+        />
       </section>
     )
   }
@@ -84,7 +113,8 @@ export function SectionConnexion({ onMessage }: { onMessage: (t: string) => void
               Importer les données de cet appareil ?
             </p>
             <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-300">
-              {importPropose.voyages} voyage{importPropose.voyages > 1 ? 's' : ''} et {importPropose.favoris} favori{importPropose.favoris > 1 ? 's' : ''} sont enregistrés ici. Les ajouter à votre compte pour les retrouver partout ?
+              {importPropose.voyages} voyage
+              {importPropose.voyages > 1 ? 's' : ''} et {importPropose.favoris} favori{importPropose.favoris > 1 ? 's' : ''} sont enregistrés ici. Les ajouter à votre compte pour les retrouver partout ?
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               <button type="button" onClick={() => void repondreImport(true).then(() => onMessage('Données importées dans votre compte.'))} className="h-11 rounded-full bg-ocean-700 px-4 text-sm font-semibold text-white">
@@ -101,7 +131,11 @@ export function SectionConnexion({ onMessage }: { onMessage: (t: string) => void
           <button type="button" onClick={() => void synchroniserMaintenant()} className="inline-flex h-11 items-center gap-2 rounded-full bg-slate-900/5 px-4 text-sm font-semibold hover:bg-slate-900/10 dark:bg-white/10">
             <RefreshCw className="size-4" aria-hidden /> Synchroniser
           </button>
-          <button type="button" onClick={() => void deconnexion().then(() => onMessage('Vous êtes déconnecté. Vos données restent sur cet appareil.'))} className="inline-flex h-11 items-center gap-2 rounded-full px-4 text-sm font-semibold text-slate-700 ring-1 ring-slate-900/15 dark:text-slate-200 dark:ring-white/15">
+          <button
+            type="button"
+            onClick={() => void deconnexion().then(() => onMessage('Vous êtes déconnecté. Vos données restent sur cet appareil.'))}
+            className="inline-flex h-11 items-center gap-2 rounded-full px-4 text-sm font-semibold text-slate-700 ring-1 ring-slate-900/15 dark:text-slate-200 dark:ring-white/15"
+          >
             <LogOut className="size-4" aria-hidden /> Se déconnecter
           </button>
         </div>
@@ -131,45 +165,39 @@ export function SectionConnexion({ onMessage }: { onMessage: (t: string) => void
       <div className="my-3 flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400" aria-hidden>
         <span className="h-px flex-1 bg-slate-900/10 dark:bg-white/10" /> ou <span className="h-px flex-1 bg-slate-900/10 dark:bg-white/10" />
       </div>
-      {envoi === 'envoye' ? (
-        <p role="status" className="flex items-start gap-2 rounded-2xl bg-(--statut-ok)/12 px-3 py-2.5 text-sm text-(--statut-ok-texte)">
-          <Mail className="mt-0.5 size-4 shrink-0" aria-hidden />
-          Lien envoyé à {email}. Ouvrez-le sur cet appareil, dans ce navigateur, pour vous connecter.
-        </p>
-      ) : (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault()
-            setProbleme(null)
-            setEnvoi('envoi')
-            envoyerLienMagique(email.trim())
-              .then(() => setEnvoi('envoye'))
-              .catch((err) => {
-                setEnvoi('idle')
-                setProbleme(texteErreur(err))
-              })
-          }}
-          className="flex flex-col gap-2 sm:flex-row"
-        >
-          <label htmlFor="email-connexion" className="sr-only">
-            Adresse e-mail
-          </label>
-          <input
-            id="email-connexion"
-            type="email"
-            required
-            autoComplete="email"
-            placeholder="vous@exemple.fr"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="h-12 min-w-0 rounded-2xl bg-slate-50 px-4 text-base sm:flex-1 ring-1 ring-slate-900/10 dark:bg-white/5 dark:ring-white/10"
-          />
-          <button type="submit" disabled={envoi === 'envoi'} className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-ocean-700 px-4 font-semibold text-white disabled:opacity-60">
-            {envoi === 'envoi' ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Mail className="size-4" aria-hidden />}
-            Recevoir un lien
-          </button>
-        </form>
-      )}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          setProbleme(null)
+          setEnvoi('envoi')
+          envoyerLienMagique(email.trim())
+            .then(() => setEnvoi('envoye'))
+            .catch((err) => {
+              setEnvoi('idle')
+              setProbleme(texteErreur(err))
+            })
+        }}
+        className="flex flex-col gap-2 sm:flex-row"
+      >
+        <label htmlFor="email-connexion" className="sr-only">
+          Adresse e-mail
+        </label>
+        <input
+          id="email-connexion"
+          type="email"
+          required
+          autoComplete="email"
+          placeholder="vous@exemple.fr"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="h-12 min-w-0 rounded-2xl bg-slate-50 px-4 text-base sm:flex-1 ring-1 ring-slate-900/10 dark:bg-white/5 dark:ring-white/10"
+        />
+        <button type="submit" disabled={envoi === 'envoi'} className="bouton-accent inline-flex h-12 items-center justify-center gap-2 rounded-2xl px-4 font-semibold disabled:opacity-60">
+          {envoi === 'envoi' ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Mail className="size-4" aria-hidden />}
+          Recevoir un code
+        </button>
+      </form>
+      <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Vous recevrez un code à 6 chiffres (et un lien) par e-mail.</p>
       {(probleme || erreur) && (
         <p role="alert" className="mt-2 text-sm text-(--statut-depasse-texte)">
           {probleme ?? erreur}

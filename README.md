@@ -57,7 +57,10 @@ Sans cette étape, le site marche entièrement en mode invité. Avec, on peut se
 3. **Adresses autorisées.** **Authentication** → **URL Configuration** :
    - *Site URL* : `https://santinlivio9-hub.github.io/Vacances-app/`
    - *Redirect URLs* : ajoutez la même adresse, et `http://localhost:5173/Vacances-app/` pour travailler en local.
-4. **Lien magique.** **Authentication** → **Sign In / Providers** → **Email** : vérifiez qu'il est activé (il l'est par défaut). Le service d'e-mail intégré de Supabase n'envoie que quelques e-mails par heure : pour un usage réel, branchez votre propre SMTP (**Authentication** → **Emails** → **SMTP Settings**).
+4. **Code par e-mail (et lien magique).** **Authentication** → **Sign In / Providers** → **Email** : vérifiez qu'il est activé (il l'est par défaut). Le service d'e-mail intégré de Supabase n'envoie que quelques e-mails par heure : pour un usage réel, branchez votre propre SMTP (**Authentication** → **Emails** → **SMTP Settings**).
+   - **Pour recevoir le code à 6 chiffres** (v6) : **Authentication** → **Emails** → **Templates** → **Magic Link**, ajoutez `{{ .Token }}` dans le message, par exemple :
+     `<h2>Votre code Valise & Cap</h2><p style="font-size:28px;letter-spacing:6px"><b>{{ .Token }}</b></p><p>Ou cliquez : <a href="{{ .ConfirmationURL }}">se connecter</a></p>`
+     Faites de même dans le modèle **Confirm signup** (premier envoi à une nouvelle adresse). Vérifiez aussi que **Email OTP Length** vaut 6 (**Sign In / Providers** → **Email**).
 5. **Google.**
    - Dans la [console Google Cloud](https://console.cloud.google.com/apis/credentials), créez un projet, configurez l'écran de consentement OAuth (type « Externe »), puis **Créer des identifiants** → **ID client OAuth** → **Application Web**.
    - *URI de redirection autorisés* : `https://VOTRE-PROJET.supabase.co/auth/v1/callback` (l'adresse exacte est affichée dans Supabase, sur la page du fournisseur Google).

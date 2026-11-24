@@ -210,6 +210,13 @@ export async function envoyerLienMagique(email: string): Promise<void> {
   if (error) throw error
 }
 
+/** Vérifie le code à 6 chiffres reçu par e-mail (même e-mail que le lien magique, voir supabase/README). */
+export async function verifierCode(email: string, code: string): Promise<void> {
+  const sb = await supabase()
+  const { error } = await sb.auth.verifyOtp({ email, token: code, type: 'email' })
+  if (error) throw error
+}
+
 export async function connexionGoogle(): Promise<void> {
   const sb = await supabase()
   const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: adresseRetour() } })

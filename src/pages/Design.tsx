@@ -1,6 +1,7 @@
 import { ArrowLeft, Compass, Heart, Luggage, Plane, TrainFront, UserRound } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { Link } from 'react-router'
+import { SaisieCode } from '../compte/SaisieCode'
 import { Segments } from '../config/Controles'
 import { usePreferences, type EffetVerre, type Theme } from '../store/preferences'
 import { AnneauBudget, BadgeEcart, Glass, LiquidSelector, Montant, useCibleActive, type FormeVerre, type TeinteVerre, type VarianteVerre } from '../ui/glass'
@@ -57,6 +58,7 @@ function DemoRail() {
 /** Page cachée (#/design) : tous les composants de verre, à vérifier dans les deux thèmes. */
 export default function Design() {
   const prefs = usePreferences()
+  const [cleDemo, setCleDemo] = useState(0)
   const variantes: VarianteVerre[] = ['regular', 'clear', 'thick']
   const formes: FormeVerre[] = ['capsule', 'rounded', 'circle']
   const teintes: TeinteVerre[] = ['aucune', 'ocean', 'corail', 'vert', 'bleu']
@@ -92,6 +94,19 @@ export default function Design() {
             <DemoCapsule />
           </div>
         </div>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="font-semibold">Connexion par code</h2>
+        <p className="text-sm text-slate-600 dark:text-slate-300">Démo : le bon code est 246813, tout autre code montre l’erreur.</p>
+        <SaisieCode
+          key={cleDemo}
+          email="alice@example.com"
+          focusAuto={false}
+          verifier={(code) => new Promise((ok, ko) => setTimeout(() => (code === '246813' ? ok() : ko(new Error('Code incorrect.'))), 900))}
+          renvoyer={async () => {}}
+          onTermine={() => setTimeout(() => setCleDemo((k) => k + 1), 1500)}
+        />
       </section>
 
       <section className="relative isolate overflow-hidden rounded-[2rem] p-5">
