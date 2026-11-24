@@ -11,6 +11,7 @@ import { useEstimation } from '../config/useEstimation'
 import { useVoyage } from '../store/voyage'
 import { formatKm } from '../ui/format'
 import { MentionDonnees } from '../ui/MentionDonnees'
+import { PisteLiquide, classeOnglet, FOND_PISTE } from '../ui/glass'
 
 export default function Configurer() {
   const navigate = useNavigate()
@@ -70,7 +71,7 @@ export default function Configurer() {
         <TypeVoyageCompact valeur={reglages.simple.typeVoyage} onChoisir={choisirTypeVoyage} />
         {/* Interrupteur Simple / Avancé */}
         <div className="flex items-center gap-3">
-          <div role="radiogroup" aria-label="Niveau de détail" className="grid flex-1 grid-cols-2 rounded-2xl bg-slate-900/5 p-1 dark:bg-white/10">
+          <PisteLiquide cle={modeAvance} role="radiogroup" aria-label="Niveau de détail" className={`grid flex-1 grid-cols-2 ${FOND_PISTE}`}>
             {[
               { avance: false, libelle: 'Simple' },
               { avance: true, libelle: 'Avancé' },
@@ -80,14 +81,15 @@ export default function Configurer() {
                 type="button"
                 role="radio"
                 aria-checked={modeAvance === o.avance}
+                data-actif={modeAvance === o.avance}
                 onClick={() => modeAvance !== o.avance && basculerModeAvance()}
-                className={`flex h-10 items-center justify-center gap-1.5 rounded-xl text-sm font-semibold transition ${modeAvance === o.avance ? 'bg-white text-ocean-800 shadow-sm dark:bg-ocean-800 dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}
+                className={`flex h-10 items-center justify-center gap-1.5 rounded-xl text-sm font-semibold ${classeOnglet(modeAvance === o.avance)}`}
               >
                 {o.avance && <SlidersHorizontal className="size-4" aria-hidden />}
                 {o.libelle}
               </button>
             ))}
-          </div>
+          </PisteLiquide>
         </div>
         {modeAvance ? (
           <p className="flex items-start gap-2 px-1 text-sm text-slate-600 dark:text-slate-300">

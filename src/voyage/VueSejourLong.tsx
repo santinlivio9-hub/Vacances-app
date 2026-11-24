@@ -9,6 +9,7 @@ import { BoutonFavori } from '../ui/BoutonFavori'
 import { formatEuros } from '../ui/format'
 import { OngletReservations } from './OngletReservations'
 import { TYPES_ACTIVITE_UI } from './libelles'
+import { PisteLiquide, classeOnglet, FOND_PISTE } from '../ui/glass'
 
 const CarteZones = lazy(() => import('./CarteZones'))
 
@@ -253,7 +254,7 @@ export function VueSejourLong(props: {
   const refs = useRef<(HTMLButtonElement | null)[]>([])
   return (
     <>
-      <div role="tablist" aria-label="Sections du séjour" className="flex gap-1 overflow-x-auto rounded-2xl bg-slate-900/5 p-1 [scrollbar-width:none] print:hidden dark:bg-white/10">
+      <PisteLiquide cle={onglet} role="tablist" aria-label="Sections du séjour" className={`flex gap-1 overflow-x-auto [scrollbar-width:none] print:hidden ${FOND_PISTE}`}>
         {ONGLETS.map((o, i) => (
           <button
             key={o.id}
@@ -264,6 +265,7 @@ export function VueSejourLong(props: {
             type="button"
             role="tab"
             aria-selected={onglet === o.id}
+                  data-actif={onglet === o.id}
             aria-controls={`panneau-${o.id}`}
             tabIndex={onglet === o.id ? 0 : -1}
             onClick={() => setOnglet(o.id)}
@@ -273,12 +275,12 @@ export function VueSejourLong(props: {
               setOnglet(ONGLETS[j].id)
               refs.current[j]?.focus()
             }}
-            className={`h-10 min-w-fit flex-1 shrink-0 rounded-xl px-3 text-[13px] font-semibold whitespace-nowrap transition sm:text-sm ${onglet === o.id ? 'bg-white text-ocean-800 shadow-sm dark:bg-ocean-800 dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}
+            className={`h-10 min-w-fit flex-1 shrink-0 rounded-xl px-3 text-[13px] font-semibold whitespace-nowrap sm:text-sm ${classeOnglet(onglet === o.id)}`}
           >
             {o.libelle}
           </button>
         ))}
-      </div>
+      </PisteLiquide>
       <div id={`panneau-${onglet}`} role="tabpanel" aria-labelledby={`onglet-${onglet}`} className="print:hidden">
         {onglet === 'budget' && <BudgetMensuel b={props.budget} entree={props.entree} />}
         {onglet === 'zones' && (

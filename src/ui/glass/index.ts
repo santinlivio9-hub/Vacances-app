@@ -2,3 +2,4 @@ export { Glass, type FormeVerre, type TeinteVerre, type VarianteVerre } from './
 export { LiquidSelector, useCibleActive, type Rect } from './LiquidSelector'
 export { FiltresVerre } from './FiltresVerre'
 export { Montant } from './Montant'
+export { PisteLiquide, classeOnglet, FOND_PISTE } from './PisteLiquide'

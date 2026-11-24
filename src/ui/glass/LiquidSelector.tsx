@@ -22,7 +22,10 @@ export function useCibleActive(conteneur: RefObject<HTMLElement | null>, cle: un
       const actif = c.querySelector<HTMLElement>('[data-actif="true"]')
       const rc = c.getBoundingClientRect()
       const ra = actif?.getBoundingClientRect()
-      setEtat({ taille: { w: rc.width, h: rc.height }, cible: ra ? { x: ra.left - rc.left, y: ra.top - rc.top, w: ra.width, h: ra.height } : null })
+      // Coordonnées dans le contenu (le tracé défile avec les onglets d'une liste qui défile)
+      const x = (ra?.left ?? 0) - rc.left - c.clientLeft + c.scrollLeft
+      const y = (ra?.top ?? 0) - rc.top - c.clientTop + c.scrollTop
+      setEtat({ taille: { w: rc.width, h: rc.height }, cible: ra ? { x, y, w: ra.width, h: ra.height } : null })
     }
     mesurer()
     const ro = new ResizeObserver(mesurer)
@@ -107,13 +110,15 @@ export function LiquidSelector({
   const c = cible ?? { x: 0, y: 0, w: 0, h: 0 }
   const horizontal = mode === 'horizontal'
   const [debut, fin] = useBords(horizontal ? c.x + marge : c.y + marge, horizontal ? c.x + c.w - marge : c.y + c.h - marge)
+  // Axe secondaire, animé aussi : utile quand les options sont sur plusieurs lignes (grille 2 × 2)
+  const [debut2, fin2] = useBords(horizontal ? c.y + marge : c.x + marge, horizontal ? c.y + c.h - marge : c.x + c.w - marge)
   // Le tracé se recalcule à chaque image de l'animation, et quand la géométrie change
-  const construire = (a: number, b: number) => {
+  const construire = (a: number, b: number, a2: number, b2: number) => {
     if (taille.w === 0) return ''
     // Sans élément actif, le rail reste seul
     if (!cible) return mode === 'rail' ? capsule(taille.w - rail, 0, taille.w, taille.h, Math.min(28, rail / 2)) : ''
-    if (horizontal) return capsule(a, c.y + marge, b, c.y + c.h - marge, rayon)
-    if (mode === 'vertical') return capsule(c.x + marge, a, c.x + c.w - marge, b, rayon)
+    if (horizontal) return capsule(a, a2, b, b2, rayon)
+    if (mode === 'vertical') return capsule(a2, a, b2, b, rayon)
     const xR = taille.w
     return ongletEtRail(c.x + marge, a, b, xR - rail, xR, taille.h, Math.min(28, rail / 2), Math.min(rayon, (b - a) / 2), 18)
   }
@@ -121,17 +126,13 @@ export function LiquidSelector({
   derniere.current = construire
   const d = useMotionValue('')
   useLayoutEffect(() => {
-    d.set(derniere.current(debut.get(), fin.get()))
+    d.set(derniere.current(debut.get(), fin.get(), debut2.get(), fin2.get()))
   })
   useEffect(() => {
-    const maj = () => d.set(derniere.current(debut.get(), fin.get()))
-    const u1 = debut.on('change', maj)
-    const u2 = fin.on('change', maj)
-    return () => {
-      u1()
-      u2()
-    }
-  }, [debut, fin, d])
+    const maj = () => d.set(derniere.current(debut.get(), fin.get(), debut2.get(), fin2.get()))
+    const arrets = [debut, fin, debut2, fin2].map((v) => v.on('change', maj))
+    return () => arrets.forEach((u) => u())
+  }, [debut, fin, debut2, fin2, d])
   return (
     <svg aria-hidden className="pointer-events-none absolute inset-0 overflow-visible" width={taille.w} height={taille.h} viewBox={`0 0 ${Math.max(1, taille.w)} ${Math.max(1, taille.h)}`}>
       <motion.path d={d} className={`${className} drop-shadow-[0_6px_14px_rgb(5_11_31/0.35)]`} />

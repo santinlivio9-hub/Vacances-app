@@ -12,7 +12,7 @@ import { cleTrajet, dateDuJour, useVoyage } from '../store/voyage'
 import { formatEntre, formatEuros } from '../ui/format'
 import { comparatifTrajets } from '../engine/transport'
 import { CartesTrajets } from '../voyage/CartesTrajets'
-import { Glass, Montant } from '../ui/glass'
+import { Glass, Montant, PisteLiquide, classeOnglet, FOND_PISTE } from '../ui/glass'
 import { MentionDonnees } from '../ui/MentionDonnees'
 import { imageLargeur } from '../services/wikipedia'
 import { coutsDuResultat } from '../voyage/calcul'
@@ -295,7 +295,7 @@ export default function Voyage() {
         ) : (
           <>
             {/* Onglets */}
-            <div role="tablist" aria-label="Sections du voyage" className="flex gap-1 overflow-x-auto rounded-2xl bg-slate-900/5 p-1 [scrollbar-width:none] print:hidden dark:bg-white/10">
+            <PisteLiquide cle={onglet} role="tablist" aria-label="Sections du voyage" className={`flex gap-1 overflow-x-auto [scrollbar-width:none] print:hidden ${FOND_PISTE}`}>
               {ONGLETS.map((o, i) => (
                 <button
                   key={o.id}
@@ -306,6 +306,7 @@ export default function Voyage() {
                   type="button"
                   role="tab"
                   aria-selected={onglet === o.id}
+                  data-actif={onglet === o.id}
                   aria-controls={`panneau-${o.id}`}
                   tabIndex={onglet === o.id ? 0 : -1}
                   onClick={() => setOnglet(o.id)}
@@ -315,12 +316,12 @@ export default function Voyage() {
                     setOnglet(ONGLETS[j].id)
                     refsOnglets.current[j]?.focus()
                   }}
-                  className={`h-10 min-w-fit flex-1 shrink-0 rounded-xl px-3 text-[13px] font-semibold whitespace-nowrap transition sm:text-sm ${onglet === o.id ? 'bg-white text-ocean-800 shadow-sm dark:bg-ocean-800 dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}
+                  className={`h-10 min-w-fit flex-1 shrink-0 rounded-xl px-3 text-[13px] font-semibold whitespace-nowrap sm:text-sm ${classeOnglet(onglet === o.id)}`}
                 >
                   {o.libelle}
                 </button>
               ))}
-            </div>
+            </PisteLiquide>
 
             <div id={`panneau-${onglet}`} role="tabpanel" aria-labelledby={`onglet-${onglet}`} className="print:hidden">
               {onglet === 'itineraire' && <OngletItineraire itineraire={resultat.itineraire} ville={ville} onRemplacer={remplacer} />}

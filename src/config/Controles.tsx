@@ -1,6 +1,7 @@
 import { ChevronDown, Minus, Plus, RotateCcw } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useId, useState, type ReactNode } from 'react'
+import { PisteLiquide } from '../ui/glass'
 
 /** Carte repliable (accordéon). */
 export function CarteReglage({
@@ -143,10 +144,20 @@ export interface Option<T> {
   titre?: string
 }
 
-/** Choix exclusif. `compact` : libellés courts sur une seule ligne (ex. « 20 min »), boutons de même hauteur. */
+/**
+ * Choix exclusif, en capsule de verre : la bulle de sélection glisse d'une option à l'autre.
+ * `compact` : libellés courts sur une seule ligne (ex. « 20 min »), boutons de même hauteur.
+ */
 export function Segments<T extends string | number>({ nom, valeur, options, onChange, colonnes, compact = false }: { nom: string; valeur: T; options: Option<T>[]; onChange: (v: T) => void; colonnes?: string; compact?: boolean }) {
   return (
-    <div role="radiogroup" aria-label={nom} className={`grid ${compact ? 'gap-1.5' : 'gap-2'} ${colonnes ?? (options.length <= 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-4')}`}>
+    <PisteLiquide
+      cle={valeur}
+      rayon={14}
+      selection="fill-ocean-700 dark:fill-white"
+      role="radiogroup"
+      aria-label={nom}
+      className={`grid gap-1 rounded-[1.25rem] bg-slate-900/5 p-1 shadow-[inset_0_1px_2px_rgb(0_0_0/0.06)] dark:bg-white/8 dark:shadow-[inset_0_1px_0_rgb(255_255_255/0.08)] dark:ring-1 dark:ring-white/10 ${colonnes ?? (options.length <= 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-4')}`}
+    >
       {options.map((o) => {
         const choisi = o.valeur === valeur
         const Icone = o.icone
@@ -156,13 +167,12 @@ export function Segments<T extends string | number>({ nom, valeur, options, onCh
             type="button"
             role="radio"
             aria-checked={choisi}
+            data-actif={choisi}
             disabled={o.desactive}
             title={o.titre}
             onClick={() => onChange(o.valeur)}
-            className={`flex min-h-12 min-w-0 flex-col items-center justify-center gap-0.5 rounded-2xl py-2 text-center text-sm ring-1 transition ${compact ? 'px-1 whitespace-nowrap' : 'px-2'} ${
-              choisi
-                ? 'bg-ocean-700 font-semibold text-white ring-ocean-700 dark:bg-white dark:text-[#0c2452] dark:shadow-[0_6px_16px_-6px_rgb(0_0_0/0.5)] dark:ring-white'
-                : 'bg-white text-slate-700 ring-slate-900/10 hover:ring-ocean-400 dark:bg-white/8 dark:text-slate-100 dark:shadow-[inset_0_1px_0_rgb(255_255_255/0.12)] dark:ring-white/12'
+            className={`relative z-10 flex min-h-11 min-w-0 flex-col items-center justify-center gap-0.5 rounded-[0.875rem] py-2 text-center text-sm transition-colors ${compact ? 'px-1 whitespace-nowrap' : 'px-2'} ${
+              choisi ? 'font-semibold text-white dark:text-[#0c2452]' : 'text-slate-700 hover:bg-white/60 dark:text-slate-100 dark:hover:bg-white/8'
             } disabled:cursor-not-allowed disabled:opacity-45`}
           >
             {Icone && <Icone className="size-5" aria-hidden />}
@@ -171,7 +181,7 @@ export function Segments<T extends string | number>({ nom, valeur, options, onCh
           </button>
         )
       })}
-    </div>
+    </PisteLiquide>
   )
 }
 
@@ -242,7 +252,7 @@ export function Puces<T extends string>({ nom, valeurs, options, onChange }: { n
             aria-pressed={choisi}
             onClick={() => onChange(choisi ? valeurs.filter((v) => v !== o.valeur) : [...valeurs, o.valeur])}
             className={`inline-flex h-10 items-center gap-1.5 rounded-full px-3.5 text-sm ring-1 transition ${
-              choisi ? 'bg-ocean-700 font-semibold text-white ring-ocean-700' : 'bg-white text-slate-700 ring-slate-900/10 hover:ring-ocean-400 dark:bg-white/5 dark:text-slate-200 dark:ring-white/10'
+              choisi ? 'bg-ocean-700 font-semibold text-white ring-ocean-700 shadow-[0_6px_16px_-8px_rgb(12_36_82/0.6)] dark:bg-white dark:text-[#0c2452] dark:ring-white' : 'bg-white/70 text-slate-700 shadow-[inset_0_1px_0_rgb(255_255_255/0.8)] ring-slate-900/10 hover:ring-ocean-400 dark:bg-white/8 dark:text-slate-100 dark:shadow-[inset_0_1px_0_rgb(255_255_255/0.12)] dark:ring-white/12'
             }`}
           >
             {Icone && <Icone className="size-4" aria-hidden />}

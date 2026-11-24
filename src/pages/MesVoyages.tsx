@@ -6,6 +6,7 @@ import { ajouterJours } from '../engine/dates'
 import { dateDuJour, useVoyage, type VoyageSauvegarde } from '../store/voyage'
 import { formatEuros } from '../ui/format'
 import { EnTetePage } from '../ui/EnTetePage'
+import { PisteLiquide, classeOnglet, FOND_PISTE } from '../ui/glass'
 
 const date = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })
 
@@ -83,7 +84,7 @@ export default function MesVoyages() {
         </button>
       </EnTetePage>
       <main className="mx-auto max-w-2xl px-3 py-4">
-        <div role="tablist" aria-label="Rubriques" className="grid grid-cols-3 rounded-2xl bg-slate-900/5 p-1 dark:bg-white/10">
+        <PisteLiquide cle={rubrique} role="tablist" aria-label="Rubriques" className={`grid grid-cols-3 ${FOND_PISTE}`}>
           {RUBRIQUES.map((r) => {
             const n = parRubrique(r.id).length
             return (
@@ -92,15 +93,16 @@ export default function MesVoyages() {
                 type="button"
                 role="tab"
                 aria-selected={rubrique === r.id}
+                data-actif={rubrique === r.id}
                 onClick={() => setRubrique(r.id)}
-                className={`h-10 rounded-xl text-sm font-semibold transition ${rubrique === r.id ? 'bg-white text-ocean-800 shadow-sm dark:bg-ocean-800 dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}
+                className={`h-10 rounded-xl text-sm font-semibold ${classeOnglet(rubrique === r.id)}`}
               >
                 {r.libelle}
                 {n > 0 && <span className="ml-1 text-xs font-normal opacity-75">{n}</span>}
               </button>
             )
           })}
-        </div>
+        </PisteLiquide>
 
         {liste.length === 0 ? (
           <div className="mt-14 text-center">
