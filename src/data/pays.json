@@ -1,0 +1,1819 @@
+{
+ "_note": "Indice de coût de la vie pour un voyageur, base France = 1,0. Voir SOURCES.md.",
+ "continents": {
+  "europe": {
+   "nom": "Europe",
+   "indice": 0.85,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11
+   ]
+  },
+  "afrique": {
+   "nom": "Afrique",
+   "indice": 0.55,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.2
+   },
+   "moisHauteSaison": [
+    1,
+    7,
+    8,
+    12
+   ],
+   "moisBasseSaison": [
+    4,
+    5,
+    6
+   ]
+  },
+  "moyen_orient": {
+   "nom": "Moyen-Orient",
+   "indice": 0.85,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    3,
+    11,
+    12
+   ],
+   "moisBasseSaison": [
+    6,
+    7,
+    8
+   ]
+  },
+  "asie": {
+   "nom": "Asie",
+   "indice": 0.55,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    7,
+    8,
+    12
+   ],
+   "moisBasseSaison": [
+    5,
+    6,
+    9
+   ]
+  },
+  "amerique_nord": {
+   "nom": "Amérique du Nord",
+   "indice": 1.25,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.3
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8,
+    12
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11
+   ]
+  },
+  "amerique_centrale": {
+   "nom": "Amérique centrale et Caraïbes",
+   "indice": 0.7,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    3,
+    12
+   ],
+   "moisBasseSaison": [
+    6,
+    9,
+    10
+   ]
+  },
+  "amerique_sud": {
+   "nom": "Amérique du Sud",
+   "indice": 0.6,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    7,
+    12
+   ],
+   "moisBasseSaison": [
+    4,
+    5,
+    6
+   ]
+  },
+  "oceanie": {
+   "nom": "Océanie",
+   "indice": 1.2,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    12
+   ],
+   "moisBasseSaison": [
+    5,
+    6,
+    7
+   ]
+  }
+ },
+ "pays": {
+  "fr": {
+   "nom": "France",
+   "continent": "europe",
+   "indice": 1.0,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.3
+   },
+   "moisHauteSaison": [
+    7,
+    8
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    3,
+    11
+   ]
+  },
+  "es": {
+   "nom": "Espagne",
+   "continent": "europe",
+   "indice": 0.85,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.3
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8,
+    9
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11
+   ]
+  },
+  "pt": {
+   "nom": "Portugal",
+   "continent": "europe",
+   "indice": 0.78,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.3
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11,
+    12
+   ]
+  },
+  "it": {
+   "nom": "Italie",
+   "continent": "europe",
+   "indice": 0.95,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.3
+   },
+   "moisHauteSaison": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11
+   ]
+  },
+  "gr": {
+   "nom": "Grèce",
+   "continent": "europe",
+   "indice": 0.8,
+   "saison": {
+    "basse": 0.7,
+    "moyenne": 1.0,
+    "haute": 1.35
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8,
+    9
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    3,
+    11,
+    12
+   ]
+  },
+  "de": {
+   "nom": "Allemagne",
+   "continent": "europe",
+   "indice": 1.0,
+   "saison": {
+    "basse": 0.9,
+    "moyenne": 1.0,
+    "haute": 1.2
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8,
+    12
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    3
+   ]
+  },
+  "be": {
+   "nom": "Belgique",
+   "continent": "europe",
+   "indice": 1.05,
+   "saison": {
+    "basse": 0.9,
+    "moyenne": 1.0,
+    "haute": 1.15
+   },
+   "moisHauteSaison": [
+    7,
+    8,
+    12
+   ],
+   "moisBasseSaison": [
+    1,
+    2
+   ]
+  },
+  "nl": {
+   "nom": "Pays-Bas",
+   "continent": "europe",
+   "indice": 1.12,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.3
+   },
+   "moisHauteSaison": [
+    4,
+    5,
+    7,
+    8
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11
+   ]
+  },
+  "lu": {
+   "nom": "Luxembourg",
+   "continent": "europe",
+   "indice": 1.2,
+   "saison": {
+    "basse": 0.9,
+    "moyenne": 1.0,
+    "haute": 1.15
+   },
+   "moisHauteSaison": [
+    7,
+    8
+   ],
+   "moisBasseSaison": [
+    1,
+    2
+   ]
+  },
+  "ch": {
+   "nom": "Suisse",
+   "continent": "europe",
+   "indice": 1.6,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    7,
+    8,
+    12
+   ],
+   "moisBasseSaison": [
+    4,
+    5,
+    11
+   ]
+  },
+  "at": {
+   "nom": "Autriche",
+   "continent": "europe",
+   "indice": 1.05,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    7,
+    8,
+    12
+   ],
+   "moisBasseSaison": [
+    4,
+    5,
+    11
+   ]
+  },
+  "gb": {
+   "nom": "Royaume-Uni",
+   "continent": "europe",
+   "indice": 1.12,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8,
+    12
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    3,
+    11
+   ]
+  },
+  "ie": {
+   "nom": "Irlande",
+   "continent": "europe",
+   "indice": 1.18,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11
+   ]
+  },
+  "dk": {
+   "nom": "Danemark",
+   "continent": "europe",
+   "indice": 1.3,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11
+   ]
+  },
+  "se": {
+   "nom": "Suède",
+   "continent": "europe",
+   "indice": 1.1,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11
+   ]
+  },
+  "no": {
+   "nom": "Norvège",
+   "continent": "europe",
+   "indice": 1.35,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11
+   ]
+  },
+  "fi": {
+   "nom": "Finlande",
+   "continent": "europe",
+   "indice": 1.15,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8,
+    12
+   ],
+   "moisBasseSaison": [
+    4,
+    5,
+    10,
+    11
+   ]
+  },
+  "is": {
+   "nom": "Islande",
+   "continent": "europe",
+   "indice": 1.55,
+   "saison": {
+    "basse": 0.75,
+    "moyenne": 1.0,
+    "haute": 1.35
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11
+   ]
+  },
+  "pl": {
+   "nom": "Pologne",
+   "continent": "europe",
+   "indice": 0.62,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.2
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8,
+    12
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11
+   ]
+  },
+  "cz": {
+   "nom": "Tchéquie",
+   "continent": "europe",
+   "indice": 0.7,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8,
+    12
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    3,
+    11
+   ]
+  },
+  "hu": {
+   "nom": "Hongrie",
+   "continent": "europe",
+   "indice": 0.62,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.2
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8,
+    12
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11
+   ]
+  },
+  "hr": {
+   "nom": "Croatie",
+   "continent": "europe",
+   "indice": 0.78,
+   "saison": {
+    "basse": 0.65,
+    "moyenne": 1.0,
+    "haute": 1.4
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8,
+    9
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    3,
+    11,
+    12
+   ]
+  },
+  "si": {
+   "nom": "Slovénie",
+   "continent": "europe",
+   "indice": 0.8,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11
+   ]
+  },
+  "ro": {
+   "nom": "Roumanie",
+   "continent": "europe",
+   "indice": 0.55,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.2
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11
+   ]
+  },
+  "bg": {
+   "nom": "Bulgarie",
+   "continent": "europe",
+   "indice": 0.5,
+   "saison": {
+    "basse": 0.75,
+    "moyenne": 1.0,
+    "haute": 1.3
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11
+   ]
+  },
+  "mt": {
+   "nom": "Malte",
+   "continent": "europe",
+   "indice": 0.85,
+   "saison": {
+    "basse": 0.75,
+    "moyenne": 1.0,
+    "haute": 1.3
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8,
+    9
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11,
+    12
+   ]
+  },
+  "cy": {
+   "nom": "Chypre",
+   "continent": "europe",
+   "indice": 0.85,
+   "saison": {
+    "basse": 0.75,
+    "moyenne": 1.0,
+    "haute": 1.3
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8,
+    9
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    12
+   ]
+  },
+  "mc": {
+   "nom": "Monaco",
+   "continent": "europe",
+   "indice": 1.8,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.4
+   },
+   "moisHauteSaison": [
+    5,
+    7,
+    8
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11
+   ]
+  },
+  "ad": {
+   "nom": "Andorre",
+   "continent": "europe",
+   "indice": 0.95,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.3
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    7,
+    8,
+    12
+   ],
+   "moisBasseSaison": [
+    5,
+    6,
+    10,
+    11
+   ]
+  },
+  "ee": {
+   "nom": "Estonie",
+   "continent": "europe",
+   "indice": 0.8,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11
+   ]
+  },
+  "lv": {
+   "nom": "Lettonie",
+   "continent": "europe",
+   "indice": 0.68,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11
+   ]
+  },
+  "lt": {
+   "nom": "Lituanie",
+   "continent": "europe",
+   "indice": 0.65,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11
+   ]
+  },
+  "sk": {
+   "nom": "Slovaquie",
+   "continent": "europe",
+   "indice": 0.65,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.2
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11
+   ]
+  },
+  "al": {
+   "nom": "Albanie",
+   "continent": "europe",
+   "indice": 0.5,
+   "saison": {
+    "basse": 0.7,
+    "moyenne": 1.0,
+    "haute": 1.35
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11,
+    12
+   ]
+  },
+  "me": {
+   "nom": "Monténégro",
+   "continent": "europe",
+   "indice": 0.6,
+   "saison": {
+    "basse": 0.7,
+    "moyenne": 1.0,
+    "haute": 1.35
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11,
+    12
+   ]
+  },
+  "rs": {
+   "nom": "Serbie",
+   "continent": "europe",
+   "indice": 0.55,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.2
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11
+   ]
+  },
+  "tr": {
+   "nom": "Turquie",
+   "continent": "europe",
+   "indice": 0.55,
+   "saison": {
+    "basse": 0.75,
+    "moyenne": 1.0,
+    "haute": 1.3
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8,
+    9
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11,
+    12
+   ]
+  },
+  "ma": {
+   "nom": "Maroc",
+   "continent": "afrique",
+   "indice": 0.5,
+   "saison": {
+    "basse": 0.75,
+    "moyenne": 1.0,
+    "haute": 1.3
+   },
+   "moisHauteSaison": [
+    3,
+    4,
+    10,
+    12
+   ],
+   "moisBasseSaison": [
+    6,
+    7,
+    8
+   ]
+  },
+  "tn": {
+   "nom": "Tunisie",
+   "continent": "afrique",
+   "indice": 0.45,
+   "saison": {
+    "basse": 0.75,
+    "moyenne": 1.0,
+    "haute": 1.3
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8,
+    9
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11,
+    12
+   ]
+  },
+  "eg": {
+   "nom": "Égypte",
+   "continent": "afrique",
+   "indice": 0.45,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    3,
+    10,
+    11,
+    12
+   ],
+   "moisBasseSaison": [
+    6,
+    7,
+    8
+   ]
+  },
+  "za": {
+   "nom": "Afrique du Sud",
+   "continent": "afrique",
+   "indice": 0.6,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    3,
+    12
+   ],
+   "moisBasseSaison": [
+    5,
+    6,
+    7
+   ]
+  },
+  "sn": {
+   "nom": "Sénégal",
+   "continent": "afrique",
+   "indice": 0.6,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    3,
+    11,
+    12
+   ],
+   "moisBasseSaison": [
+    7,
+    8,
+    9
+   ]
+  },
+  "ke": {
+   "nom": "Kenya",
+   "continent": "afrique",
+   "indice": 0.7,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    7,
+    8,
+    9
+   ],
+   "moisBasseSaison": [
+    4,
+    5,
+    11
+   ]
+  },
+  "tz": {
+   "nom": "Tanzanie",
+   "continent": "afrique",
+   "indice": 0.7,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    7,
+    8,
+    9
+   ],
+   "moisBasseSaison": [
+    4,
+    5
+   ]
+  },
+  "mu": {
+   "nom": "Maurice",
+   "continent": "afrique",
+   "indice": 0.75,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    1,
+    10,
+    11,
+    12
+   ],
+   "moisBasseSaison": [
+    5,
+    6,
+    7
+   ]
+  },
+  "mg": {
+   "nom": "Madagascar",
+   "continent": "afrique",
+   "indice": 0.45,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.2
+   },
+   "moisHauteSaison": [
+    7,
+    8,
+    9,
+    10
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    3
+   ]
+  },
+  "cv": {
+   "nom": "Cap-Vert",
+   "continent": "afrique",
+   "indice": 0.6,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.2
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    3,
+    11,
+    12
+   ],
+   "moisBasseSaison": [
+    5,
+    6,
+    9
+   ]
+  },
+  "ae": {
+   "nom": "Émirats arabes unis",
+   "continent": "moyen_orient",
+   "indice": 1.15,
+   "saison": {
+    "basse": 0.7,
+    "moyenne": 1.0,
+    "haute": 1.3
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    3,
+    11,
+    12
+   ],
+   "moisBasseSaison": [
+    6,
+    7,
+    8
+   ]
+  },
+  "il": {
+   "nom": "Israël",
+   "continent": "moyen_orient",
+   "indice": 1.25,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    4,
+    5,
+    9,
+    10
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    7,
+    8
+   ]
+  },
+  "jo": {
+   "nom": "Jordanie",
+   "continent": "moyen_orient",
+   "indice": 0.75,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    3,
+    4,
+    5,
+    9,
+    10,
+    11
+   ],
+   "moisBasseSaison": [
+    1,
+    6,
+    7,
+    8,
+    12
+   ]
+  },
+  "jp": {
+   "nom": "Japon",
+   "continent": "asie",
+   "indice": 0.9,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.3
+   },
+   "moisHauteSaison": [
+    3,
+    4,
+    10,
+    11
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    6
+   ]
+  },
+  "cn": {
+   "nom": "Chine",
+   "continent": "asie",
+   "indice": 0.6,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    4,
+    5,
+    9,
+    10
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    12
+   ]
+  },
+  "th": {
+   "nom": "Thaïlande",
+   "continent": "asie",
+   "indice": 0.5,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    11,
+    12
+   ],
+   "moisBasseSaison": [
+    5,
+    6,
+    9,
+    10
+   ]
+  },
+  "vn": {
+   "nom": "Vietnam",
+   "continent": "asie",
+   "indice": 0.4,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.2
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    3,
+    4,
+    12
+   ],
+   "moisBasseSaison": [
+    7,
+    8,
+    9,
+    10
+   ]
+  },
+  "id": {
+   "nom": "Indonésie",
+   "continent": "asie",
+   "indice": 0.45,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    7,
+    8,
+    12
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    3,
+    11
+   ]
+  },
+  "in": {
+   "nom": "Inde",
+   "continent": "asie",
+   "indice": 0.35,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    11,
+    12
+   ],
+   "moisBasseSaison": [
+    5,
+    6,
+    7,
+    8
+   ]
+  },
+  "lk": {
+   "nom": "Sri Lanka",
+   "continent": "asie",
+   "indice": 0.42,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    3,
+    12
+   ],
+   "moisBasseSaison": [
+    5,
+    6,
+    10
+   ]
+  },
+  "kr": {
+   "nom": "Corée du Sud",
+   "continent": "asie",
+   "indice": 0.85,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    4,
+    5,
+    9,
+    10
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    7
+   ]
+  },
+  "sg": {
+   "nom": "Singapour",
+   "continent": "asie",
+   "indice": 1.25,
+   "saison": {
+    "basse": 0.9,
+    "moyenne": 1.0,
+    "haute": 1.15
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    12
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    9
+   ]
+  },
+  "my": {
+   "nom": "Malaisie",
+   "continent": "asie",
+   "indice": 0.5,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.2
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    6,
+    7,
+    12
+   ],
+   "moisBasseSaison": [
+    9,
+    10,
+    11
+   ]
+  },
+  "ph": {
+   "nom": "Philippines",
+   "continent": "asie",
+   "indice": 0.48,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.2
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    3,
+    4,
+    12
+   ],
+   "moisBasseSaison": [
+    7,
+    8,
+    9
+   ]
+  },
+  "kh": {
+   "nom": "Cambodge",
+   "continent": "asie",
+   "indice": 0.42,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.2
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    11,
+    12
+   ],
+   "moisBasseSaison": [
+    6,
+    7,
+    8,
+    9
+   ]
+  },
+  "np": {
+   "nom": "Népal",
+   "continent": "asie",
+   "indice": 0.38,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    3,
+    4,
+    10,
+    11
+   ],
+   "moisBasseSaison": [
+    6,
+    7,
+    8
+   ]
+  },
+  "mv": {
+   "nom": "Maldives",
+   "continent": "asie",
+   "indice": 1.5,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.3
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    3,
+    4,
+    12
+   ],
+   "moisBasseSaison": [
+    6,
+    7,
+    9
+   ]
+  },
+  "us": {
+   "nom": "États-Unis",
+   "continent": "amerique_nord",
+   "indice": 1.35,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.3
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8,
+    12
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    11
+   ]
+  },
+  "ca": {
+   "nom": "Canada",
+   "continent": "amerique_nord",
+   "indice": 1.15,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.3
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8,
+    9
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    4,
+    11
+   ]
+  },
+  "mx": {
+   "nom": "Mexique",
+   "continent": "amerique_centrale",
+   "indice": 0.6,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.3
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    3,
+    7,
+    8,
+    12
+   ],
+   "moisBasseSaison": [
+    5,
+    6,
+    9,
+    10
+   ]
+  },
+  "cu": {
+   "nom": "Cuba",
+   "continent": "amerique_centrale",
+   "indice": 0.65,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    3,
+    12
+   ],
+   "moisBasseSaison": [
+    6,
+    9,
+    10
+   ]
+  },
+  "do": {
+   "nom": "République dominicaine",
+   "continent": "amerique_centrale",
+   "indice": 0.65,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    3,
+    4,
+    12
+   ],
+   "moisBasseSaison": [
+    6,
+    9,
+    10
+   ]
+  },
+  "cr": {
+   "nom": "Costa Rica",
+   "continent": "amerique_centrale",
+   "indice": 0.8,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    3,
+    4,
+    12
+   ],
+   "moisBasseSaison": [
+    9,
+    10
+   ]
+  },
+  "br": {
+   "nom": "Brésil",
+   "continent": "amerique_sud",
+   "indice": 0.6,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.3
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    7,
+    12
+   ],
+   "moisBasseSaison": [
+    4,
+    5,
+    6,
+    9
+   ]
+  },
+  "ar": {
+   "nom": "Argentine",
+   "continent": "amerique_sud",
+   "indice": 0.65,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    12
+   ],
+   "moisBasseSaison": [
+    5,
+    6,
+    9
+   ]
+  },
+  "pe": {
+   "nom": "Pérou",
+   "continent": "amerique_sud",
+   "indice": 0.5,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    3
+   ]
+  },
+  "cl": {
+   "nom": "Chili",
+   "continent": "amerique_sud",
+   "indice": 0.75,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    12
+   ],
+   "moisBasseSaison": [
+    5,
+    6,
+    7
+   ]
+  },
+  "co": {
+   "nom": "Colombie",
+   "continent": "amerique_sud",
+   "indice": 0.5,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.2
+   },
+   "moisHauteSaison": [
+    1,
+    6,
+    7,
+    12
+   ],
+   "moisBasseSaison": [
+    4,
+    5,
+    10
+   ]
+  },
+  "au": {
+   "nom": "Australie",
+   "continent": "oceanie",
+   "indice": 1.25,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    12
+   ],
+   "moisBasseSaison": [
+    5,
+    6,
+    7
+   ]
+  },
+  "nz": {
+   "nom": "Nouvelle-Zélande",
+   "continent": "oceanie",
+   "indice": 1.2,
+   "saison": {
+    "basse": 0.8,
+    "moyenne": 1.0,
+    "haute": 1.3
+   },
+   "moisHauteSaison": [
+    1,
+    2,
+    12
+   ],
+   "moisBasseSaison": [
+    5,
+    6,
+    7
+   ]
+  },
+  "pf": {
+   "nom": "Polynésie française",
+   "continent": "oceanie",
+   "indice": 1.5,
+   "saison": {
+    "basse": 0.85,
+    "moyenne": 1.0,
+    "haute": 1.25
+   },
+   "moisHauteSaison": [
+    6,
+    7,
+    8,
+    12
+   ],
+   "moisBasseSaison": [
+    1,
+    2,
+    3
+   ]
+  }
+ }
+}

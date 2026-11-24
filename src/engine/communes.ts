@@ -1,4 +1,4 @@
-import type { Coordonnees } from '../data/types'
+import type { Coordonnees } from '../domain/types'
 
 /** Format compact produit par scripts/generer-communes.mjs */
 export interface CommunesCompactes {

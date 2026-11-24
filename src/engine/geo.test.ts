@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { aeroports, villesDepart } from '../data'
+import { aeroports } from '../data'
 import { aeroportLePlusProche, distanceKm, distanceTerrestreKm } from './geo'
 
 const paris = { lat: 48.8566, lon: 2.3522 }
@@ -33,7 +33,7 @@ describe('distanceTerrestreKm', () => {
 
 describe('aeroportLePlusProche', () => {
   it('rattache Troyes à Paris', () => {
-    const troyes = villesDepart.find((v) => v.id === 'troyes')!
+    const troyes = { lat: 48.2973, lon: 4.0744 }
     const { aeroport, distanceKm } = aeroportLePlusProche(troyes, aeroports)
     expect(aeroport.code).toBe('PAR')
     expect(distanceKm).toBeGreaterThan(100)
@@ -41,7 +41,7 @@ describe('aeroportLePlusProche', () => {
   })
 
   it('rattache Lyon à Lyon-Saint-Exupéry', () => {
-    const lyon = villesDepart.find((v) => v.id === 'lyon')!
+    const lyon = { lat: 45.764, lon: 4.8357 }
     expect(aeroportLePlusProche(lyon, aeroports).aeroport.code).toBe('LYS')
   })
 

@@ -1,16 +1,28 @@
 {
-  "coefficientDetour": 1.2,
-  "allerRetour": true,
+  "_note": "Barèmes 2026, tous les prix sont pour un aller simple. Voir SOURCES.md.",
+  "coefficientDetour": 1.25,
   "voiture": {
-    "consommationLitresPour100Km": 6.5,
-    "prixCarburantLitre": 2.05,
+    "consommationL100": 6.5,
+    "prixCarburant": 2.05,
     "peageParKm": 0.075,
-    "placesParVehicule": 4
+    "placesParVehicule": 4,
+    "vitesseMoyenneKmH": 85,
+    "distanceMaxKm": 2200
   },
   "train": {
     "prixParKm": 0.12,
     "minimumParTrajet": 15,
-    "plafondParTrajet": 150
+    "plafondParTrajet": 150,
+    "vitesseMoyenneKmH": 140,
+    "distanceMaxKm": 1800,
+    "coefficientClasse": { "eco": 1, "premium": 1.35, "premiere": 1.6 }
+  },
+  "car": {
+    "prixParKm": 0.06,
+    "minimumParTrajet": 10,
+    "plafondParTrajet": 110,
+    "vitesseMoyenneKmH": 70,
+    "distanceMaxKm": 1600
   },
   "avion": {
     "forfaitParTrajet": 45,
@@ -20,10 +32,12 @@
       { "jusquaKm": null, "prixParKm": 0.04 }
     ],
     "coefficientSaison": { "basse": 0.9, "moyenne": 1.0, "haute": 1.25 },
-    "distanceMinimaleKm": 300
+    "coefficientClasse": { "eco": 1, "premium": 1.8, "premiere": 3.5 },
+    "bagageSouteParTrajet": 35,
+    "vitesseCroisiereKmH": 780,
+    "tempsAeroportMin": 150,
+    "distanceMinKm": 300
   },
-  "accesAeroport": {
-    "prixParKm": 0.12,
-    "seuilKm": 30
-  }
+  "accesAeroport": { "prixParKm": 0.12, "seuilKm": 30 },
+  "partEnfant": 1
 }

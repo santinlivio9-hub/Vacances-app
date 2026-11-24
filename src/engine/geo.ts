@@ -1,4 +1,5 @@
-import type { Aeroport, Coordonnees } from '../data/types'
+import type { Aeroport } from '../data'
+import type { Coordonnees } from '../domain/types'
 
 const RAYON_TERRE_KM = 6371
 

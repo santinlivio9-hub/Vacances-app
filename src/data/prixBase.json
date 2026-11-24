@@ -1,0 +1,49 @@
+{
+  "_note": "Prix de référence en France (2026), à multiplier par l'indice du pays et le coefficient de saison. Voir SOURCES.md.",
+  "logement": {
+    "_unite": "€ par nuit, pour une chambre ou un logement de 2 personnes ; auberge : € par lit et par personne ; camping : € par emplacement ou hébergement (2 pers.)",
+    "camping": { "eco": 25, "equilibre": 40, "confort": 70 },
+    "auberge": { "eco": 28, "equilibre": 36, "confort": 48 },
+    "hotel2": { "eco": 65, "equilibre": 78, "confort": 92 },
+    "hotel3": { "eco": 95, "equilibre": 120, "confort": 145 },
+    "hotel4": { "eco": 150, "equilibre": 190, "confort": 250 },
+    "appartement": { "eco": 75, "equilibre": 105, "confort": 160 },
+    "supplementCentre": 1.15,
+    "remiseCalme": 0.92,
+    "petitDejeunerParPersonne": { "eco": 8, "equilibre": 12, "confort": 20 }
+  },
+  "repas": {
+    "_unite": "€ par adulte et par repas",
+    "courses": { "eco": 6, "equilibre": 8, "confort": 12 },
+    "snack": { "eco": 11, "equilibre": 14, "confort": 18 },
+    "restaurant": { "simple": 18, "moyen": 30, "gastronomique": 65 },
+    "petitDejeunerMaison": 4
+  },
+  "transportLocal": {
+    "_unite": "€ par personne et par jour ; voiture : € par jour et par véhicule (location ou carburant + stationnement)",
+    "transports": { "eco": 5, "equilibre": 7, "confort": 12 },
+    "voiture": { "eco": 45, "equilibre": 60, "confort": 85 },
+    "velo": { "eco": 10, "equilibre": 14, "confort": 20 },
+    "pied": { "eco": 0, "equilibre": 0, "confort": 0 }
+  },
+  "activites": {
+    "_unite": "€ par adulte et par activité",
+    "musee": { "eco": 10, "equilibre": 13, "confort": 16 },
+    "monument": { "eco": 8, "equilibre": 11, "confort": 15 },
+    "parc": { "eco": 0, "equilibre": 0, "confort": 0 },
+    "plage": { "eco": 0, "equilibre": 0, "confort": 25 },
+    "point_de_vue": { "eco": 0, "equilibre": 0, "confort": 0 },
+    "zoo": { "eco": 20, "equilibre": 25, "confort": 30 },
+    "parc_attractions": { "eco": 45, "equilibre": 55, "confort": 75 },
+    "visite_guidee": { "eco": 15, "equilibre": 28, "confort": 55 },
+    "nature": { "eco": 0, "equilibre": 0, "confort": 15 },
+    "spectacle": { "eco": 25, "equilibre": 45, "confort": 85 },
+    "marche": { "eco": 0, "equilibre": 0, "confort": 0 },
+    "autre": { "eco": 8, "equilibre": 12, "confort": 20 }
+  },
+  "divers": {
+    "assuranceParPersonneParJour": 3,
+    "souvenirsParPersonneParJour": { "eco": 3, "equilibre": 6, "confort": 12 },
+    "partEnfant": 0.7
+  }
+}

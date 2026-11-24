@@ -1,5 +1,44 @@
 # Sources des données
 
+Mise à jour du **24 novembre 2026** (refonte). Ce sont des **ordres de grandeur arrondis**, pas des devis.
+
+## Refonte : modèle de coût par pays
+
+Le coût d'un voyage se calcule comme suit : **prix de référence France** (`prixBase.json`) × **indice du pays** (`pays.json`) × **coefficient de saison** × **niveau de confort**.
+
+- **`pays.json`** : 78 pays, avec un indice de coût de la vie pour un voyageur (France = 1,0) et une valeur par défaut pour chacun des 8 continents ou régions. Un pays absent de la base prend la valeur de son continent.
+  - Les indices sont des arrondis établis à partir de comparateurs de coût de la vie (Numbeo 2025–2026, baromètre Post Office 2026, prix hôteliers cités plus bas).
+  - Ils ont été vérifiés contre les 12 fiches détaillées de 2026 (`reference/destinations-2026.json`). Exemples : Portugal 0,78 (Lisbonne 120 € contre Nice 135 € en hôtel moyen), Tchéquie 0,70, États-Unis 1,35, Thaïlande 0,50.
+  - Mois de haute et basse saison : climat et vacances scolaires.
+- **`prixBase.json`** : prix France 2026 par niveau (Éco / Équilibré / Confort).
+  - Logement : camping, auberge, hôtel 2-3-4★, appartement.
+  - Repas : courses, snack, restaurant simple / moyen / gastronomique.
+  - Transport sur place, activités par type, assurance et souvenirs.
+  - Les prix de l'hôtel 3★ « équilibré » (120 €) et des repas reprennent les moyennes françaises de la première version (Nice, Biarritz, Annecy, Marseille).
+- **`transport.json`** : barèmes de la première version (voiture 0,208 €/km, train 0,12 €/km, avion dégressif), avec en plus :
+  - le **car** longue distance : 0,06 €/km, de 10 à 110 € par trajet, d'après les tarifs constatés de FlixBus et BlaBlaCar Bus ;
+  - les **classes** de voyage, les **bagages en soute** (environ 35 € par trajet sur les compagnies européennes) ;
+  - les **seuils de réalisme** : pas d'avion sous 300 km, pas de train au-delà de 1 800 km, pas de car au-delà de 1 600 km.
+- **Enfants** : 70 % du prix adulte pour les repas et les activités, 100 % pour le transport et le logement.
+
+## Services en ligne (gratuits, sans clé)
+
+| Service | Usage | Règles respectées |
+| --- | --- | --- |
+| [Photon](https://photon.komoot.io) (komoot) | Autocomplétion des adresses | Saisie débouncée (300 ms), cache ; repli sur les communes embarquées |
+| [Nominatim](https://operations.osmfoundation.org/policies/nominatim/) | Adresse d'un point cliqué ; recherche de secours | 1 requête/s maximum, jamais en autocomplétion, cache |
+| [OSRM, serveur de démonstration](https://github.com/Project-OSRM/osrm-backend/wiki/Demo-server) | Distance et durée en voiture | Un appel par trajet, cache ; repli vol d'oiseau × 1,25 |
+| [Overpass API](https://wiki.openstreetmap.org/wiki/Overpass_API) | Lieux à visiter | Rayon limité (≈ 12 km), 150 résultats maximum, un appel par destination, cache |
+| [Wikipédia](https://fr.wikipedia.org/api/rest_v1/) | Résumés, photos, lieux géolocalisés | Cache, liens vers les articles (licence CC BY-SA) |
+| [CARTO](https://carto.com/attributions) / OpenStreetMap | Fond de carte | Attribution affichée sur la carte |
+
+Les données OpenStreetMap sont sous licence [ODbL](https://www.openstreetmap.org/copyright) : l'attribution « © OpenStreetMap » est affichée sur la carte et dans le pied de page.
+
+---
+
+# Sources de la première version (12 destinations)
+
+
 Données compilées le **23 novembre 2026**. Ce sont des **ordres de grandeur arrondis**, pas des devis : les prix réels dépendent des dates, de la date de réservation et des disponibilités. L'application affiche toujours la mention « Estimation indicative — prix moyens constatés en 2026 ».
 
 ## Méthode
@@ -72,4 +111,3 @@ Liens testés le 23/11/2026 dans un navigateur automatisé :
 
 - **Communes** (`communes.json`) : 34 746 communes de France métropolitaine et de Corse, avec leur position et leurs codes postaux. Source : [geo.api.gouv.fr](https://geo.api.gouv.fr) (Etalab, Licence Ouverte 2.0), récupérées le 23/11/2026. Pour régénérer le fichier : `npm run donnees:communes`.
 - **Aéroports** (`aeroports.json`) : 22 aéroports de départ en France. Coordonnées arrondies au kilomètre. « PAR » regroupe Roissy-CDG et Orly.
-- **Villes rapides** (`villesDepart.json`) : les 9 villes proposées en raccourci (Paris, Lyon, Marseille, Toulouse, Lille, Bordeaux, Nantes, Strasbourg, Troyes). Toutes les autres communes restent accessibles par la recherche.
