@@ -42,7 +42,7 @@ export function PanneauTrajet({ depart, arrivee, itineraire, resume, nuits, date
   return (
     <article aria-label={`Trajet vers ${arrivee.nom}`}>
       <div className="relative h-28 overflow-hidden rounded-2xl bg-gradient-to-br from-ocean-300 to-ocean-700 sm:h-44">
-        {resume?.image && <img src={imageLargeur(resume.image, 500)} alt={`Vue de ${arrivee.nom}`} className="absolute inset-0 size-full object-cover" />}
+        {resume?.image && <img onError={(e) => (e.currentTarget.style.display = 'none')} src={imageLargeur(resume.image, 500)} alt={`Vue de ${arrivee.nom}`} className="absolute inset-0 size-full object-cover" />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/5 to-transparent" />
         <BoutonFavori
           surImage

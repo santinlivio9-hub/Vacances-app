@@ -15,7 +15,7 @@ export default function Partage() {
     setCharge(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  if (voyage) return charge ? <Navigate to="/calcul" replace /> : null
+  if (voyage) return charge ? <Navigate to="/calcul?vers=voyage" replace /> : null
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-4 p-6 text-center">
       <h1 className="text-xl font-bold">Lien de voyage illisible</h1>

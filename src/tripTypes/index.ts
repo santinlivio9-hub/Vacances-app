@@ -29,6 +29,9 @@ export function harmoniserSimple(s: ReglagesSimples): ReglagesSimples {
 export function changerTypeVoyage(s: ReglagesSimples, type: TypeVoyage, aujourdhui: string): ReglagesSimples {
   if (s.typeVoyage === type) return s
   const def = TYPES_VOYAGE[type]
+  const avant = typeVoyage(s)
   const r = { ...s, typeVoyage: type, ...def.auChoix({ ...s, typeVoyage: type }, aujourdhui) }
-  return harmoniserSimple({ ...r, logements: r.logements.filter((l) => def.logementsPossibles.includes(l)) })
+  // Logements au mois ↔ à la nuit : on repart des logements conseillés pour ce type
+  const memesLogements = avant.logementsPossibles.join() === def.logementsPossibles.join()
+  return harmoniserSimple({ ...r, logements: memesLogements ? r.logements : def.logementsParDefaut(r) })
 }

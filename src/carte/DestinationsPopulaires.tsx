@@ -38,7 +38,7 @@ export function DestinationsPopulaires({ onChoisir }: { onChoisir: (lieu: Lieu) 
               className="group relative block h-28 w-32 overflow-hidden rounded-2xl bg-gradient-to-br from-ocean-400 to-ocean-700 text-left shadow-sm ring-1 ring-black/5 focus-visible:ring-2 focus-visible:ring-ocean-500 focus-visible:outline-none"
             >
               {images[d.nom] && (
-                <img src={images[d.nom]} alt="" loading="lazy" className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                <img onError={(e) => (e.currentTarget.style.display = 'none')} src={images[d.nom]} alt="" loading="lazy" className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-105" />
               )}
               <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
               <span className="absolute inset-x-2 bottom-2 text-white">

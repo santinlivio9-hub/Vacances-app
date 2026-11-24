@@ -127,3 +127,12 @@ describe('type de voyage', () => {
     expect(s.logements.every((l) => ['studio', 'colocation', 'habitant', 'residence', 'appartement'].includes(l))).toBe(true)
   })
 })
+
+describe('changement de type de voyage', () => {
+  it('passe aux logements au mois conseillés pour un stage, et revient aux logements à la nuit', () => {
+    useVoyage.getState().choisirTypeVoyage('stage')
+    expect(useVoyage.getState().reglages.simple.logements).toEqual(['colocation', 'studio'])
+    useVoyage.getState().choisirTypeVoyage('weekend')
+    expect(useVoyage.getState().reglages.simple.logements.every((l) => ['hotel', 'appartement', 'habitant', 'auberge', 'camping', 'gite'].includes(l))).toBe(true)
+  })
+})

@@ -103,7 +103,7 @@ export function zonesTrajet(trajetMaxMin: number, contexte: { abonnement: number
     },
     {
       id: 'moyenne',
-      nom: 'Proche',
+      nom: 'Proche en transports',
       rayonMinKm: rPied,
       rayonMaxKm: rMoyen,
       mode: 'transports',
@@ -157,7 +157,7 @@ export function budgetSejourLong(entree: EntreeSejourLong): BudgetSejourLong {
   const coefVille = proche?.loyer ?? SL.petiteVille
   const abonnement = proche?.abonnement ?? SL.abonnementTransportMois * k
   const zones = zonesTrajet(s.stage.trajetMaxMin, { abonnement, remboursement: av.remboursementTransport })
-  const zone = zones.find((z) => z.id === entree.zone) ?? zones.find((z) => z.id === 'moyenne')!
+  const zone = zones.find((z) => z.id === (entree.zone ?? s.stage.zone)) ?? zones.find((z) => z.id === 'moyenne')!
   const logement = entree.logement ?? s.logements[0] ?? 'studio'
   const occupants = s.adultes + s.enfants
   const equivalentsAdultes = s.adultes + s.enfants * prixBase.divers.partEnfant

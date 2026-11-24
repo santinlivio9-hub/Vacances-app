@@ -71,7 +71,7 @@ export default function Favoris() {
                 <li key={f.id} className="flex items-stretch overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-900/5 dark:bg-slate-900 dark:ring-white/10">
                   <button type="button" onClick={() => ouvrir(f)} className="flex min-w-0 flex-1 items-center gap-3 p-3 text-left hover:bg-slate-50 dark:hover:bg-white/5">
                     <span className="relative grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl bg-gradient-to-br from-ocean-300 to-ocean-700 text-white">
-                      {f.image ? <img src={f.image} alt="" loading="lazy" className="absolute inset-0 size-full object-cover" /> : <Icone className="size-6" aria-hidden />}
+                      {f.image ? <img onError={(e) => (e.currentTarget.style.display = 'none')} src={f.image} alt="" loading="lazy" className="absolute inset-0 size-full object-cover" /> : <Icone className="size-6" aria-hidden />}
                     </span>
                     <span className="min-w-0">
                       <span className="flex items-center gap-1 text-[11px] font-semibold tracking-wide text-ocean-700 uppercase dark:text-ocean-300">

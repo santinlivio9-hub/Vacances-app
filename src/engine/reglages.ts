@@ -62,6 +62,7 @@ export function normaliserSimple(brut: Partial<ReglagesSimples> & Record<string,
     heureFin: typeof st.heureFin === 'string' && /^\d{2}:\d{2}$/.test(st.heureFin) ? st.heureFin : '17:30',
     trajetMaxMin: entier(st.trajetMaxMin, 10, 90, 30),
     retours: st.retours === 'jamais' || st.retours === 'chaque' ? st.retours : 'deux',
+    ...(st.zone === 'proche' || st.zone === 'moyenne' || st.zone === 'eloignee' ? { zone: st.zone } : {}),
   }
   const logements = Array.isArray(brut.logements) ? (brut.logements.filter(estTypeLogement) as TypeLogement[]) : []
   s.logements = logements.length ? [...new Set(logements)] : estTypeLogement(typeLogementAncien) ? [typeLogementAncien] : typeVoyage(s).logementsParDefaut(s)

@@ -38,7 +38,7 @@ function CarteActivite({ activite, ville, numero, couleur, onRemplacer }: { acti
   return (
     <li className="flex gap-3 rounded-2xl bg-white p-2.5 shadow-sm ring-1 ring-slate-900/5 dark:bg-slate-900 dark:ring-white/10">
       <div ref={ref} className="relative size-20 shrink-0 overflow-hidden rounded-xl bg-gradient-to-br from-ocean-200 to-ocean-500 sm:size-24">
-        {photo && <img src={photo} alt="" loading="lazy" className="absolute inset-0 size-full object-cover" />}
+        {photo && <img onError={(e) => (e.currentTarget.style.display = 'none')} src={photo} alt="" loading="lazy" className="absolute inset-0 size-full object-cover" />}
         <span className="absolute top-1.5 left-1.5 grid size-6 place-items-center rounded-full text-xs font-bold text-white ring-2 ring-white" style={{ background: couleur }} aria-hidden>
           {numero}
         </span>

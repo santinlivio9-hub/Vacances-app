@@ -53,7 +53,7 @@ interface EtatVoyage {
   /** Propose le mode de transport conseillé, une seule fois par trajet (ne réécrase pas un choix ultérieur) */
   appliquerModeConseille: (mode: ModeTransport) => void
   regenerer: () => void
-  sauvegarder: (nom: string, infos?: { total?: number; proposition?: string }) => VoyageSauvegarde | null
+  sauvegarder: (nom: string, infos?: { total?: number; proposition?: string; reglages?: Reglages }) => VoyageSauvegarde | null
   /** Enregistre (ou met à jour) le brouillon du trajet en cours */
   enregistrerBrouillon: () => void
   supprimerSauvegarde: (id: string) => void
@@ -143,8 +143,9 @@ export const useVoyage = create<EtatVoyage>()(
       },
       regenerer: () => set(({ graine }) => ({ graine: graine + 1 })),
 
-      sauvegarder: (nom, infos = {}) => {
-        const { depart, arrivee, reglages, graine, sauvegardes } = get()
+      sauvegarder: (nom, { reglages: autres, ...infos } = {}) => {
+        const { depart, arrivee, graine, sauvegardes } = get()
+        const reglages = autres ?? get().reglages
         if (!depart || !arrivee) return null
         const voyage: VoyageSauvegarde = {
           id: nouvelId(),

@@ -56,6 +56,8 @@ export interface ReglagesStage {
   /** Temps de trajet maximum accepté entre le logement et le travail (minutes) */
   trajetMaxMin: number
   retours: FrequenceRetour
+  /** Zone de logement retenue autour du lieu de travail (proposition choisie) */
+  zone?: 'proche' | 'moyenne' | 'eloignee'
 }
 export type TransportLocal = 'transports' | 'voiture' | 'velo' | 'pied'
 export type ClasseVoyage = 'eco' | 'premium' | 'premiere'

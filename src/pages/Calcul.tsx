@@ -1,24 +1,33 @@
 import { Check, Loader2 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
-import { Navigate, useNavigate } from 'react-router'
+import { Navigate, useNavigate, useSearchParams } from 'react-router'
 import { useVoyage } from '../store/voyage'
 import { cleVoyage, useResultat } from '../store/resultat'
-import { calculerVoyage, ETAPES, type IdEtape } from '../voyage/calcul'
+import { calculerBase, etapesDuCalcul, propositionsPour, resultatPour, type IdEtape } from '../voyage/calcul'
 
 const pause = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
+/**
+ * Écran de calcul. Par défaut il prépare les propositions à comparer ;
+ * avec « ?vers=voyage » (voyage sauvegardé, partagé, régénéré), il recalcule directement « Mon voyage ».
+ */
 export default function Calcul() {
   const navigate = useNavigate()
+  const [params] = useSearchParams()
+  const versVoyage = params.get('vers') === 'voyage'
   const { depart, arrivee, reglages, graine } = useVoyage()
-  const definir = useResultat((s) => s.definir)
+  const { definir, definirPropositions } = useResultat()
   const [etape, setEtape] = useState<IdEtape>('trajet')
   const [details, setDetails] = useState<Partial<Record<IdEtape, string>>>({})
   const lance = useRef(false)
   const [erreur, setErreur] = useState(false)
-  // Déjà calculé (retour arrière, ou rien n'a changé) : on va directement au voyage
-  const existant = useResultat.getState().resultat
-  const dejaCalcule = !!depart && !!arrivee && existant?.cle === cleVoyage(depart, arrivee, reglages, graine) && !lance.current
+  const etapes = etapesDuCalcul(reglages, versVoyage)
+
+  // Déjà calculé (retour arrière, ou rien n'a changé) : on y va directement
+  const cle = depart && arrivee ? cleVoyage(depart, arrivee, reglages, graine) : null
+  const etat = useResultat.getState()
+  const dejaCalcule = !lance.current && !!cle && (versVoyage ? etat.resultat?.cle === cle : etat.propositions?.cle === cle)
 
   useEffect(() => {
     if (!depart || !arrivee || lance.current || dejaCalcule) return
@@ -27,46 +36,54 @@ export default function Calcul() {
     const rapide = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     let derniere = performance.now()
     // Chaque étape reste visible un court instant, pour qu'on voie le calcul avancer
-    const etapes: Promise<void>[] = []
-    calculerVoyage(
-      depart,
-      arrivee,
-      reglages,
-      graine,
-      (id, detail) => {
-        if (detail) setDetails((d) => ({ ...d, [id]: detail }))
-        else {
-          const attente = rapide ? 0 : Math.max(0, 280 - (performance.now() - derniere))
-          derniere = performance.now() + attente
-          etapes.push(pause(attente).then(() => setEtape(id)))
-        }
-      },
-    )
-      .then(async (resultat) => {
-        await Promise.all(etapes)
+    const affichages: Promise<void>[] = []
+    const surEtape = (id: IdEtape, detail?: string) => {
+      if (detail) setDetails((d) => ({ ...d, [id]: detail }))
+      else {
+        const attente = rapide ? 0 : Math.max(0, 280 - (performance.now() - derniere))
+        derniere = performance.now() + attente
+        affichages.push(pause(attente).then(() => setEtape(id)))
+      }
+    }
+    ;(async () => {
+      const base = await calculerBase(depart, arrivee, reglages, surEtape)
+      surEtape('prix')
+      surEtape('itineraire')
+      if (versVoyage) {
+        surEtape('liens')
+        const resultat = resultatPour(base, depart, arrivee, reglages, graine)
+        await Promise.all(affichages)
         await pause(rapide ? 0 : Math.max(250, 1200 - (performance.now() - debut)))
         definir(resultat)
         navigate('/voyage', { replace: true })
-      })
-      .catch(() => setErreur(true))
+        return
+      }
+      surEtape('propositions')
+      const r = propositionsPour(base, depart, arrivee, reglages, graine)
+      surEtape('propositions', `${r.propositions.length} propositions retenues sur ${r.candidats} combinaisons`)
+      await Promise.all(affichages)
+      await pause(rapide ? 0 : Math.max(250, 1400 - (performance.now() - debut)))
+      definirPropositions({ ...r, cle: cleVoyage(depart, arrivee, reglages, graine), reglages, graine, base, choisie: null })
+      navigate('/propositions', { replace: true })
+    })().catch(() => setErreur(true))
     // Pas d'annulation au démontage : en développement, React monte l'écran deux fois
     // et le garde-fou `lance` empêcherait de relancer le calcul.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   if (!depart || !arrivee) return <Navigate to="/" replace />
-  if (dejaCalcule) return <Navigate to="/voyage" replace />
+  if (dejaCalcule) return <Navigate to={versVoyage ? '/voyage' : '/propositions'} replace />
 
-  const position = ETAPES.findIndex((e) => e.id === etape)
+  const position = etapes.findIndex((e) => e.id === etape)
   return (
     <main className="grid min-h-dvh place-items-center bg-gradient-to-b from-ocean-100 to-ocean-50 p-6 dark:from-ocean-900 dark:to-ocean-950">
       <div className="w-full max-w-sm">
         <h1 className="text-center text-2xl font-bold [text-wrap:balance]">
           {depart.nom} → {arrivee.nom}
         </h1>
-        <p className="mt-1 text-center text-slate-600 dark:text-slate-300">Nous préparons votre voyage…</p>
+        <p className="mt-1 text-center text-slate-600 dark:text-slate-300">{versVoyage ? 'Nous préparons votre voyage…' : 'Nous comparons plusieurs façons de partir…'}</p>
         <ol className="verre mt-6 space-y-1 rounded-3xl p-3 [--verre-fond:0.9]" aria-live="polite">
-          {ETAPES.map((e, i) => {
+          {etapes.map((e, i) => {
             const fait = i < position
             const enCours = i === position
             return (
@@ -82,7 +99,7 @@ export default function Calcul() {
                     {e.libelle}
                     <span className="sr-only">{fait ? ' : terminé' : enCours ? ' : en cours' : ''}</span>
                   </span>
-                  {details[e.id] && fait && <span className="block text-xs text-slate-500 dark:text-slate-400">{details[e.id]}</span>}
+                  {details[e.id] && (fait || enCours) && <span className="block text-xs text-slate-500 dark:text-slate-400">{details[e.id]}</span>}
                 </span>
               </motion.li>
             )
