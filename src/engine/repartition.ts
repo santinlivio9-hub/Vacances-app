@@ -312,7 +312,10 @@ export function calculerRepartition(voyage: VoyagePourRepartition, voyageurs: Vo
 
 function expliquer(p: PartVoyageur, v: Voyageur): string {
   if (p.montant === 0) return v.type === 'adulte' ? 'Invité : ne paie rien' : 'Gratuit : ne paie rien'
-  return p.lignes
+  // Au-delà de deux activités nommées, on les regroupe : « + 8 activités »
+  const activites = p.lignes.filter((l) => l.activite)
+  const lignes = activites.length > 2 ? [...p.lignes.filter((l) => !l.activite), { id: 'groupe', libelle: `${activites.length} activités`, montant: 0, fraction: 1 }] : p.lignes
+  return lignes
     .map((l) => {
       if (l.id === 'fixe') return `Montant fixe`
       if (l.id === 'pourcentage') return l.libelle

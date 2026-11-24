@@ -19,6 +19,8 @@ import { imageLargeur } from '../services/wikipedia'
 import { coutsDuResultat } from '../voyage/calcul'
 import { Economies } from '../voyage/Economies'
 import { OngletItineraire } from '../voyage/OngletItineraire'
+import { OngletQuiPaie } from '../voyage/OngletQuiPaie'
+import { repartitionDuTotal, type ActiviteRepartie } from '../engine/repartition'
 import { OngletReservations } from '../voyage/OngletReservations'
 import { TableauBudget } from '../voyage/TableauBudget'
 import { LOGEMENTS_UI, MODES_UI } from '../config/libelles'
@@ -35,6 +37,7 @@ const ONGLETS = [
   { id: 'trajet', libelle: 'Trajet' },
   { id: 'carte', libelle: 'Carte' },
   { id: 'budget', libelle: 'Budget' },
+  { id: 'qui', libelle: 'Qui paie quoi' },
   { id: 'reservations', libelle: 'Réservations' },
 ] as const
 type Onglet = (typeof ONGLETS)[number]['id']
@@ -52,7 +55,7 @@ export default function Voyage() {
   const navigate = useNavigate()
   // La barre d'actions colle en haut une fois l'en-tête photo passé : elle devient alors du verre
   const defile = useDefile(220)
-  const { depart, arrivee, reglages, graine, regenerer, sauvegarder, appliquerChangements, coches, basculerCoche } = useVoyage()
+  const { depart, arrivee, reglages, graine, regenerer, sauvegarder, appliquerChangements, coches, basculerCoche, modifierSimple, modeAvance } = useVoyage()
   const { resultat, remplacerItineraire, propositions } = useResultat()
   const [onglet, setOnglet] = useState<Onglet>('itineraire')
   const [message, setMessage] = useState<string | null>(null)
@@ -88,6 +91,11 @@ export default function Voyage() {
   const total = sejour ? sejour.total : couts.total
   const parPersonne = sejour ? sejour.parPersonne : couts.parPersonne
   const avertissements = sejour ? sejour.avertissements : couts.avertissements
+  // Activités payantes de l'itinéraire, pour savoir qui participe et qui paie
+  const activitesPayantes: ActiviteRepartie[] = sejour
+    ? []
+    : resultat.itineraire.jours.flatMap((j, n) => j.activites.filter((a) => a.prix > 0).map((a, i) => ({ id: `${a.lieu.id}·${n}·${i}`, nom: a.lieu.nom, prix: a.prix })))
+  const repartition = repartitionDuTotal(couts.postes, total, s, activitesPayantes)
   const choisie = propositions?.propositions.find((p) => p.id === propositions.choisie)
   // Les propositions concernent bien ce trajet
   const avecPropositions = !!choisie && propositions!.cle.startsWith(JSON.stringify([depart.lat, depart.lon, arrivee.lat, arrivee.lon]).slice(0, -1))
@@ -352,6 +360,7 @@ export default function Voyage() {
                   <OngletBudget couts={couts} />
                 </Suspense>
               )}
+              {onglet === 'qui' && <OngletQuiPaie resultat={repartition} simple={s} activites={activitesPayantes} avance={modeAvance} onModifier={modifierSimple} />}
               {onglet === 'reservations' && (
                 <OngletReservations liens={donnees.liens} checklist={donnees.checklist} coche={(id) => !!coches[`${prefixeCoche}:${id}`]} onCocher={(id) => basculerCoche(`${prefixeCoche}:${id}`)} />
               )}

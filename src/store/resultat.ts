@@ -28,8 +28,11 @@ export interface PropositionsCalculees extends ResultatPropositions {
 }
 
 /** Identifie un voyage : si un réglage change, il faut recalculer. */
-export const cleVoyage = (depart: Lieu, arrivee: Lieu, reglages: Reglages, graine: number) =>
-  JSON.stringify([depart.lat, depart.lon, arrivee.lat, arrivee.lon, reglages, graine])
+/** Clé du calcul : prénoms et répartition des paiements n'en font pas partie (ils ne changent pas le coût). */
+export const cleVoyage = (depart: Lieu, arrivee: Lieu, reglages: Reglages, graine: number) => {
+  const { voyageurs: _voyageurs, repartition: _repartition, ...simple } = reglages.simple
+  return JSON.stringify([depart.lat, depart.lon, arrivee.lat, arrivee.lon, { ...reglages, simple }, graine])
+}
 
 export const useResultat = create<{
   resultat: ResultatVoyage | null
