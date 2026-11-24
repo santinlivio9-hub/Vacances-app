@@ -3,6 +3,18 @@ const nombre = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 })
 
 export const formatEuros = (v: number) => euros.format(Math.round(v))
 
+/** Arrondi lisible d'une borne de fourchette : 287 → 290, 1 243 → 1 240, 12 480 → 12 500 */
+export const arrondiFourchette = (v: number) => {
+  const pas = v < 100 ? 5 : v < 2000 ? 10 : 100
+  return Math.round(v / pas) * pas
+}
+
+/** « entre 290 et 460 € » */
+export const formatEntre = (f: { bas: number; haut: number }) => `entre ${nombre.format(arrondiFourchette(f.bas))} et ${formatEuros(arrondiFourchette(f.haut))}`
+
+/** « 358 € (entre 290 et 460 €) » */
+export const formatFourchette = (milieu: number, f: { bas: number; haut: number }) => `${formatEuros(milieu)} (${formatEntre(f)})`
+
 export function formatKm(km: number): string {
   if (km < 10) return `${km.toLocaleString('fr-FR', { maximumFractionDigits: 1 })} km`
   const arrondi = km < 1000 ? Math.round(km / 5) * 5 : Math.round(km / 10) * 10

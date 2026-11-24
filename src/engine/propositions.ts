@@ -20,7 +20,7 @@ export const BADGES: Record<Badge, string> = {
   periode: 'Autre période',
 }
 
-const NOMS_MODES: Record<ModeTransport, string> = { voiture: 'voiture', train: 'train', avion: 'avion', car: 'car' }
+const NOMS_MODES: Record<ModeTransport, string> = { voiture: 'voiture', train: 'train', avion: 'avion', car: 'autocar', covoiturage: 'covoiturage' }
 
 export interface Proposition {
   id: string

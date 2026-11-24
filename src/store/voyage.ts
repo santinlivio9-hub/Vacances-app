@@ -139,7 +139,7 @@ export const useVoyage = create<EtatVoyage>()(
         if (!depart || !arrivee) return
         const cle = cleTrajet(depart, arrivee)
         if (cle === trajetConseille) return
-        set({ trajetConseille: cle, reglages: { ...reglages, simple: { ...reglages.simple, transport: mode } } })
+        set({ trajetConseille: cle, reglages: { ...reglages, simple: { ...reglages.simple, transport: mode, trajetChoisi: null } } })
       },
       regenerer: () => set(({ graine }) => ({ graine: graine + 1 })),
 
@@ -212,7 +212,7 @@ export const useVoyage = create<EtatVoyage>()(
     }),
     {
       name: 'budget-voyage:v2',
-      version: 2,
+      version: 3,
       storage: createJSONStorage(() => stockageSur),
       partialize: ({ depart, arrivee, reglages, modeAvance, graine, sauvegardes, trajetConseille, coches, typeChoisi }) => ({
         trajetConseille,
@@ -225,7 +225,7 @@ export const useVoyage = create<EtatVoyage>()(
         sauvegardes,
         typeChoisi,
       }),
-      // Version 1 : un seul type de logement, pas de type de voyage ni de brouillons
+      // Version 1 : un seul type de logement, pas de type de voyage ni de brouillons ; version 2 : pas de trajets combinés
       migrate: (etat) => {
         const e = (etat ?? {}) as Partial<EtatVoyage>
         const aujourdhui = dateDuJour()
@@ -233,7 +233,7 @@ export const useVoyage = create<EtatVoyage>()(
           ...e,
           reglages: e.reglages ? normaliserReglages(e.reglages as never, aujourdhui) : reglagesNeufs(),
           sauvegardes: (e.sauvegardes ?? []).map((v) => normaliserSauvegarde(v, aujourdhui)),
-          typeChoisi: !!e.arrivee,
+          typeChoisi: e.typeChoisi ?? !!e.arrivee,
         } as EtatVoyage
       },
     },

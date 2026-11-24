@@ -3,8 +3,10 @@
   "coefficientDetour": 1.25,
   "voiture": {
     "consommationL100": 6.5,
-    "prixCarburant": 2.05,
-    "peageParKm": 0.075,
+    "prixCarburant": 2.04,
+    "peageParKm": 0.1,
+    "partAutoroute": 0.7,
+    "usureParKm": 0.1,
     "placesParVehicule": 4,
     "vitesseMoyenneKmH": 85,
     "distanceMaxKm": 2200
@@ -15,14 +17,31 @@
     "plafondParTrajet": 150,
     "vitesseMoyenneKmH": 140,
     "distanceMaxKm": 1800,
-    "coefficientClasse": { "eco": 1, "premium": 1.35, "premiere": 1.6 }
+    "coefficientClasse": { "eco": 1, "premium": 1.35, "premiere": 1.6 },
+    "vitesseTgvKmH": 260,
+    "vitesseClassiqueKmH": 100,
+    "detourRail": 1.2,
+    "classiqueParKm": { "bas": 0.07, "haut": 0.2 },
+    "classiqueMinimum": 5,
+    "margeMin": 20,
+    "europeParKm": { "bas": 0.06, "haut": 0.22 }
   },
   "car": {
-    "prixParKm": 0.06,
-    "minimumParTrajet": 10,
+    "prixParKm": 0.063,
+    "minimumParTrajet": 5,
     "plafondParTrajet": 110,
-    "vitesseMoyenneKmH": 70,
-    "distanceMaxKm": 1600
+    "vitesseMoyenneKmH": 75,
+    "distanceMaxKm": 1600,
+    "fourchetteParKm": { "bas": 0.04, "haut": 0.1 },
+    "margeMin": 15
+  },
+  "covoiturage": {
+    "prixParKm": 0.07,
+    "fourchetteParKm": { "bas": 0.055, "haut": 0.085 },
+    "commission": 0.18,
+    "rendezVousMin": 20,
+    "distanceMinKm": 40,
+    "distanceMaxKm": 1200
   },
   "avion": {
     "forfaitParTrajet": 45,
@@ -33,10 +52,27 @@
     ],
     "coefficientSaison": { "basse": 0.9, "moyenne": 1.0, "haute": 1.25 },
     "coefficientClasse": { "eco": 1, "premium": 1.8, "premiere": 3.5 },
+    "fourchette": { "lowcost": [0.45, 2.0], "classique": [0.7, 2.2] },
     "bagageSouteParTrajet": 35,
     "vitesseCroisiereKmH": 780,
     "tempsAeroportMin": 150,
+    "margeMin": 120,
+    "sortieMin": 30,
     "distanceMinKm": 400
+  },
+  "acces": {
+    "marcheMaxKm": 2,
+    "transportsMaxKm": 12,
+    "ticketUrbain": 2.5,
+    "navetteAeroport": { "minimum": 10, "parKm": 0.15 },
+    "regionalParKm": 0.12,
+    "taxiParKm": 1.9,
+    "taxiPriseEnCharge": 4
+  },
+  "reservation": {
+    "tot": { "bas": 0, "haut": 0.35, "milieu": 0.15 },
+    "normal": { "bas": 0.15, "haut": 0.6, "milieu": 0.35 },
+    "derniere": { "bas": 0.55, "haut": 1, "milieu": 0.8 }
   },
   "accesAeroport": { "prixParKm": 0.12, "seuilKm": 30 },
   "partEnfant": 1

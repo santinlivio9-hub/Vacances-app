@@ -1,4 +1,4 @@
-import { ArrowRight, Bus, Car, Clock, ExternalLink, Info, LocateFixed, Plane, Route, TrainFront } from 'lucide-react'
+import { ArrowRight, Bus, Car, Clock, ExternalLink, Info, LocateFixed, Plane, Route, TrainFront, UsersRound } from 'lucide-react'
 import type { Lieu, ModeTransport, ResumeWikipedia } from '../domain/types'
 import { apercuPrix } from '../engine/apercu'
 import { moisDe } from '../engine/dates'
@@ -8,8 +8,8 @@ import type { ItineraireCarte } from './itineraire'
 import { idFavoriDestination } from '../store/favoris'
 import { BoutonFavori } from '../ui/BoutonFavori'
 
-export const ICONES_MODE: Record<ModeTransport, typeof Car> = { voiture: Car, train: TrainFront, avion: Plane, car: Bus }
-export const NOMS_MODE: Record<ModeTransport, string> = { voiture: 'voiture', train: 'train', avion: 'avion', car: 'car' }
+export const ICONES_MODE: Record<ModeTransport, typeof Car> = { voiture: Car, train: TrainFront, avion: Plane, car: Bus, covoiturage: UsersRound }
+export const NOMS_MODE: Record<ModeTransport, string> = { voiture: 'voiture', train: 'train', avion: 'avion', car: 'autocar', covoiturage: 'covoiturage' }
 
 interface Props {
   depart: Lieu | null

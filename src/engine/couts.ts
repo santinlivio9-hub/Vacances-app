@@ -5,6 +5,7 @@ import { moisDe } from './dates'
 import { reglagesEffectifs } from './reglages'
 import { LOGEMENTS } from './logements'
 import { estimerTransport, type DonneesTrajet, type EstimationTransport, type LigneDetail } from './transport'
+import { villeProche } from './villes'
 
 export type Poste = 'transport' | 'logement' | 'repas' | 'activites' | 'transportLocal' | 'divers' | 'imprevus'
 export const POSTES: Poste[] = ['transport', 'logement', 'repas', 'activites', 'transportLocal', 'divers', 'imprevus']
@@ -13,8 +14,12 @@ export interface EstimationCouts {
   postes: Record<Poste, number>
   details: Record<Poste, LigneDetail[]>
   total: number
+  /** Fourchette du total : prix bas et prix haut (le total est la valeur la plus probable) */
+  fourchette: { bas: number; haut: number }
   parPersonne: number
   transport: EstimationTransport
+  /** Ville dont les prix d'hôtel et de restaurant sont appliqués (« Lyon »), si elle est connue */
+  ville?: string
   saison: Saison
   pays: { nom: string; indice: number; estimationContinent: boolean }
   /** Nombre moyen d'activités payantes prévues (servira à l'itinéraire) */
@@ -145,6 +150,10 @@ export function estimerCouts({ trajet, arrivee, reglages }: EntreeCouts): Estima
   const pays = donneesPays(arrivee.pays, arrivee)
   const saison = saisonDuMois(pays, moisDe(s.dateDepart))
   const k = pays.indice
+  // Prix de la ville : hôtels et restaurants plus chers à Paris, Nice ou Venise qu'en moyenne dans le pays
+  const ville = villeProche(arrivee)
+  const kHotel = ville?.hotel ?? 1
+  const kRepas = ville?.repas ?? 1
   const nuits = Math.max(1, s.nuits)
   const jours = nuits + 1
   const voyageurs = s.adultes + s.enfants
@@ -157,7 +166,7 @@ export function estimerCouts({ trajet, arrivee, reglages }: EntreeCouts): Estima
   if (!transport.possible && transport.raison) avertissements.push(transport.raison)
 
   // Logement
-  const logement = coutLogement(av, s, { indice: k, saison: pays.saison[saison], france: pays.code === 'fr' })
+  const logement = coutLogement(av, s, { indice: k * kHotel, saison: pays.saison[saison], france: pays.code === 'fr' })
   const petitDej = av.petitDejeuner && ['hotel', 'habitant', 'auberge', 'gite'].includes(av.typeLogement) ? prixBase.logement.petitDejeunerParPersonne[s.style] * k * equivalentsAdultes * nuits : 0
   const cuisine = LOGEMENTS[av.typeLogement].cuisine
   const st = s.style
@@ -169,13 +178,13 @@ export function estimerCouts({ trajet, arrivee, reglages }: EntreeCouts): Estima
   // Avec une cuisine, les autres repas sont des courses ; sinon moitié courses, moitié snack
   const repasHorsResto = cuisine ? R.courses[st] : (R.courses[st] + R.snack[st]) / 2
   const parJour = restosParJour * R.restaurant[av.niveauResto] + autres * repasHorsResto + (av.petitDejeuner ? 0 : R.petitDejeunerMaison)
-  const repas = parJour * k * equivalentsAdultes * jours
+  const repas = parJour * k * kRepas * equivalentsAdultes * jours
 
   // Activités : rythme = activités par jour plein ; le premier et le dernier jour comptent pour moitié
   const joursActifs = nuits * (av.tempsLibre ? 0.8 : 1) // (nuits + 1) jours, dont 2 demi-journées
   const activitesPrevues = av.rythme * joursActifs
   const prixActivite = av.gratuitesUniquement ? 0 : prixMoyenActivite(s, av)
-  const activites = activitesPrevues * (1 - PART_GRATUITE) * prixActivite * k * equivalentsAdultes
+  const activites = activitesPrevues * (1 - PART_GRATUITE) * prixActivite * k * kRepas * equivalentsAdultes
 
   // Transport sur place
   const TL = prixBase.transportLocal
@@ -198,6 +207,7 @@ export function estimerCouts({ trajet, arrivee, reglages }: EntreeCouts): Estima
   const sousTotal = Object.values(postes).reduce((a, b) => a + b, 0)
   postes.imprevus = sousTotal * av.tauxImprevus
   const total = sousTotal + postes.imprevus
+  const fourchette = fourchetteDuTotal(postes, transport, av.tauxImprevus)
 
   const NOMS_LOCAL = { transports: 'Transports en commun', voiture: 'Voiture sur place', velo: 'Vélo', pied: 'À pied' }
   return {
@@ -205,7 +215,7 @@ export function estimerCouts({ trajet, arrivee, reglages }: EntreeCouts): Estima
     details: {
       transport: transport.details,
       logement: [...logement.lignes, ...(petitDej ? [{ libelle: 'Petits-déjeuners', montant: petitDej }] : [])],
-      repas: [{ libelle: `${jours} jours de repas (≈ ${Math.round(parJour * k)} € par adulte et par jour)`, montant: repas }],
+      repas: [{ libelle: `${jours} jours de repas (≈ ${Math.round(parJour * k * kRepas)} € par adulte et par jour)`, montant: repas }],
       activites: [{ libelle: `≈ ${Math.round(activitesPrevues)} activités, dont un tiers gratuites`, montant: activites }],
       transportLocal: [{ libelle: NOMS_LOCAL[av.transportLocal], montant: local }],
       divers: [
@@ -215,13 +225,38 @@ export function estimerCouts({ trajet, arrivee, reglages }: EntreeCouts): Estima
       imprevus: [{ libelle: `Marge pour imprévus (${Math.round(av.tauxImprevus * 100)} %)`, montant: postes.imprevus }],
     },
     total,
+    fourchette,
     parPersonne: total / Math.max(1, voyageurs),
     transport,
+    ...(ville ? { ville: ville.nom } : {}),
     saison,
     pays: { nom: pays.nom, indice: k, estimationContinent: pays.estimationContinent },
     activitesPrevues,
     avertissements,
   }
+}
+
+/**
+ * Écart autour de chaque poste : le transport a sa propre fourchette (tarifs officiels ou barèmes) ;
+ * pour le reste, les prix réels varient d'environ -15 % à +20 % (logement, repas) et davantage
+ * pour les activités et les dépenses sur place.
+ */
+export const ECARTS: Record<Exclude<Poste, 'transport' | 'imprevus'>, [number, number]> = {
+  logement: [0.85, 1.2],
+  repas: [0.85, 1.2],
+  activites: [0.75, 1.3],
+  transportLocal: [0.8, 1.25],
+  divers: [0.8, 1.3],
+}
+
+export function fourchetteDuTotal(postes: Record<Poste, number>, transport: EstimationTransport, tauxImprevus: number): { bas: number; haut: number } {
+  let bas = transport.possible ? transport.fourchette.bas : 0
+  let haut = transport.possible ? transport.fourchette.haut : 0
+  for (const [poste, [b, h]] of Object.entries(ECARTS) as [keyof typeof ECARTS, [number, number]][]) {
+    bas += postes[poste] * b
+    haut += postes[poste] * h
+  }
+  return { bas: bas * (1 + tauxImprevus), haut: haut * (1 + tauxImprevus) }
 }
 
 /** Position du total par rapport au budget. */
@@ -243,6 +278,7 @@ export function coutsAvecActivites(e: EstimationCouts, totalActivites: number, t
   const voyageurs = e.total > 0 && e.parPersonne > 0 ? e.total / e.parPersonne : 1
   return {
     ...e,
+    fourchette: fourchetteDuTotal(postes, e.transport, tauxImprevus),
     postes,
     details: {
       ...e.details,

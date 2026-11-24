@@ -65,8 +65,23 @@ export function versLieuVisite(e: ElementOverpass): LieuVisite | null {
     site: tags.website ?? tags['contact:website'],
     // Lieux de culte : entrée libre sauf mention contraire
     gratuit: tags.fee === 'no' ? true : tags.fee === 'yes' ? false : tags.amenity === 'place_of_worship' || ['church', 'cathedral', 'chapel'].includes(tags.building ?? tags.historic ?? '') ? true : undefined,
+    ...prixDepuisTags(tags),
     source: 'osm',
   }
+}
+
+/**
+ * Prix d'entrée adulte d'après le tag OSM « charge » (« 12 EUR », « 9,50 € », « EUR 15 ») ;
+ * seulement en euros et s'il n'y a qu'un montant clair.
+ */
+export function prixDepuisTags(tags: Record<string, string>): { prixEntree?: number; gratuit?: boolean } {
+  const charge = tags.charge ?? tags['charge:adult'] ?? tags['fee:adult']
+  if (!charge || tags.fee === 'no') return {}
+  const m = charge.replace(',', '.').match(/^(?:€|EUR)?\s*(\d+(?:\.\d{1,2})?)\s*(?:€|EUR)?\b/i)
+  if (!m || !/€|EUR/i.test(charge)) return {}
+  const v = Number(m[1])
+  if (!Number.isFinite(v) || v > 200) return {}
+  return v === 0 ? { gratuit: true } : { prixEntree: v, gratuit: false }
 }
 
 /** Supprime les doublons (même nom, ou même élément Wikidata). */

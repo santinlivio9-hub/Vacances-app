@@ -6,7 +6,9 @@ import { estimationEnDirect } from '../engine/estimation'
 import type { ResultatPeriodes } from '../engine/periodes'
 import { reglagesEffectifs } from '../engine/reglages'
 import type { BudgetSejourLong } from '../engine/sejourLong'
-import { estimerTransport, MODES, type DonneesTrajet, type EstimationTransport } from '../engine/transport'
+import { comparatifTrajets, estimerTransport, MODES, type DonneesTrajet, type EstimationTransport } from '../engine/transport'
+import type { ResultatTrajets } from '../engine/trajets'
+import { useCarburant } from '../services/carburant'
 import type { ModeTransport } from '../domain/types'
 import { dateDuJour, useVoyage } from '../store/voyage'
 
@@ -17,9 +19,12 @@ export interface Estimation {
   trajet: DonneesTrajet
   couts: EstimationCouts
   parMode: Record<ModeTransport, EstimationTransport>
+  /** Comparatif des trajets simples et combinés */
+  trajets: ResultatTrajets
   /** Montant affiché dans la barre du bas, selon le type de voyage */
   total: number
   parPersonne: number
+  fourchette: { bas: number; haut: number }
   /** « Estimation », « À partir de (avril 2027) », « Séjour complet » */
   libelle: string
   /** Précision sous le total (« ≈ 1 450 € par mois ») */
@@ -32,6 +37,8 @@ export interface Estimation {
 export function useEstimation(): Estimation | null {
   const { depart, arrivee, reglages } = useVoyage()
   const etat = useItineraire(depart, arrivee)
+  // Le prix du carburant du jour arrive après le premier affichage : on recalcule à ce moment-là
+  const carburant = useCarburant((c) => c.valeur)
   return useMemo(() => {
     if (!depart || !arrivee) return null
     const provisoire = etat.statut !== 'ok'
@@ -41,6 +48,8 @@ export function useEstimation(): Estimation | null {
     const e = estimationEnDirect(entree, dateDuJour())
     const av = reglagesEffectifs(reglages)
     const parMode = Object.fromEntries(MODES.map((m) => [m, estimerTransport(m, trajet, reglages.simple, av, e.couts.saison)])) as Record<ModeTransport, EstimationTransport>
-    return { itineraire, provisoire, trajet, parMode, ...e }
-  }, [depart, arrivee, reglages, etat])
+    const trajets = comparatifTrajets(trajet, reglages.simple, av, e.couts.saison)
+    return { itineraire, provisoire, trajet, parMode, trajets, ...e }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- carburant : le moteur lit la valeur du jour
+  }, [depart, arrivee, reglages, etat, carburant])
 }

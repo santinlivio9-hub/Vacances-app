@@ -1,10 +1,11 @@
 import { BedDouble, Briefcase, Coins, Luggage, Ticket, UtensilsCrossed } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { typeVoyage } from '../tripTypes'
-import type { CleAvancee, ClasseVoyage, NiveauResto, Quartier, ReglagesAvances, RepartitionBudget, Rythme, TransportLocal, TypeActivite, TypeLogement } from '../domain/types'
+import type { CarteReduction, MomentReservation, CleAvancee, ClasseVoyage, NiveauResto, Quartier, ReglagesAvances, RepartitionBudget, Rythme, TransportLocal, TypeActivite, TypeLogement } from '../domain/types'
 import { ajusterRepartition, estModifie, reglagesEffectifs } from '../engine/reglages'
 import { useVoyage } from '../store/voyage'
-import { formatEuros } from '../ui/format'
+import { formatDuree, formatEuros } from '../ui/format'
+import { useCarburant } from '../services/carburant'
 import { CarteReglage, Compteur, Curseur, Interrupteur, Puces, Reglage, Segments } from './Controles'
 import { ACTIVITES_UI, LOGEMENTS_UI, SECTIONS_AVANCEES, TRANSPORT_LOCAL_UI } from './libelles'
 import type { Estimation } from './useEstimation'
@@ -31,12 +32,16 @@ function useAvance() {
   }
 }
 
+const dateCourte = (iso: string) => iso.split('-').reverse().join('/')
+
 export function SectionsAvancees({ estimation }: { estimation: Estimation }) {
   const { av, simple, etat, changer, modifiesDans, reinitialiserSection } = useAvance()
   const modifierSimple = useVoyage((x) => x.modifierSimple)
   const ids = typeVoyage(simple).sectionsAvancees
   const coche = (l: TypeLogement) => simple.logements.includes(l)
   const mode = simple.transport
+  const voitureUtilisee = mode === 'voiture' || !!estimation.couts.transport.option?.etapes.some((e) => e.mode === 'voiture')
+  const carburant = useCarburant((c) => c.valeur)
   const section = (cles: readonly CleAvancee[]) => ({
     modifies: modifiesDans(cles),
     onReinitialiser: reinitialiserSection(cles),
@@ -80,7 +85,7 @@ export function SectionsAvancees({ estimation }: { estimation: Estimation }) {
           resume={`${formatEuros(p.transport + p.transportLocal)} · sur place : ${TRANSPORT_LOCAL_UI[av.transportLocal].libelle.toLowerCase()}`}
           {...section(SECTIONS_AVANCEES.transport)}
         >
-          {mode === 'voiture' && (
+          {voitureUtilisee && (
             <>
               <Reglage libelle="Nombre de véhicules" {...etat('vehicules')}>
                 <Compteur libelle="Véhicules" valeur={av.vehicules} min={1} max={6} onChange={changer('vehicules')} />
@@ -88,10 +93,21 @@ export function SectionsAvancees({ estimation }: { estimation: Estimation }) {
               <Reglage libelle="Consommation" valeur={`${av.consommationL100.toLocaleString('fr-FR')} L/100 km`} htmlFor="conso" {...etat('consommationL100')}>
                 <Curseur id="conso" libelle="Consommation" min={3} max={12} pas={0.5} valeur={av.consommationL100} onChange={changer('consommationL100')} />
               </Reglage>
-              <Reglage libelle="Prix du carburant" valeur={`${av.prixCarburant.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €/L`} htmlFor="carburant" {...etat('prixCarburant')}>
+              <Reglage
+                libelle="Prix du carburant"
+                valeur={`${av.prixCarburant.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €/L`}
+                aide={
+                  carburant.source === 'direct'
+                    ? `Moyenne nationale du ${dateCourte(carburant.date)} (gazole ${carburant.gazole.toFixed(2).replace('.', ',')} €, SP95-E10 ${carburant.e10.toFixed(2).replace('.', ',')} €).`
+                    : `Moyenne nationale relevée le ${dateCourte(carburant.date)} (prix du jour indisponible).`
+                }
+                htmlFor="carburant"
+                {...etat('prixCarburant')}
+              >
                 <Curseur id="carburant" libelle="Prix du carburant" min={1.4} max={2.6} pas={0.05} valeur={av.prixCarburant} onChange={changer('prixCarburant')} />
               </Reglage>
-              <Interrupteur libelle="Autoroutes à péage" valeur={av.peages} onChange={changer('peages')} {...etat('peages')} />
+              <Interrupteur libelle="Autoroutes à péage" aide="≈ 0,10 €/km sur la partie autoroute (environ 70 % du trajet)" valeur={av.peages} onChange={changer('peages')} {...etat('peages')} />
+              <Interrupteur libelle="Compter l’usure de la voiture" aide="≈ 0,10 €/km en plus du carburant : entretien, pneus, vidanges" valeur={av.usure} onChange={changer('usure')} {...etat('usure')} />
             </>
           )}
           {(mode === 'train' || mode === 'avion') && (
@@ -116,6 +132,52 @@ export function SectionsAvancees({ estimation }: { estimation: Estimation }) {
                 ]}
               />
             </Reglage>
+          )}
+          {(mode === 'train' || mode === 'car' || mode === 'avion') && (
+            <Reglage libelle="Réservation" aide="Le prix probable se place dans la fourchette des tarifs : bas si l’on réserve tôt, haut à la dernière minute." {...etat('reservation')}>
+              <Segments<MomentReservation>
+                nom="Moment de la réservation"
+                valeur={av.reservation}
+                onChange={changer('reservation')}
+                options={[
+                  { valeur: 'tot', libelle: 'Tôt', detail: '2 mois avant' },
+                  { valeur: 'normal', libelle: 'Normal', detail: '2 à 4 semaines' },
+                  { valeur: 'derniere', libelle: 'Dernière minute', detail: 'Moins d’une semaine' },
+                ]}
+              />
+            </Reglage>
+          )}
+          {mode === 'train' && (
+            <Reglage libelle="Carte de réduction" aide="Carte Avantage (adulte, senior, famille) ou Carte Avantage Jeune (12-27 ans) : environ 30 % sur les TGV INOUI et les Intercités." {...etat('carteReduction')}>
+              <Segments<CarteReduction>
+                nom="Carte de réduction"
+                valeur={av.carteReduction}
+                onChange={changer('carteReduction')}
+                options={[
+                  { valeur: 'aucune', libelle: 'Aucune' },
+                  { valeur: 'avantage', libelle: 'Avantage' },
+                  { valeur: 'jeune', libelle: 'Avantage Jeune' },
+                ]}
+              />
+            </Reglage>
+          )}
+          {simple.combinaisons && (mode === 'train' || mode === 'avion' || mode === 'car') && (
+            <>
+              <Reglage libelle="Jusqu’à la gare ou l’aéroport" valeur={`${formatDuree(av.rayonHubMin)} de route au plus`} htmlFor="rayon" {...etat('rayonHubMin')}>
+                <Curseur id="rayon" libelle="Temps de route maximum jusqu’à la gare ou l’aéroport" min={30} max={180} pas={15} valeur={av.rayonHubMin} onChange={changer('rayonHubMin')} texte={formatDuree(av.rayonHubMin)} />
+              </Reglage>
+              <Reglage libelle="Voiture à la gare ou à l’aéroport" {...etat('accesGare')}>
+                <Segments<'parking' | 'depose'>
+                  nom="Voiture à la gare ou à l’aéroport"
+                  valeur={av.accesGare}
+                  onChange={changer('accesGare')}
+                  options={[
+                    { valeur: 'parking', libelle: 'Parking', detail: 'Payé chaque jour' },
+                    { valeur: 'depose', libelle: 'On me dépose', detail: 'Aller-retour du conducteur' },
+                  ]}
+                />
+              </Reglage>
+            </>
           )}
           {mode === 'avion' && (
             <Interrupteur libelle="Bagages en soute" aide="Un bagage par personne et par trajet" valeur={av.bagagesSoute} onChange={changer('bagagesSoute')} {...etat('bagagesSoute')} />

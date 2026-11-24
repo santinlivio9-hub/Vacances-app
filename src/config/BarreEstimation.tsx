@@ -1,7 +1,7 @@
 import { AlertTriangle, ArrowRight, CheckCircle2, CircleAlert } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { etatBudget } from '../engine/couts'
-import { formatEuros } from '../ui/format'
+import { formatEntre, formatEuros } from '../ui/format'
 
 /** Nombre qui glisse vers sa nouvelle valeur (désactivé si l'utilisateur préfère moins d'animations). */
 export function useNombreAnime(cible: number, dureeMs = 350): number {
@@ -34,7 +34,7 @@ const STATUTS = {
   depasse: { libelle: 'Budget dépassé', icone: AlertTriangle, couleur: 'var(--statut-depasse)', texte: 'var(--statut-depasse-texte)' },
 }
 
-export function BarreEstimation({ total, parPersonne, budget, provisoire, bloque, onCalculer, libelle = 'Estimation', precision }: { total: number; parPersonne: number; budget: number | null; provisoire: boolean; bloque: string | null; onCalculer: () => void; libelle?: string; precision?: string }) {
+export function BarreEstimation({ total, parPersonne, budget, provisoire, bloque, onCalculer, libelle = 'Estimation', precision, fourchette }: { total: number; parPersonne: number; budget: number | null; provisoire: boolean; bloque: string | null; onCalculer: () => void; libelle?: string; precision?: string; fourchette?: { bas: number; haut: number } }) {
   const anime = useNombreAnime(total)
   const { statut, ratio } = etatBudget(total, budget)
   const s = statut === 'libre' ? null : STATUTS[statut]
@@ -48,6 +48,7 @@ export function BarreEstimation({ total, parPersonne, budget, provisoire, bloque
             <span className="text-2xl leading-tight font-bold tabular-nums">{formatEuros(anime)}</span>
             {!precision && <span className="truncate text-sm text-slate-500 dark:text-slate-400">{formatEuros(parPersonne)} / pers.</span>}
           </p>
+          {fourchette && fourchette.haut > 0 && <p className="text-xs leading-snug text-slate-600 dark:text-slate-300">{formatEntre(fourchette)}</p>}
           {precision && <p className="text-xs leading-snug text-slate-500 dark:text-slate-400">{precision}</p>}
           {s && budget != null && (
             <div className="mt-1">

@@ -139,6 +139,7 @@ export default function Configurer() {
         parPersonne={estimation.parPersonne}
         libelle={estimation.libelle}
         precision={estimation.precision}
+        fourchette={estimation.fourchette}
         budget={reglages.simple.budget}
         provisoire={estimation.provisoire}
         bloque={transportImpossible ? 'Choisissez un mode de transport possible pour ce trajet.' : null}

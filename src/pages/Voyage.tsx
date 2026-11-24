@@ -9,7 +9,9 @@ import { checklistVoyage, genererLiensReservation } from '../engine/liens'
 import { encoderVoyage } from '../engine/partage'
 import { cleVoyage, useResultat } from '../store/resultat'
 import { cleTrajet, dateDuJour, useVoyage } from '../store/voyage'
-import { formatEuros } from '../ui/format'
+import { formatEntre, formatEuros } from '../ui/format'
+import { comparatifTrajets } from '../engine/transport'
+import { CartesTrajets } from '../voyage/CartesTrajets'
 import { MentionDonnees } from '../ui/MentionDonnees'
 import { imageLargeur } from '../services/wikipedia'
 import { coutsDuResultat } from '../voyage/calcul'
@@ -28,6 +30,7 @@ const OngletBudget = lazy(() => import('../voyage/OngletBudget'))
 
 const ONGLETS = [
   { id: 'itineraire', libelle: 'Itinéraire' },
+  { id: 'trajet', libelle: 'Trajet' },
   { id: 'carte', libelle: 'Carte' },
   { id: 'budget', libelle: 'Budget' },
   { id: 'reservations', libelle: 'Réservations' },
@@ -60,11 +63,13 @@ export default function Voyage() {
     if (!pret || !depart || !arrivee || !resultat) return null
     const entree: EntreeCouts = { trajet: versDonneesTrajet(depart, arrivee, resultat.itineraireCarte), arrivee, reglages }
     const stage = typeVoyage(reglages.simple).calcul === 'sejourLong'
+    const couts = coutsDuResultat(resultat, depart, arrivee, reglages)
     return {
       entree,
       // Même calcul que la barre du bas de la configuration
       sejour: stage ? (estimationEnDirect(entree, dateDuJour()).sejourLong ?? null) : null,
-      couts: coutsDuResultat(resultat, depart, arrivee, reglages),
+      couts,
+      trajets: comparatifTrajets(entree.trajet, reglages.simple, reglagesEffectifs(reglages), couts.saison),
       liens: genererLiensReservation({ depart, arrivee, reglages }),
       checklist: checklistVoyage({ arrivee, reglages }),
     }
@@ -124,12 +129,14 @@ export default function Voyage() {
   }
 
   return (
-    <div className="min-h-dvh pb-12">
+    <div className="min-h-dvh pb-[calc(3rem+env(safe-area-inset-bottom))]">
       {/* En-tête : photo, total, jauge */}
       <header className="relative isolate overflow-hidden bg-gradient-to-br from-ocean-600 to-ocean-900 text-white print:bg-none print:text-black">
         {resultat.resume?.image && <img onError={(e) => (e.currentTarget.style.display = 'none')} src={imageLargeur(resultat.resume.image, 1280)} alt="" className="absolute inset-0 -z-10 size-full object-cover print:hidden" />}
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/80 via-black/45 to-black/35 print:hidden" />
-        <div className="mx-auto max-w-3xl px-4 pt-3 pb-5">
+        {/* Haut assombri : l'heure et la batterie de l'iPhone restent lisibles sur la photo */}
+        <div className="absolute inset-x-0 top-0 -z-10 h-28 bg-gradient-to-b from-black/60 to-transparent print:hidden" />
+        <div className="mx-auto max-w-3xl px-4 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-5">
           <div className="flex items-center justify-between print:hidden">
             <Link
               to={avecPropositions ? '/propositions' : '/'}
@@ -150,7 +157,7 @@ export default function Voyage() {
           </p>
           <p className="text-sm text-white/85 print:text-slate-600">
             Proposition en {MODES_UI[s.transport].libelle.toLowerCase()}
-            {resultat.itineraireCarte.mode !== s.transport && ` · ${{ voiture: 'la voiture', train: 'le train', avion: 'l’avion', car: 'le car' }[resultat.itineraireCarte.mode]} est conseillé`}
+            {resultat.itineraireCarte.mode !== s.transport && ` · ${{ voiture: 'la voiture', train: 'le train', avion: 'l’avion', car: 'l’autocar', covoiturage: 'le covoiturage' }[resultat.itineraireCarte.mode]} est conseillé`}
           </p>
           <h1 className="text-3xl font-bold [text-wrap:balance] sm:text-4xl">{arrivee.nom}</h1>
           <p className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-white/90 print:text-slate-700">
@@ -166,6 +173,7 @@ export default function Voyage() {
             <p>
               <span className="block text-xs text-white/80 print:text-slate-600">{sejour ? 'Tout le séjour' : 'Estimation totale'}</span>
               <span className="text-4xl font-bold tabular-nums">{formatEuros(total)}</span>
+              {!sejour && <span className="block text-sm text-white/85 print:text-slate-600">{formatEntre(couts.fourchette)}</span>}
             </p>
             <p className="pb-1 text-lg font-semibold tabular-nums">
               {sejour ? (
@@ -315,6 +323,24 @@ export default function Voyage() {
 
             <div id={`panneau-${onglet}`} role="tabpanel" aria-labelledby={`onglet-${onglet}`} className="print:hidden">
               {onglet === 'itineraire' && <OngletItineraire itineraire={resultat.itineraire} ville={ville} onRemplacer={remplacer} />}
+              {onglet === 'trajet' && (
+                <section aria-label="Comparatif des trajets" className="space-y-3">
+                  <p className="text-sm text-slate-600 dark:text-slate-300">
+                    Trajet retenu en premier. Touchez un autre trajet pour voir ses étapes ; « Choisir ce trajet » recalcule le voyage avec lui.
+                  </p>
+                  <CartesTrajets
+                    resultat={donnees.trajets}
+                    choisi={couts.transport.option?.type}
+                    voyageurs={voyageurs}
+                    detaille
+                    contexte={{ aller: s.dateDepart, retour: ajouterJours(s.dateDepart, s.nuits), adultes: s.adultes, enfants: s.enfants }}
+                    onChoisirDetaille={(o) => {
+                      appliquerChangements({ simple: { transport: o.mode, trajetChoisi: o.type } })
+                      navigate('/calcul?vers=voyage')
+                    }}
+                  />
+                </section>
+              )}
               {onglet === 'carte' && (
                 <Suspense fallback={chargement}>
                   <OngletCarte itineraire={resultat.itineraire} arrivee={arrivee} />

@@ -1,11 +1,12 @@
-import { donneesPays, prixBase, villes, type Ville } from '../data'
-import type { Coordonnees, ReglagesSimples, TransportLocal, TypeLogement } from '../domain/types'
+import { donneesPays, prixBase } from '../data'
+import type { ReglagesSimples, TransportLocal, TypeLogement } from '../domain/types'
 import { saisonDuMois } from './apercu'
 import type { EntreeCouts } from './couts'
 import { moisDe } from './dates'
-import { distanceKm } from './geo'
 import { LOGEMENTS } from './logements'
 import { reglagesEffectifs } from './reglages'
+import { villeProche } from './villes'
+export { villeProche }
 import { estimerTransport, MODES, type EstimationTransport, type LigneDetail } from './transport'
 
 export type IdZone = 'proche' | 'moyenne' | 'eloignee'
@@ -127,18 +128,6 @@ const SEMAINES_PAR_MOIS = JOURS_PAR_MOIS / 7
 const RETOURS_PAR_MOIS = { jamais: 0, deux: SEMAINES_PAR_MOIS / 2, chaque: SEMAINES_PAR_MOIS }
 
 /** Ville connue la plus proche (à moins de 25 km), pour le niveau des loyers et le prix de l'abonnement. */
-export function villeProche(p: Coordonnees): Ville | null {
-  let meilleure: Ville | null = null
-  let d = 25
-  for (const v of villes) {
-    const dv = distanceKm(p, v)
-    if (dv < d) {
-      d = dv
-      meilleure = v
-    }
-  }
-  return meilleure
-}
 
 /** Distance parcourue en `minutes` (aller), selon le mode. */
 export const rayonPour = (mode: TransportLocal, minutes: number) => (prixBase.sejourLong.vitessesKmH[mode] * minutes) / 60
@@ -242,7 +231,10 @@ export function budgetSejourLong(entree: EntreeSejourLong): BudgetSejourLong {
   const saison = saisonDuMois(pays, moisDe(s.dateDepart))
   const unePersonne = { adultes: 1, enfants: 0 }
   const avRetour = { ...av, vehicules: 1, classe: 'eco' as const, bagagesSoute: false }
-  const modesRetour = MODES.map((m) => estimerTransport(m, trajet, unePersonne, avRetour, saison)).filter((t) => t.possible)
+  const possibles = MODES.map((m) => estimerTransport(m, trajet, unePersonne, avRetour, saison)).filter((t) => t.possible)
+  // Les trajets peu réalistes (deux fois plus longs que le plus rapide) ne servent que s'il n'y a rien d'autre
+  const realistes = possibles.filter((t) => !t.option?.peuRealiste)
+  const modesRetour = realistes.length ? realistes : possibles
   const retourMoinsCher = modesRetour.sort((a, b) => a.total - b.total)[0]
   const parRetour = retourMoinsCher?.total ?? 0
   const nbRetours = RETOURS_PAR_MOIS[s.stage.retours]

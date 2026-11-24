@@ -77,8 +77,9 @@ export async function calculerItineraire(depart: Coordonnees, arrivee: Coordonne
 }
 
 /** Données de trajet pour le moteur de calcul. */
-export function versDonneesTrajet(depart: Coordonnees, arrivee: Coordonnees, it: ItineraireCarte): DonneesTrajet {
+export function versDonneesTrajet(depart: Coordonnees & { nom?: string }, arrivee: Coordonnees & { nom?: string }, it: ItineraireCarte): DonneesTrajet {
   return {
+    ...(depart.nom && arrivee.nom ? { noms: [depart.nom, arrivee.nom] as [string, string] } : {}),
     depart: { lat: depart.lat, lon: depart.lon },
     arrivee: { lat: arrivee.lat, lon: arrivee.lon },
     distanceVolKm: it.distanceVolKm,

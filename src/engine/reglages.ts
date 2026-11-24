@@ -1,5 +1,6 @@
 import { tarifs } from '../data'
-import type { CleAvancee, Interet, ModeTransport, Reglages, ReglagesAvances, ReglagesSimples, RepartitionBudget, Style, TypeLogement } from '../domain/types'
+import { carburantActuel } from './carburant'
+import type { TypeTrajet, CleAvancee, Interet, ModeTransport, Reglages, ReglagesAvances, ReglagesSimples, RepartitionBudget, Style, TypeLogement } from '../domain/types'
 import { harmoniserSimple, typeVoyage, TYPES_VOYAGE } from '../tripTypes'
 import { ajouterJours, lireDate } from './dates'
 import { estTypeLogement } from './logements'
@@ -12,6 +13,9 @@ export function reglagesSimplesParDefaut(aujourdhui: string): ReglagesSimples {
     adultes: 2,
     enfants: 0,
     transport: 'train',
+    priorite: 'compromis',
+    combinaisons: true,
+    trajetChoisi: null,
     style: 'equilibre',
     interets: ['culture', 'gastronomie'],
     budget: null,
@@ -31,6 +35,8 @@ export function reglagesSimplesParDefaut(aujourdhui: string): ReglagesSimples {
   }
 }
 
+const TYPES_TRAJET: TypeTrajet[] = ['voiture', 'covoiturage', 'autocar', 'train', 'voiture+train', 'train+local', 'avion', 'voiture+avion']
+
 const dateOk = (iso: unknown): iso is string => {
   try {
     return typeof iso === 'string' && !!lireDate(iso)
@@ -48,6 +54,10 @@ export function normaliserSimple(brut: Partial<ReglagesSimples> & Record<string,
   const defaut = reglagesSimplesParDefaut(aujourdhui)
   const s: ReglagesSimples = { ...defaut, ...brut } as ReglagesSimples
   if (!(s.typeVoyage in TYPES_VOYAGE)) s.typeVoyage = 'vacances'
+  if (!['voiture', 'train', 'avion', 'car', 'covoiturage'].includes(s.transport)) s.transport = defaut.transport
+  if (!['prix', 'rapide', 'compromis'].includes(s.priorite)) s.priorite = 'compromis'
+  if (typeof s.combinaisons !== 'boolean') s.combinaisons = true
+  if (!TYPES_TRAJET.includes(s.trajetChoisi as TypeTrajet)) s.trajetChoisi = null
   const f = (brut.flexible ?? {}) as Partial<ReglagesSimples['flexible']>
   const mois = (m: unknown) => (Number.isInteger(m) && (m as number) >= 1 && (m as number) <= 12 ? (m as number) : null)
   s.flexible = {
@@ -106,11 +116,16 @@ export function reglagesAvancesParDefaut(s: ReglagesSimples): ReglagesAvances {
     // Transport
     vehicules: Math.max(1, Math.ceil(voyageurs / (s.enfants > 0 ? 5 : tarifs.voiture.placesParVehicule))),
     consommationL100: tarifs.voiture.consommationL100,
-    prixCarburant: tarifs.voiture.prixCarburant,
+    prixCarburant: carburantActuel().prix,
     peages: true,
     classe: s.style === 'confort' ? 'premium' : 'eco',
     bagagesSoute: s.nuits >= 5 || s.style === 'confort' || s.enfants > 0,
     transportLocal: s.transport === 'voiture' ? 'voiture' : 'transports',
+    rayonHubMin: 90,
+    accesGare: 'parking',
+    carteReduction: 'aucune',
+    reservation: 'normal',
+    usure: false,
     // Logement
     typeLogement,
     etoiles: parStyle(s.style, { eco: 2, equilibre: 3, confort: 4 } as const),

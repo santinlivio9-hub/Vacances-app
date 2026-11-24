@@ -1,12 +1,16 @@
 import { BedDouble, Briefcase, CalendarDays, CalendarRange, Heart, Route, Sparkles, Users, Wallet } from 'lucide-react'
 import type { ReactNode } from 'react'
-import type { FrequenceRetour, Interet, ModeTransport, Style, TypeLogement } from '../domain/types'
+import type { FrequenceRetour, Interet, PrioriteTrajet, ReglagesSimples, Style, TypeLogement } from '../domain/types'
+import { reglagesEffectifs } from '../engine/reglages'
+import { comparatifTrajets } from '../engine/transport'
+import { NOMS_TRAJETS } from '../engine/trajets'
+import { CartesTrajets } from '../voyage/CartesTrajets'
 import { ajouterJours } from '../engine/dates'
 import { NOMS_MOIS } from '../engine/periodes'
 import { GRATIFICATION } from '../engine/sejourLong'
 import { typeVoyage, type IdSectionSimple } from '../tripTypes'
 import { useVoyage, dateDuJour } from '../store/voyage'
-import { formatDuree, formatEuros } from '../ui/format'
+import { formatEuros } from '../ui/format'
 import { ChampDateHeure } from './ChampDateHeure'
 import { CarteReglage, Compteur, Curseur, Interrupteur, Puces, Reglage, Segments } from './Controles'
 import { INTERETS_UI, LOGEMENTS_UI, MODES_UI, STYLES_UI } from './libelles'
@@ -200,34 +204,42 @@ export function SectionsSimples({ estimation, ouvertes }: { estimation: Estimati
       </CarteReglage>
     ),
 
-    comment: () => (
-      <CarteReglage key="comment" titre={s.typeVoyage === 'stage' ? 'Pour y aller' : 'Comment'} icone={Route} resume={MODES_UI[s.transport].libelle} ouverteParDefaut={ouvertes}>
-        <Segments<ModeTransport>
-          nom="Mode de transport"
-          valeur={s.transport}
-          onChange={(transport) => modifierSimple({ transport })}
-          options={(Object.keys(MODES_UI) as ModeTransport[]).map((m) => {
-            const e = estimation.parMode[m]
-            return {
-              valeur: m,
-              libelle: MODES_UI[m].libelle,
-              icone: MODES_UI[m].icone,
-              detail: e.possible ? `${formatEuros(e.total)} · ${formatDuree(e.dureeAllerMin)}` : 'Impossible',
-              titre: e.raison,
-            }
-          })}
-        />
-        {!estimation.parMode[s.transport].possible && (
-          <p role="alert" className="rounded-2xl bg-(--statut-depasse)/10 px-3 py-2 text-sm text-(--statut-depasse-texte)">
-            {estimation.parMode[s.transport].raison} Choisissez un autre mode.
+    comment: () => {
+      const choisi = estimation.couts.transport.option?.type
+      // Changer de priorité ou autoriser les combinaisons reprend le meilleur trajet, tous modes confondus
+      const appliquer = (changes: Partial<ReglagesSimples>) => {
+        const s2 = { ...s, ...changes, trajetChoisi: null }
+        const r = comparatifTrajets(estimation.trajet, s2, reglagesEffectifs({ ...reglages, simple: s2 }), estimation.couts.saison)
+        const meilleur = r.options.find((o) => !o.peuRealiste) ?? r.options[0]
+        modifierSimple({ ...changes, trajetChoisi: null, ...(meilleur ? { transport: meilleur.mode } : {}) })
+      }
+      return (
+        <CarteReglage key="comment" titre={s.typeVoyage === 'stage' ? 'Pour y aller' : 'Comment'} icone={Route} resume={choisi ? NOMS_TRAJETS[choisi] : MODES_UI[s.transport].libelle} ouverteParDefaut={ouvertes}>
+          <Reglage libelle="Ce qui compte le plus">
+            <Segments<PrioriteTrajet>
+              nom="Priorité du trajet"
+              valeur={s.priorite}
+              onChange={(priorite) => appliquer({ priorite })}
+              options={[
+                { valeur: 'prix', libelle: 'Moins cher' },
+                { valeur: 'rapide', libelle: 'Plus rapide' },
+                { valeur: 'compromis', libelle: 'Compromis' },
+              ]}
+            />
+          </Reglage>
+          <Interrupteur libelle="Trajets combinés" aide="Voiture jusqu’à une gare ou un aéroport, car ou TER à l’arrivée…" valeur={s.combinaisons} onChange={(combinaisons) => appliquer({ combinaisons })} />
+          <CartesTrajets resultat={estimation.trajets} choisi={choisi} onChoisir={(o) => modifierSimple({ transport: o.mode, trajetChoisi: o.type })} voyageurs={voyageurs} />
+          {!estimation.parMode[s.transport].possible && (
+            <p role="alert" className="rounded-2xl bg-(--statut-depasse)/10 px-3 py-2 text-sm text-(--statut-depasse-texte)">
+              {estimation.parMode[s.transport].raison} Choisissez un autre trajet.
+            </p>
+          )}
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Prix aller-retour pour {voyageurs} voyageur{voyageurs > 1 ? 's' : ''}, fourchette selon la date de réservation ; durée d’un aller, porte à porte, avec 20 min d’avance pour un train et 2 h pour un vol.
           </p>
-        )}
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          Prix aller-retour pour {voyageurs} voyageur{voyageurs > 1 ? 's' : ''}, durée d’un aller.
-          {def.calcul !== 'sejourLong' && ' Les autres modes possibles seront aussi comparés.'}
-        </p>
-      </CarteReglage>
-    ),
+        </CarteReglage>
+      )
+    },
 
     style: () => (
       <CarteReglage key="style" titre="Style" icone={Sparkles} resume={STYLES_UI[s.style].libelle} ouverteParDefaut={ouvertes}>

@@ -43,7 +43,7 @@ export function decoderVoyage(code: string): VoyagePartage | null {
     if (o?.v !== 1 || !estLieu(o.d) || !estLieu(o.a) || typeof o.s !== 'object' || !o.s) return null
     const s = o.s
     if (!/^\d{4}-\d{2}-\d{2}$/.test(s.dateDepart) || !(s.nuits >= 1 && s.nuits <= 60) || !(s.adultes >= 1 && s.adultes <= 12) || !(s.enfants >= 0 && s.enfants <= 10)) return null
-    if (!['voiture', 'train', 'avion', 'car'].includes(s.transport) || !['eco', 'equilibre', 'confort'].includes(s.style) || !Array.isArray(s.interets)) return null
+    if (!['voiture', 'train', 'avion', 'car', 'covoiturage'].includes(s.transport) || !['eco', 'equilibre', 'confort'].includes(s.style) || !Array.isArray(s.interets)) return null
     return {
       depart: o.d,
       arrivee: o.a,

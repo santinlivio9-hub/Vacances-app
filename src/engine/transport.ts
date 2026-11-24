@@ -1,7 +1,5 @@
-import { aeroports, tarifs } from '../data'
 import type { Coordonnees, ModeTransport, ReglagesAvances, ReglagesSimples, Saison } from '../domain/types'
-import { prixAvionAllerSimple } from './apercu'
-import { aeroportLePlusProche } from './geo'
+import { comparerTrajets, NOMS_TRAJETS, trajetPourMode, type Fourchette, type OptionTrajet, type ParametresTrajet, type ResultatTrajets } from './trajets'
 
 /** Ce que le moteur sait du trajet (calculé sur la carte). */
 export interface DonneesTrajet {
@@ -14,6 +12,8 @@ export interface DonneesTrajet {
   dureeRouteMin?: number
   /** Faux s'il n'existe pas de route (mer, autre continent) */
   routeTerrestre: boolean
+  /** Noms affichés dans les étapes (« Troyes », « Lyon ») */
+  noms?: [string, string]
 }
 
 export interface LigneDetail {
@@ -26,88 +26,88 @@ export interface EstimationTransport {
   possible: boolean
   /** Pourquoi ce mode est impossible ou déconseillé */
   raison?: string
-  /** Aller-retour, pour tout le groupe */
+  /** Aller-retour, pour tout le groupe (prix le plus probable) */
   total: number
+  /** Fourchette de l'aller-retour */
+  fourchette: Fourchette
   /** Durée d'un aller, porte à porte */
   dureeAllerMin: number
   details: LigneDetail[]
+  /** Trajet retenu (étapes, prix, liens) */
+  option?: OptionTrajet
 }
 
-const IMPOSSIBLE = (mode: ModeTransport, raison: string): EstimationTransport => ({ mode, possible: false, raison, total: 0, dureeAllerMin: 0, details: [] })
+const NOMS_MODES: Record<ModeTransport, string> = { voiture: 'voiture', train: 'train', avion: 'avion', car: 'autocar', covoiturage: 'covoiturage' }
 
-function borne(bareme: { prixParKm: number; minimumParTrajet: number; plafondParTrajet: number }, km: number) {
-  return Math.min(bareme.plafondParTrajet, Math.max(bareme.minimumParTrajet, km * bareme.prixParKm))
+const IMPOSSIBLE = (mode: ModeTransport, raison: string): EstimationTransport => ({ mode, possible: false, raison, total: 0, fourchette: { bas: 0, haut: 0, milieu: 0 }, dureeAllerMin: 0, details: [] })
+
+export type ChoixTrajet = Pick<ReglagesSimples, 'adultes' | 'enfants'> & Partial<Pick<ReglagesSimples, 'nuits' | 'priorite' | 'combinaisons' | 'trajetChoisi'>>
+export type AvancesTrajet = ParametresTrajet['av']
+
+/** Comparatif de tous les trajets (simples et combinés) pour ces réglages. */
+export function comparatifTrajets(trajet: DonneesTrajet, simple: ChoixTrajet, av: AvancesTrajet, saison: Saison): ResultatTrajets {
+  const { noms, ...geo } = trajet
+  return comparerTrajets(
+    geo,
+    {
+      adultes: simple.adultes,
+      enfants: simple.enfants,
+      nuits: simple.nuits ?? 2,
+      saison,
+      av: {
+        vehicules: av.vehicules,
+        consommationL100: av.consommationL100,
+        prixCarburant: av.prixCarburant,
+        peages: av.peages,
+        classe: av.classe,
+        bagagesSoute: av.bagagesSoute,
+        rayonHubMin: av.rayonHubMin ?? 90,
+        accesGare: av.accesGare ?? 'parking',
+        carteReduction: av.carteReduction ?? 'aucune',
+        reservation: av.reservation ?? 'normal',
+        usure: av.usure ?? false,
+      },
+    },
+    { priorite: simple.priorite ?? 'compromis', combinaisons: simple.combinaisons ?? true, noms },
+  )
 }
 
 /**
- * Coût du transport aller-retour pour le groupe, selon le mode choisi.
- * Les enfants paient leur place (tarifs.partEnfant = 1).
+ * Coût du transport aller-retour pour le groupe, pour un mode : le trajet choisi dans le comparatif
+ * s'il est de ce mode, sinon le meilleur trajet de ce mode selon la priorité.
  */
 export function estimerTransport(
   mode: ModeTransport,
   trajet: DonneesTrajet,
-  simple: Pick<ReglagesSimples, 'adultes' | 'enfants'>,
-  avances: Pick<ReglagesAvances, 'vehicules' | 'consommationL100' | 'prixCarburant' | 'peages' | 'classe' | 'bagagesSoute'>,
+  simple: ChoixTrajet,
+  avances: Pick<ReglagesAvances, 'vehicules' | 'consommationL100' | 'prixCarburant' | 'peages' | 'classe' | 'bagagesSoute'> & Partial<AvancesTrajet>,
   saison: Saison,
 ): EstimationTransport {
-  const voyageurs = simple.adultes + simple.enfants * tarifs.partEnfant
-  const route = trajet.distanceRouteKm
-
-  if (mode === 'voiture') {
-    const v = tarifs.voiture
-    if (!trajet.routeTerrestre) return IMPOSSIBLE(mode, 'Aucune route ne relie ces deux points (mer ou océan à traverser).')
-    if (route > v.distanceMaxKm) return IMPOSSIBLE(mode, `Plus de ${v.distanceMaxKm.toLocaleString('fr-FR')} km de route : trop long en voiture.`)
-    const carburant = 2 * avances.vehicules * route * (avances.consommationL100 / 100) * avances.prixCarburant
-    const peages = avances.peages ? 2 * avances.vehicules * route * v.peageParKm : 0
-    return {
-      mode,
-      possible: true,
-      total: carburant + peages,
-      dureeAllerMin: trajet.dureeRouteMin ?? (route / v.vitesseMoyenneKmH) * 60,
-      details: [
-        { libelle: `Carburant aller-retour (${avances.vehicules} véhicule${avances.vehicules > 1 ? 's' : ''})`, montant: carburant },
-        ...(peages ? [{ libelle: 'Péages', montant: peages }] : []),
-      ],
-    }
+  const r = comparatifTrajets(trajet, simple, avances as AvancesTrajet, saison)
+  const option = trajetPourMode(r, mode, simple.trajetChoisi ?? null)
+  if (!option) {
+    const raison = r.ecartees.find((e) => (e.type === 'autocar' ? 'car' : e.type.split('+').includes(mode) ? mode : null) === mode)?.raison
+    return IMPOSSIBLE(mode, raison ?? impossibleParDefaut(mode, trajet))
   }
-
-  if (mode === 'train' || mode === 'car') {
-    const bareme = tarifs[mode]
-    if (!trajet.routeTerrestre) return IMPOSSIBLE(mode, `Pas de liaison terrestre : le ${mode} ne peut pas faire ce trajet.`)
-    if (route > bareme.distanceMaxKm) return IMPOSSIBLE(mode, `Plus de ${bareme.distanceMaxKm.toLocaleString('fr-FR')} km : trop long en ${mode}.`)
-    const coefficient = mode === 'train' ? tarifs.train.coefficientClasse[avances.classe] : 1
-    const billet = borne(bareme, route) * coefficient
-    return {
-      mode,
-      possible: true,
-      total: 2 * billet * voyageurs,
-      dureeAllerMin: (route / bareme.vitesseMoyenneKmH) * 60 + 30,
-      details: [{ libelle: `Billets aller-retour (${Math.round(voyageurs)} × 2 × ${Math.round(billet)} €)`, montant: 2 * billet * voyageurs }],
-    }
-  }
-
-  // Avion
-  const a = tarifs.avion
-  if (trajet.distanceVolKm < a.distanceMinKm && trajet.routeTerrestre) {
-    return IMPOSSIBLE(mode, `Moins de ${a.distanceMinKm} km : pas de vol régulier, prenez plutôt le train ou la voiture.`)
-  }
-  const billet = prixAvionAllerSimple(trajet.distanceVolKm, saison) * a.coefficientClasse[avances.classe]
-  const billets = 2 * billet * voyageurs
-  const bagages = avances.bagagesSoute ? 2 * a.bagageSouteParTrajet * voyageurs : 0
-  // Trajet jusqu'à l'aéroport de départ (aéroports français connus ; ailleurs on suppose un aéroport proche).
-  const { distanceKm: versAeroport } = aeroportLePlusProche(trajet.depart, aeroports)
-  const acces = versAeroport > tarifs.accesAeroport.seuilKm && versAeroport < 400 ? 2 * versAeroport * tarifs.accesAeroport.prixParKm * voyageurs : 0
   return {
     mode,
     possible: true,
-    total: billets + bagages + acces,
-    dureeAllerMin: (trajet.distanceVolKm / a.vitesseCroisiereKmH) * 60 + a.tempsAeroportMin + (acces ? (versAeroport / 90) * 60 : 0),
-    details: [
-      { libelle: `Billets d’avion aller-retour (${Math.round(voyageurs)} × 2 × ${Math.round(billet)} €)`, montant: billets },
-      ...(bagages ? [{ libelle: 'Bagages en soute', montant: bagages }] : []),
-      ...(acces ? [{ libelle: `Trajet jusqu’à l’aéroport (${Math.round(versAeroport)} km)`, montant: acces }] : []),
-    ],
+    raison: option.peuRealiste,
+    total: option.total.milieu,
+    fourchette: option.total,
+    dureeAllerMin: option.dureeAllerMin,
+    details: option.details,
+    option,
   }
 }
 
-export const MODES: ModeTransport[] = ['voiture', 'train', 'avion', 'car']
+function impossibleParDefaut(mode: ModeTransport, trajet: DonneesTrajet): string {
+  if (!trajet.routeTerrestre && mode !== 'avion') return `Pas de liaison terrestre : impossible en ${NOMS_MODES[mode]}.`
+  if (mode === 'avion') return trajet.distanceVolKm < 400 ? 'Moins de 400 km : pas de vol régulier, prenez plutôt le train ou la voiture.' : 'Aucun aéroport dans le rayon choisi : augmentez le temps d’accès à l’aéroport.'
+  if (mode === 'train') return 'Aucune gare utile dans le rayon choisi, ou trajet trop long en train.'
+  if (mode === 'car') return 'Pas de ligne d’autocar connue près du départ ou de l’arrivée.'
+  return `Trajet impossible en ${NOMS_MODES[mode]}.`
+}
+
+export const MODES: ModeTransport[] = ['voiture', 'train', 'avion', 'car', 'covoiturage']
+export { NOMS_TRAJETS }

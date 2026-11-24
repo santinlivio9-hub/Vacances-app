@@ -19,7 +19,14 @@ export interface Lieu extends Coordonnees {
   type?: string
 }
 
-export type ModeTransport = 'voiture' | 'train' | 'avion' | 'car'
+export type ModeTransport = 'voiture' | 'train' | 'avion' | 'car' | 'covoiturage'
+/** Ce qui compte le plus pour choisir le trajet */
+export type PrioriteTrajet = 'prix' | 'rapide' | 'compromis'
+/** Trajets proposés, simples ou combinés */
+export type TypeTrajet = 'voiture' | 'covoiturage' | 'autocar' | 'train' | 'voiture+train' | 'train+local' | 'avion' | 'voiture+avion'
+export type CarteReduction = 'aucune' | 'avantage' | 'jeune'
+/** Moment de la réservation : place le prix dans la fourchette */
+export type MomentReservation = 'tot' | 'normal' | 'derniere'
 export type Style = 'eco' | 'equilibre' | 'confort'
 export type Saison = 'basse' | 'moyenne' | 'haute'
 export type Interet = 'culture' | 'nature' | 'plage' | 'gastronomie' | 'sport' | 'fete' | 'detente' | 'shopping'
@@ -78,6 +85,12 @@ export interface ReglagesSimples {
   adultes: number
   enfants: number
   transport: ModeTransport
+  /** Moins cher, plus rapide ou compromis : sert à choisir le trajet */
+  priorite: PrioriteTrajet
+  /** Autorise les trajets combinés (voiture + train, voiture + avion…) */
+  combinaisons: boolean
+  /** Trajet choisi dans le comparatif (null : le meilleur selon la priorité) */
+  trajetChoisi: TypeTrajet | null
   style: Style
   interets: Interet[]
   /** Budget total en euros ; null = pas de limite */
@@ -98,6 +111,14 @@ export interface ReglagesAvances {
   classe: ClasseVoyage
   bagagesSoute: boolean
   transportLocal: TransportLocal
+  /** Temps de route maximum pour rejoindre une gare ou un aéroport (minutes) */
+  rayonHubMin: number
+  /** Voiture laissée au parking de la gare, ou dépose par un proche */
+  accesGare: 'parking' | 'depose'
+  carteReduction: CarteReduction
+  reservation: MomentReservation
+  /** Compte l'usure de la voiture (entretien, pneus), en plus du carburant */
+  usure: boolean
   // Logement
   typeLogement: TypeLogement
   etoiles: 2 | 3 | 4
@@ -175,6 +196,8 @@ export interface LieuVisite extends Coordonnees {
   site?: string
   /** Tags OSM utiles (frais d'entrée, horaires…) */
   gratuit?: boolean
+  /** Prix d'entrée adulte relevé dans OpenStreetMap (tag charge), en euros */
+  prixEntree?: number
   source: 'osm' | 'wikipedia' | 'generique'
 }
 
@@ -203,6 +226,8 @@ export interface ActivitePlanifiee {
   moment: 'matin' | 'apres-midi' | 'soir'
   /** Prix pour tout le groupe (0 = gratuit) */
   prix: number
+  /** Vrai si le prix vient d'OpenStreetMap (sinon : prix estimé d'après le type de lieu) */
+  prixConnu?: boolean
 }
 
 export interface JourItineraire {

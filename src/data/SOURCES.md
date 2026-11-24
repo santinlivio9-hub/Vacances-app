@@ -169,3 +169,41 @@ Chaque type de logement coché est combiné avec les modes de transport réalist
 - **Dépôt de garantie** : environ un mois de loyer hors charges pour un studio, une colocation ou une résidence ; il est remboursé à la fin, donc affiché à part et jamais compté dans le total. Avec un bail mobilité, aucun dépôt ne peut être demandé.
 - **Aide au logement** : lien vers le [simulateur de la CAF](https://www.caf.fr/allocataires/aides-et-demarches/mes-demarches), sans calcul de montant.
 - **Photos Wikipédia** : les montages (« Montage_Pau_4.jpg ») sont écartés comme les drapeaux et les blasons ; en dernier recours, l'app prend la première vraie photo de l'article (pour Pau : le château).
+
+## Version 5 : trajets combinés et prix plus réalistes (24/11/2026)
+
+### Audit des prix (avant → après)
+
+| Poste | v4 | v5 | Source |
+| --- | --- | --- | --- |
+| Carburant | 2,05 €/L fixe | moyenne nationale du jour (gazole + SP95-E10) / 2 ; repli : 2,04 €/L relevé le 24/11/2026 (gazole 2,118, SP95 2,025, E10 1,954) | [API « prix des carburants », data.economie.gouv.fr](https://data.economie.gouv.fr/explore/dataset/prix-des-carburants-en-france-flux-instantane-v2/) |
+| Péages | 0,075 €/km sur tout le trajet | 0,10 €/km sur 70 % du trajet (part autoroute) | hausse de 0,86 % au 1er février 2026, ≈ 0,095 à 0,10 €/km en moyenne ([Assemblée nationale](https://www.assemblee-nationale.fr/dyn/17/questions/QANR5L17QE12670.pdf)) |
+| Usure de la voiture | absente | option, 0,10 €/km | ordre de grandeur des frais d'entretien et de pneus |
+| Train | 0,12 €/km, 15 à 150 € | tarifs officiels par paire de gares (OUIGO, TGV INOUI, Avantage, 1re) ; Intercités/TER : 0,07 à 0,20 €/km | [SNCF, « Tarifs TGV INOUI et OUIGO », data.gouv.fr, mise à jour du 17/03/2026](https://www.data.gouv.fr/datasets/tarifs-tgv-inoui-et-ouigo), licence ODbL ; prix moyens 2024 : OUIGO 34,70 €, INOUI 48,40 € (FNAUT) |
+| Autocar | 0,06 €/km, BlaBlaCar Bus ou FlixBus | 0,063 €/km (fourchette 0,04 à 0,10), FlixBus seul | 6,30 € pour 100 km (rapport ART 2026 cité par [FlixBus](https://www.flixbus.fr/entreprise/presse/Flixbus-ART-prix-stables-frequentation-hausse)) ; BlaBlaCar Bus ferme fin 2026 ([Connexion](https://www.connexionfrance.com/news/blablacars-intercity-coach-service-to-shut-in-france/788230)) |
+| Covoiturage | absent | 0,07 €/km par passager (0,055 à 0,085) + 18 % de frais | barème conseillé BlaBlaCar ≈ 0,06 à 0,08 €/km, commission 17,5 à 19 % |
+| Parking en gare | absent | 38 €/jour à Paris, 25 € dans les grandes villes, 12 € en gare TGV, 7 € ailleurs | relevés 2025-2026 (Lyon Part-Dieu 25 à 35 €/jour) |
+| Avion | forfait 45 € + barème | même barème comme prix « normal », fourchette ×0,45 à ×2 (low-cost) ou ×0,7 à ×2,2 ; 2 h d'avance | — |
+| Hôtels, restaurants | prix France × indice pays | × indice de la ville (30 villes françaises, 30 étrangères) | ADR France 133 € (In Extenso 2025), province ≈ 100 € HT (UMIH/MKG, décembre 2025) ; Numbeo pour les écarts entre villes |
+| Activités | prix moyen par type | tarif OSM (`charge`) quand il existe, sinon « prix estimé » | OpenStreetMap |
+
+### Fourchettes
+
+- **Billets réservables** (train, avion, autocar) : la fourchette officielle (prix minimum à maximum) est réduite à la partie où tombent la plupart des billets selon le moment de la réservation : tôt = 0 à 35 % de la fourchette (prix probable à 15 %), normal = 15 à 60 % (35 %), dernière minute = 55 à 100 % (80 %).
+- **Le reste** : logement et repas −15 % / +20 %, activités −25 % / +30 %, transport sur place −20 % / +25 %, divers −20 % / +30 %, plus la marge pour imprévus.
+
+### Trajets combinés (`src/engine/trajets.ts`, `src/data/hubs.json`, `src/data/tarifsTrain.json`)
+
+- **Hubs** : 260 gares (liste officielle « Gares de voyageurs » SNCF, ODbL ; 242 avec un tarif TGV), 73 aéroports (35 en France, avec indicateur low-cost), 54 arrêts d'autocar.
+- **Marges** : 20 min avant un train, 2 h avant un vol, 30 min à la sortie de l'aéroport, 20 min pour retrouver un covoiturage.
+- **Correspondances** : par une grande gare seulement (Paris, Lyon Part-Dieu, Dijon…), changement de gare à Paris compté (40 min, ticket de métro). Intercités ou TER seulement jusqu'à 200 km (300 km vers Paris).
+- **Options écartées** : détour de plus de 30 %, trajet jusqu'à la gare ou l'aéroport plus long que le trajet principal, ou trajet combiné plus de deux fois plus long que le plus rapide. Les trajets simples (voiture, autocar, covoiturage) ne sont jamais écartés, seulement signalés.
+
+### Cas de contrôle (`src/engine/casControle.test.ts`)
+
+| Cas | Référence | Résultat v5 | Verdict |
+| --- | --- | --- | --- |
+| Troyes → Lyon, 2 pers., 2 nuits mi-décembre | 650 à 1 150 € : train 2 × A/R 120 à 220 €, hôtel 3★ Lyon 2 nuits 200 à 300 €, repas 180 à 300 €, activités et sur place 60 à 180 € | 985 € (entre 810 et 1 210 €), train via Dijon 180 € | ✓ |
+| Paris → Lisbonne, 2 pers., 7 nuits en juillet | 2 200 à 3 800 € : vols A/R juillet 180 à 320 € par personne + bagages, hôtel 130 à 200 €/nuit, repas 450 à 800 € | 3 391 € (entre 2 700 et 4 290 €), avion depuis Orly 867 € | ✓ |
+| Troyes → Pau, stage de 11 semaines en colocation | 950 à 1 450 €/mois : colocation 350 à 450 €, courses 200 à 300 €, abonnement Idelis 17,50 € après remboursement | 1 250 €/mois + 257 € de frais | ✓ |
+| Paris → Marseille, 1 pers., week-end en TGV | OUIGO 19 à 109 €, INOUI 25,50 à 138 € l'aller : tôt nettement moins cher | A/R 70 € tôt, 187 € à la dernière minute | ✓ |

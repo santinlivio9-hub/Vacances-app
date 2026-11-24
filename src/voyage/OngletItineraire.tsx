@@ -54,7 +54,9 @@ function CarteActivite({ activite, ville, numero, couleur, onRemplacer }: { acti
           />
         </div>
         <h4 className="leading-snug font-semibold [text-wrap:pretty]">{lieu.nom}</h4>
-        <p className={`text-sm font-semibold ${activite.prix === 0 ? 'text-(--statut-ok-texte)' : ''}`}>{activite.prix === 0 ? 'Gratuit' : `≈ ${formatEuros(activite.prix)}`}</p>
+        <p className={`text-sm font-semibold ${activite.prix === 0 ? 'text-(--statut-ok-texte)' : ''}`}>{activite.prix === 0 ? 'Gratuit' : activite.prixConnu ? formatEuros(activite.prix) : `≈ ${formatEuros(activite.prix)}`}
+          {activite.prix > 0 && <span className="ml-1.5 text-xs font-normal text-slate-500 dark:text-slate-400">{activite.prixConnu ? 'tarif OpenStreetMap' : 'prix estimé'}</span>}
+        </p>
         <div className="mt-auto flex flex-wrap gap-1 pt-1.5 print:hidden">
           {liens.reserver && (
             <a href={liens.reserver} target="_blank" rel="noopener noreferrer" className="inline-flex h-9 items-center gap-1 rounded-full bg-ocean-700 px-3 text-xs font-semibold text-white">

@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, type CSSProperties } from 'react'
+import { chargerPrixCarburant } from './services/carburant'
 import { MotionConfig } from 'framer-motion'
 import { HashRouter, Navigate, Outlet, Route, Routes, useLocation } from 'react-router'
 import { useLarge } from './carte/hooks'
@@ -41,6 +42,10 @@ function Coque() {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [pathname])
+  // Prix du carburant du jour (moyenne nationale), une fois par session
+  useEffect(() => {
+    void chargerPrixCarburant()
+  }, [])
   const style = {
     '--nav-bas': visible && !large ? 'calc(4rem + env(safe-area-inset-bottom))' : '0px',
     '--nav-gauche': visible && large ? '5.5rem' : '0px',

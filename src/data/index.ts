@@ -4,6 +4,8 @@ import transportJson from './transport.json'
 import aeroportsJson from './aeroports.json'
 import type { Coordonnees, Saison, Style, TypeActivite, TypeLogement } from '../domain/types'
 import villesJson from './villes.json'
+import hubsJson from './hubs.json'
+import tarifsTrainJson from './tarifsTrain.json'
 
 export type ParStyle = Record<Style, number>
 
@@ -65,10 +67,18 @@ export interface PrixBase {
 export interface Ville extends Coordonnees {
   nom: string
   pays: string
-  /** Coefficient du loyer (grande ville du pays = 1) */
-  loyer: number
+  /** Coefficient du loyer (grande ville du pays = 1) ; absent : ville moyenne */
+  loyer?: number
+  /** Prix des hôtels et des restaurants par rapport à la moyenne du pays */
+  hotel?: number
+  repas?: number
   /** Abonnement mensuel de transport, s'il est connu */
   abonnement?: number
+}
+
+interface Fourchette2 {
+  bas: number
+  haut: number
 }
 
 interface TrancheAvion {
@@ -90,22 +100,47 @@ export interface Tarifs {
     consommationL100: number
     prixCarburant: number
     peageParKm: number
+    partAutoroute: number
+    usureParKm: number
     placesParVehicule: number
     vitesseMoyenneKmH: number
     distanceMaxKm: number
   }
-  train: BaremeTerrestre & { coefficientClasse: Record<'eco' | 'premium' | 'premiere', number> }
-  car: BaremeTerrestre
+  train: BaremeTerrestre & {
+    coefficientClasse: Record<'eco' | 'premium' | 'premiere', number>
+    vitesseTgvKmH: number
+    vitesseClassiqueKmH: number
+    detourRail: number
+    classiqueParKm: Fourchette2
+    classiqueMinimum: number
+    margeMin: number
+    europeParKm: Fourchette2
+  }
+  car: BaremeTerrestre & { fourchetteParKm: Fourchette2; margeMin: number }
+  covoiturage: { prixParKm: number; fourchetteParKm: Fourchette2; commission: number; rendezVousMin: number; distanceMinKm: number; distanceMaxKm: number }
   avion: {
     forfaitParTrajet: number
     tranches: TrancheAvion[]
     coefficientSaison: Record<Saison, number>
     coefficientClasse: Record<'eco' | 'premium' | 'premiere', number>
+    fourchette: { lowcost: [number, number]; classique: [number, number] }
     bagageSouteParTrajet: number
     vitesseCroisiereKmH: number
     tempsAeroportMin: number
+    margeMin: number
+    sortieMin: number
     distanceMinKm: number
   }
+  acces: {
+    marcheMaxKm: number
+    transportsMaxKm: number
+    ticketUrbain: number
+    navetteAeroport: { minimum: number; parKm: number }
+    regionalParKm: number
+    taxiParKm: number
+    taxiPriseEnCharge: number
+  }
+  reservation: Record<'tot' | 'normal' | 'derniere', { bas: number; haut: number; milieu: number }>
   accesAeroport: { prixParKm: number; seuilKm: number }
   partEnfant: number
 }
@@ -114,6 +149,38 @@ export interface Aeroport extends Coordonnees {
   code: string
   nom: string
 }
+
+/** Gare SNCF (hubs.json) */
+export interface Gare extends Coordonnees {
+  nom: string
+  /** Desservie par un TGV INOUI ou OUIGO (tarifs connus) */
+  tgv: boolean
+  /** Parking : prix d'une journée (€) */
+  parking: number
+  /** Accessible en transports en commun */
+  tc: boolean
+}
+
+export interface AeroportHub extends Aeroport {
+  /** Desservi par des compagnies à bas prix */
+  lowcost: boolean
+  parking: number
+  tc: boolean
+  pays: string
+}
+
+export interface GareRoutiere extends Coordonnees {
+  nom: string
+  pays: string
+}
+
+export const hubs = hubsJson as unknown as { gares: Gare[]; aeroports: AeroportHub[]; garesRoutieres: GareRoutiere[] }
+
+/**
+ * Tarifs SNCF par paire de gares (« i-j », i < j, indices de hubs.gares) :
+ * [ouigoMin, ouigoMax, inouiMin, inouiMax, avantageMin, avantageMax, jeuneMin, jeuneMax, premiereMin, premiereMax], 0 = absent.
+ */
+export const tarifsTrain = (tarifsTrainJson as unknown as { tarifs: Record<string, number[]> }).tarifs
 
 const pays = paysJson as unknown as { continents: Record<string, Omit<DonneesPays, 'continent'>>; pays: Record<string, DonneesPays> }
 

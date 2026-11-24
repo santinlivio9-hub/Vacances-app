@@ -62,7 +62,8 @@ export function activitesGeneriques(ville: string, centre: Coordonnees): LieuVis
 export function prixActivite(lieu: LieuVisite, reglages: Reglages, indice: number): number {
   if (lieu.gratuit) return 0
   const s = reglages.simple
-  const unitaire = prixBase.activites[lieu.type][s.style] * indice
+  // Prix réel relevé dans OpenStreetMap si on l'a, sinon estimation d'après le type de lieu
+  const unitaire = lieu.prixEntree ?? prixBase.activites[lieu.type][s.style] * indice
   return unitaire * (s.adultes + s.enfants * prixBase.divers.partEnfant)
 }
 
@@ -84,7 +85,7 @@ function filtrer(lieux: LieuVisite[], entree: EntreeItineraire): LieuVisite[] {
   const av = reglagesEffectifs(entree.reglages)
   return lieux.filter((l) => {
     if (av.activitesExclues.includes(l.type)) return false
-    const prixUnitaire = l.gratuit ? 0 : prixBase.activites[l.type][entree.reglages.simple.style] * entree.indice
+    const prixUnitaire = l.gratuit ? 0 : (l.prixEntree ?? prixBase.activites[l.type][entree.reglages.simple.style] * entree.indice)
     if (av.gratuitesUniquement && prixUnitaire > 0) return false
     if (av.budgetMaxActivite != null && prixUnitaire > av.budgetMaxActivite) return false
     return true
@@ -195,7 +196,7 @@ export function genererItineraire(entree: EntreeItineraire): Itineraire {
     const momentsDispo = j.type === 'arrivee' ? (['soir'] as const) : j.type === 'depart' ? (['matin'] as const) : j.type === 'libre' ? (['matin'] as const) : MOMENTS.slice(0, j.places)
     const activites: ActivitePlanifiee[] = lieux.map((lieu, k) => {
       const moment = estDuSoir(lieu) && j.type !== 'depart' ? 'soir' : momentsDispo[Math.min(k, momentsDispo.length - 1)]
-      return { lieu, moment, heure: HEURES[moment], prix: prixActivite(lieu, entree.reglages, entree.indice) }
+      return { lieu, moment, heure: HEURES[moment], prix: prixActivite(lieu, entree.reglages, entree.indice), prixConnu: lieu.prixEntree != null || !!lieu.gratuit }
     })
     activites.sort((a, b) => MOMENTS.indexOf(a.moment) - MOMENTS.indexOf(b.moment))
 
@@ -248,7 +249,7 @@ export function remplacerActivite(itineraire: Itineraire, jour: number, position
     .sort((a, b) => b.note - a.note)
   const nouveau = candidats[0]?.l
   if (!nouveau) return itineraire
-  const activites = j.activites.map((a, i) => (i === position ? { ...a, lieu: nouveau, prix: prixActivite(nouveau, entree.reglages, entree.indice) } : a))
+  const activites = j.activites.map((a, i) => (i === position ? { ...a, lieu: nouveau, prix: prixActivite(nouveau, entree.reglages, entree.indice), prixConnu: nouveau.prixEntree != null || !!nouveau.gratuit } : a))
   const jours = itineraire.jours.map((d, i) => (i === jour ? { ...d, activites } : d))
   return { ...itineraire, jours, totalActivites: jours.reduce((t, d) => t + d.activites.reduce((u, a) => u + a.prix, 0), 0) }
 }

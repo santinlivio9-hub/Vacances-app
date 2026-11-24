@@ -105,6 +105,13 @@ Le workflow [.github/workflows/deploy.yml](.github/workflows/deploy.yml) se lanc
 
 Réglages à faire une seule fois : dépôt public, puis **Settings → Pages → Source : GitHub Actions**. Si le dépôt change de nom, modifier aussi `base` dans [vite.config.ts](vite.config.ts).
 
+## Trajets combinés et prix (v5)
+
+- **Comparatif des trajets** : voiture, covoiturage, autocar (FlixBus), train, voiture + train, train + transport local, avion, voiture + avion. Chaque trajet est une suite d'étapes, avec une durée, une fourchette de prix et un lien par étape (badge « pré-rempli » seulement si le lien transmet vraiment les dates et les voyageurs).
+- **Mode simple** : moins cher, plus rapide ou compromis, et un interrupteur pour les trajets combinés. **Mode avancé** : temps de route jusqu'à la gare ou l'aéroport, parking ou dépose, carte Avantage ou Avantage Jeune, réservation tôt, normale ou à la dernière minute, usure de la voiture.
+- **Prix** : tarifs SNCF officiels par paire de gares, carburant du jour (API officielle), péages sur la part autoroute, indices de prix de 60 villes, tarifs d'entrée OpenStreetMap. Chaque total est donné avec une fourchette : « 985 € (entre 810 et 1 210 €) ».
+- Détail des sources et cas de contrôle : [`src/data/SOURCES.md`](src/data/SOURCES.md).
+
 ## Le moteur de calcul (`src/engine/`)
 
 Fonctions pures, sans interface, toutes testées.

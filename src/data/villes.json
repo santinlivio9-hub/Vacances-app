@@ -1,5 +1,5 @@
 {
- "_note": "Coefficient du loyer par rapport à une grande ville du même pays (France : Lyon ≈ 1,1). Abonnement mensuel de transport quand il est connu. Une ville absente compte comme une ville moyenne (0,85).",
+ "_note": "Par ville : loyer = coefficient du loyer par rapport à une grande ville du même pays (France : Lyon ≈ 1,1), absent = ville moyenne (0,85) ; abonnement = abonnement mensuel de transport quand il est connu ; hotel et repas = coefficients des prix d'hôtel et de restaurant par rapport à la moyenne du pays (ordres de grandeur 2025-2026 : MKG/UMIH, In Extenso, Numbeo ; voir SOURCES.md). Une destination à plus de 25 km de toute ville de la liste prend la moyenne du pays.",
  "villes": [
   {
    "nom": "Paris",
@@ -7,7 +7,9 @@
    "lon": 2.3522,
    "loyer": 1.75,
    "abonnement": 90.8,
-   "pays": "fr"
+   "pays": "fr",
+   "hotel": 1.45,
+   "repas": 1.2
   },
   {
    "nom": "Lyon",
@@ -15,91 +17,117 @@
    "lon": 4.8357,
    "loyer": 1.1,
    "abonnement": 74,
-   "pays": "fr"
+   "pays": "fr",
+   "hotel": 1.05,
+   "repas": 1.05
   },
   {
    "nom": "Marseille",
    "lat": 43.2965,
    "lon": 5.3698,
    "loyer": 0.95,
-   "pays": "fr"
+   "pays": "fr",
+   "hotel": 1.0,
+   "repas": 1.0
   },
   {
    "nom": "Toulouse",
    "lat": 43.6047,
    "lon": 1.4442,
    "loyer": 0.95,
-   "pays": "fr"
+   "pays": "fr",
+   "hotel": 0.95,
+   "repas": 0.97
   },
   {
    "nom": "Nice",
    "lat": 43.7102,
    "lon": 7.262,
    "loyer": 1.15,
-   "pays": "fr"
+   "pays": "fr",
+   "hotel": 1.3,
+   "repas": 1.1
   },
   {
    "nom": "Nantes",
    "lat": 47.2184,
    "lon": -1.5536,
    "loyer": 1.0,
-   "pays": "fr"
+   "pays": "fr",
+   "hotel": 0.95,
+   "repas": 0.97
   },
   {
    "nom": "Montpellier",
    "lat": 43.6108,
    "lon": 3.8767,
    "loyer": 1.0,
-   "pays": "fr"
+   "pays": "fr",
+   "hotel": 0.95,
+   "repas": 0.97
   },
   {
    "nom": "Strasbourg",
    "lat": 48.5734,
    "lon": 7.7521,
    "loyer": 0.95,
-   "pays": "fr"
+   "pays": "fr",
+   "hotel": 1.0,
+   "repas": 1.0
   },
   {
    "nom": "Bordeaux",
    "lat": 44.8378,
    "lon": -0.5792,
    "loyer": 1.05,
-   "pays": "fr"
+   "pays": "fr",
+   "hotel": 1.05,
+   "repas": 1.02
   },
   {
    "nom": "Lille",
    "lat": 50.6292,
    "lon": 3.0573,
    "loyer": 0.95,
-   "pays": "fr"
+   "pays": "fr",
+   "hotel": 0.95,
+   "repas": 0.97
   },
   {
    "nom": "Rennes",
    "lat": 48.1173,
    "lon": -1.6778,
    "loyer": 0.95,
-   "pays": "fr"
+   "pays": "fr",
+   "hotel": 0.9,
+   "repas": 0.95
   },
   {
    "nom": "Grenoble",
    "lat": 45.1885,
    "lon": 5.7245,
    "loyer": 0.9,
-   "pays": "fr"
+   "pays": "fr",
+   "hotel": 0.9,
+   "repas": 0.95
   },
   {
    "nom": "Annecy",
    "lat": 45.8992,
    "lon": 6.1294,
    "loyer": 1.2,
-   "pays": "fr"
+   "pays": "fr",
+   "hotel": 1.2,
+   "repas": 1.08
   },
   {
    "nom": "Aix-en-Provence",
    "lat": 43.5297,
    "lon": 5.4474,
    "loyer": 1.1,
-   "pays": "fr"
+   "pays": "fr",
+   "hotel": 1.1,
+   "repas": 1.05
   },
   {
    "nom": "Versailles",
@@ -107,7 +135,9 @@
    "lon": 2.1204,
    "loyer": 1.45,
    "abonnement": 90.8,
-   "pays": "fr"
+   "pays": "fr",
+   "hotel": 1.2,
+   "repas": 1.1
   },
   {
    "nom": "Boulogne-Billancourt",
@@ -115,7 +145,9 @@
    "lon": 2.2399,
    "loyer": 1.6,
    "abonnement": 90.8,
-   "pays": "fr"
+   "pays": "fr",
+   "hotel": 1.3,
+   "repas": 1.15
   },
   {
    "nom": "La Défense",
@@ -123,7 +155,9 @@
    "lon": 2.2385,
    "loyer": 1.55,
    "abonnement": 90.8,
-   "pays": "fr"
+   "pays": "fr",
+   "hotel": 1.3,
+   "repas": 1.15
   },
   {
    "nom": "Saint-Denis",
@@ -131,133 +165,171 @@
    "lon": 2.3574,
    "loyer": 1.3,
    "abonnement": 90.8,
-   "pays": "fr"
+   "pays": "fr",
+   "hotel": 1.05,
+   "repas": 1.0
   },
   {
    "nom": "Toulon",
    "lat": 43.1242,
    "lon": 5.928,
    "loyer": 0.9,
-   "pays": "fr"
+   "pays": "fr",
+   "hotel": 0.9,
+   "repas": 0.97
   },
   {
    "nom": "Brest",
    "lat": 48.3904,
    "lon": -4.4861,
    "loyer": 0.8,
-   "pays": "fr"
+   "pays": "fr",
+   "hotel": 0.8,
+   "repas": 0.92
   },
   {
    "nom": "Londres",
    "lat": 51.5074,
    "lon": -0.1278,
    "loyer": 1.45,
-   "pays": "gb"
+   "pays": "gb",
+   "hotel": 1.4,
+   "repas": 1.2
   },
   {
    "nom": "Dublin",
    "lat": 53.3498,
    "lon": -6.2603,
    "loyer": 1.5,
-   "pays": "ie"
+   "pays": "ie",
+   "hotel": 1.25,
+   "repas": 1.1
   },
   {
    "nom": "Amsterdam",
    "lat": 52.3676,
    "lon": 4.9041,
    "loyer": 1.4,
-   "pays": "nl"
+   "pays": "nl",
+   "hotel": 1.35,
+   "repas": 1.15
   },
   {
    "nom": "Bruxelles",
    "lat": 50.8503,
    "lon": 4.3517,
    "loyer": 1.05,
-   "pays": "be"
+   "pays": "be",
+   "hotel": 1.1,
+   "repas": 1.05
   },
   {
    "nom": "Genève",
    "lat": 46.2044,
    "lon": 6.1432,
    "loyer": 1.25,
-   "pays": "ch"
+   "pays": "ch",
+   "hotel": 1.2,
+   "repas": 1.1
   },
   {
    "nom": "Zurich",
    "lat": 47.3769,
    "lon": 8.5417,
    "loyer": 1.3,
-   "pays": "ch"
+   "pays": "ch",
+   "hotel": 1.25,
+   "repas": 1.1
   },
   {
    "nom": "Barcelone",
    "lat": 41.3874,
    "lon": 2.1686,
    "loyer": 1.3,
-   "pays": "es"
+   "pays": "es",
+   "hotel": 1.25,
+   "repas": 1.1
   },
   {
    "nom": "Madrid",
    "lat": 40.4168,
    "lon": -3.7038,
    "loyer": 1.25,
-   "pays": "es"
+   "pays": "es",
+   "hotel": 1.15,
+   "repas": 1.05
   },
   {
    "nom": "Lisbonne",
    "lat": 38.7223,
    "lon": -9.1393,
    "loyer": 1.4,
-   "pays": "pt"
+   "pays": "pt",
+   "hotel": 1.2,
+   "repas": 1.1
   },
   {
    "nom": "Berlin",
    "lat": 52.52,
    "lon": 13.405,
    "loyer": 1.2,
-   "pays": "de"
+   "pays": "de",
+   "hotel": 1.05,
+   "repas": 1.0
   },
   {
    "nom": "Munich",
    "lat": 48.1351,
    "lon": 11.582,
    "loyer": 1.4,
-   "pays": "de"
+   "pays": "de",
+   "hotel": 1.25,
+   "repas": 1.1
   },
   {
    "nom": "Milan",
    "lat": 45.4642,
    "lon": 9.19,
    "loyer": 1.35,
-   "pays": "it"
+   "pays": "it",
+   "hotel": 1.3,
+   "repas": 1.15
   },
   {
    "nom": "Rome",
    "lat": 41.9028,
    "lon": 12.4964,
    "loyer": 1.2,
-   "pays": "it"
+   "pays": "it",
+   "hotel": 1.25,
+   "repas": 1.1
   },
   {
    "nom": "New York",
    "lat": 40.7128,
    "lon": -74.006,
    "loyer": 1.6,
-   "pays": "us"
+   "pays": "us",
+   "hotel": 1.6,
+   "repas": 1.25
   },
   {
    "nom": "Montréal",
    "lat": 45.5017,
    "lon": -73.5673,
    "loyer": 1.05,
-   "pays": "ca"
+   "pays": "ca",
+   "hotel": 1.1,
+   "repas": 1.05
   },
   {
    "nom": "Tokyo",
    "lat": 35.6762,
    "lon": 139.6503,
    "loyer": 1.25,
-   "pays": "jp"
+   "pays": "jp",
+   "hotel": 1.2,
+   "repas": 1.05
   },
   {
    "nom": "Pau",
@@ -265,7 +337,265 @@
    "lon": -0.3708,
    "loyer": 0.85,
    "abonnement": 35,
-   "pays": "fr"
+   "pays": "fr",
+   "hotel": 0.8,
+   "repas": 0.92
+  },
+  {
+   "nom": "Troyes",
+   "lat": 48.2973,
+   "lon": 4.0744,
+   "pays": "fr",
+   "hotel": 0.8,
+   "repas": 0.92,
+   "loyer": 0.75
+  },
+  {
+   "nom": "Dijon",
+   "lat": 47.322,
+   "lon": 5.0415,
+   "pays": "fr",
+   "hotel": 0.9,
+   "repas": 0.95,
+   "loyer": 0.85
+  },
+  {
+   "nom": "Reims",
+   "lat": 49.2583,
+   "lon": 4.0317,
+   "pays": "fr",
+   "hotel": 0.95,
+   "repas": 0.95,
+   "loyer": 0.85
+  },
+  {
+   "nom": "Tours",
+   "lat": 47.3941,
+   "lon": 0.6848,
+   "pays": "fr",
+   "hotel": 0.9,
+   "repas": 0.95,
+   "loyer": 0.85
+  },
+  {
+   "nom": "Clermont-Ferrand",
+   "lat": 45.7772,
+   "lon": 3.087,
+   "pays": "fr",
+   "hotel": 0.85,
+   "repas": 0.93,
+   "loyer": 0.8
+  },
+  {
+   "nom": "Metz",
+   "lat": 49.1193,
+   "lon": 6.1757,
+   "pays": "fr",
+   "hotel": 0.85,
+   "repas": 0.93,
+   "loyer": 0.8
+  },
+  {
+   "nom": "Nancy",
+   "lat": 48.6921,
+   "lon": 6.1844,
+   "pays": "fr",
+   "hotel": 0.85,
+   "repas": 0.93,
+   "loyer": 0.82
+  },
+  {
+   "nom": "Avignon",
+   "lat": 43.9493,
+   "lon": 4.8055,
+   "pays": "fr",
+   "hotel": 0.95,
+   "repas": 0.98,
+   "loyer": 0.85
+  },
+  {
+   "nom": "Biarritz",
+   "lat": 43.4832,
+   "lon": -1.5586,
+   "pays": "fr",
+   "hotel": 1.25,
+   "repas": 1.08,
+   "loyer": 1.2
+  },
+  {
+   "nom": "La Rochelle",
+   "lat": 46.1603,
+   "lon": -1.1511,
+   "pays": "fr",
+   "hotel": 1.05,
+   "repas": 1.0,
+   "loyer": 1.0
+  },
+  {
+   "nom": "Saint-Malo",
+   "lat": 48.6493,
+   "lon": -2.0257,
+   "pays": "fr",
+   "hotel": 1.1,
+   "repas": 1.02,
+   "loyer": 1.0
+  },
+  {
+   "nom": "Colmar",
+   "lat": 48.0794,
+   "lon": 7.3585,
+   "pays": "fr",
+   "hotel": 1.0,
+   "repas": 1.0,
+   "loyer": 0.85
+  },
+  {
+   "nom": "Chamonix-Mont-Blanc",
+   "lat": 45.9237,
+   "lon": 6.8694,
+   "pays": "fr",
+   "hotel": 1.4,
+   "repas": 1.12,
+   "loyer": 1.4
+  },
+  {
+   "nom": "Ajaccio",
+   "lat": 41.9192,
+   "lon": 8.7386,
+   "pays": "fr",
+   "hotel": 1.15,
+   "repas": 1.05,
+   "loyer": 1.05
+  },
+  {
+   "nom": "Cannes",
+   "lat": 43.5528,
+   "lon": 7.0174,
+   "pays": "fr",
+   "hotel": 1.35,
+   "repas": 1.12,
+   "loyer": 1.25
+  },
+  {
+   "nom": "Carcassonne",
+   "lat": 43.213,
+   "lon": 2.3491,
+   "pays": "fr",
+   "hotel": 0.9,
+   "repas": 0.95,
+   "loyer": 0.75
+  },
+  {
+   "nom": "Porto",
+   "lat": 41.1579,
+   "lon": -8.6291,
+   "pays": "pt",
+   "hotel": 1.05,
+   "repas": 1.0
+  },
+  {
+   "nom": "Séville",
+   "lat": 37.3891,
+   "lon": -5.9845,
+   "pays": "es",
+   "hotel": 1.05,
+   "repas": 0.95
+  },
+  {
+   "nom": "Florence",
+   "lat": 43.7696,
+   "lon": 11.2558,
+   "pays": "it",
+   "hotel": 1.35,
+   "repas": 1.1
+  },
+  {
+   "nom": "Venise",
+   "lat": 45.4408,
+   "lon": 12.3155,
+   "pays": "it",
+   "hotel": 1.6,
+   "repas": 1.25
+  },
+  {
+   "nom": "Naples",
+   "lat": 40.8518,
+   "lon": 14.2681,
+   "pays": "it",
+   "hotel": 0.95,
+   "repas": 0.9
+  },
+  {
+   "nom": "Édimbourg",
+   "lat": 55.9533,
+   "lon": -3.1883,
+   "pays": "gb",
+   "hotel": 1.25,
+   "repas": 1.05
+  },
+  {
+   "nom": "Vienne",
+   "lat": 48.2082,
+   "lon": 16.3738,
+   "pays": "at",
+   "hotel": 1.15,
+   "repas": 1.05
+  },
+  {
+   "nom": "Prague",
+   "lat": 50.0755,
+   "lon": 14.4378,
+   "pays": "cz",
+   "hotel": 1.25,
+   "repas": 1.15
+  },
+  {
+   "nom": "Budapest",
+   "lat": 47.4979,
+   "lon": 19.0402,
+   "pays": "hu",
+   "hotel": 1.2,
+   "repas": 1.1
+  },
+  {
+   "nom": "Cracovie",
+   "lat": 50.0647,
+   "lon": 19.945,
+   "pays": "pl",
+   "hotel": 1.05,
+   "repas": 1.0
+  },
+  {
+   "nom": "Athènes",
+   "lat": 37.9838,
+   "lon": 23.7275,
+   "pays": "gr",
+   "hotel": 1.15,
+   "repas": 1.05
+  },
+  {
+   "nom": "Copenhague",
+   "lat": 55.6761,
+   "lon": 12.5683,
+   "pays": "dk",
+   "hotel": 1.15,
+   "repas": 1.1
+  },
+  {
+   "nom": "Marrakech",
+   "lat": 31.6295,
+   "lon": -7.9811,
+   "pays": "ma",
+   "hotel": 1.15,
+   "repas": 1.1
+  },
+  {
+   "nom": "Istanbul",
+   "lat": 41.0082,
+   "lon": 28.9784,
+   "pays": "tr",
+   "hotel": 1.2,
+   "repas": 1.1
   }
  ]
 }

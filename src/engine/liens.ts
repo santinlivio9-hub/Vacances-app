@@ -2,6 +2,7 @@ import type { Lieu, LieuVisite, ModeTransport, Reglages } from '../domain/types'
 import { ajouterJours } from './dates'
 import { reglagesEffectifs } from './reglages'
 import { villeProche } from './sejourLong'
+import type { Etape } from './trajets'
 
 export type CategorieLien = 'transport' | 'logement' | 'activites' | 'pratique'
 
@@ -58,7 +59,7 @@ const villeFrancaise = (l: Lieu) => {
 const ville = (l: Lieu) => (l.type && !['city', 'town', 'village', 'municipality'].includes(l.type) ? l.detail.split(',')[0] || l.nom : l.nom)
 
 /** Vrai si l'adresse transmet vraiment une date et un nombre de voyageurs au site. */
-export const contientDatesEtVoyageurs = (url: string) => /\d{4}-\d{2}-\d{2}/.test(url) && /[?&](adults|group_adults|seats)=\d/.test(url)
+export const contientDatesEtVoyageurs = (url: string) => /\d{4}-\d{2}-\d{2}/.test(url) && /[?&](adults|group_adults|seats)=\d|\/\d+adults/.test(url)
 
 /**
  * Liens vers les sites de réservation, pré-remplis quand le site accepte des paramètres
@@ -91,9 +92,15 @@ export function genererLiensReservation({ depart, arrivee, reglages }: EntreeLie
       { categorie: 'transport', titre: 'Billets de train (SNCF Connect)', description: 'Trains en France et vers l’Europe.', url: 'https://www.sncf-connect.com/', preRempli: false },
       { categorie: 'transport', titre: 'Billets de train (Trainline)', description: 'Compare les compagnies européennes.', url: 'https://www.thetrainline.com/fr', preRempli: false },
     ],
-    car: () => [
-      { categorie: 'transport', titre: 'Cars longue distance (BlaBlaCar Bus)', description: 'Saisissez les villes et la date sur le site.', url: 'https://www.blablacar.fr/bus', preRempli: false },
-      { categorie: 'transport', titre: 'Cars longue distance (FlixBus)', description: 'Saisissez les villes et la date sur le site.', url: 'https://www.flixbus.fr/', preRempli: false },
+    car: () => [{ categorie: 'transport', titre: 'Autocars longue distance (FlixBus)', description: 'Saisissez les villes et la date sur le site.', url: 'https://www.flixbus.fr/', preRempli: false }],
+    covoiturage: () => [
+      {
+        categorie: 'transport',
+        titre: 'Covoiturage (BlaBlaCar)',
+        description: `Places libres pour ${de} → ${a} le ${jj(aller)}`,
+        url: `https://www.blablacar.fr/search?fn=${q(de)}&fc=${coord(depart)}&tn=${q(a)}&tc=${coord(arrivee)}&db=${aller}&seats=${Math.min(4, s.adultes + s.enfants)}`,
+        preRempli: true,
+      },
     ],
     voiture: () => [
       { categorie: 'transport', titre: 'Itinéraire en voiture (Google Maps)', description: `${de} → ${a}${av.peages ? '' : ', sans péages à régler dans Maps'}`, url: `https://www.google.com/maps/dir/?api=1&origin=${coord(depart)}&destination=${coord(arrivee)}&travelmode=driving`, preRempli: true },
@@ -184,7 +191,7 @@ export function checklistVoyage({ arrivee, reglages }: Pick<EntreeLiens, 'arrive
   const pays = arrivee.pays
   const horsSchengen = !!pays && !PAYS_UE_SCHENGEN.has(pays)
   const items: ElementChecklist[] = [
-    { id: 'transport', categorie: 'transport', libelle: s.transport === 'voiture' ? 'Vérifier la voiture (pneus, niveaux) et préparer l’itinéraire' : `Réserver les billets de ${s.transport === 'car' ? 'car' : s.transport}` },
+    { id: 'transport', categorie: 'transport', libelle: s.transport === 'voiture' ? 'Vérifier la voiture (pneus, niveaux) et préparer l’itinéraire' : `Réserver les billets de ${{ car: 'autocar', covoiturage: 'covoiturage', train: 'train', avion: 'avion', voiture: 'voiture' }[s.transport]}` },
     s.typeVoyage === 'stage'
       ? { id: 'logement', categorie: 'logement', libelle: 'Trouver le logement (dossier : pièce d’identité, convention de stage, garant ou Visale)' }
       : { id: 'logement', categorie: 'logement', libelle: `Réserver le logement (${s.nuits} nuit${s.nuits > 1 ? 's' : ''})` },
@@ -200,4 +207,55 @@ export function checklistVoyage({ arrivee, reglages }: Pick<EntreeLiens, 'arrive
   } else items.push({ id: 'activites', categorie: 'activites', libelle: 'Réserver les visites les plus demandées' })
   if (horsSchengen) items.push({ id: 'banque', categorie: 'pratique', libelle: 'Prévenir sa banque et vérifier les frais de paiement à l’étranger' })
   return items
+}
+
+/** Lien de réservation ou d'itinéraire pour une étape d'un trajet (un seul, le plus utile). */
+export function lienEtape(e: Etape, ctx: { aller: string; retour: string; adultes: number; enfants: number }): { titre: string; url: string; preRempli: boolean } | null {
+  const c = (p: { lat: number; lon: number }) => `${p.lat.toFixed(5)},${p.lon.toFixed(5)}`
+  const maps = (mode: string) => `https://www.google.com/maps/dir/?api=1&origin=${c(e.depuis)}&destination=${c(e.jusqua)}&travelmode=${mode}`
+  const voyageurs = ctx.adultes + ctx.enfants
+  let titre: string
+  let url: string
+  switch (e.mode) {
+    case 'train':
+      titre = 'Réserver (SNCF Connect)'
+      url = 'https://www.sncf-connect.com/'
+      break
+    case 'avion':
+      if (e.codes?.[0] && e.codes[1]) {
+        titre = 'Comparer les vols (Kayak)'
+        url = `https://www.kayak.fr/flights/${e.codes[0]}-${e.codes[1]}/${ctx.aller}/${ctx.retour}/${ctx.adultes}adults${ctx.enfants ? `/children-${Array.from({ length: ctx.enfants }, () => '8').join('-')}` : ''}?sort=price_a`
+      } else {
+        titre = 'Comparer les vols (Google Vols)'
+        url = `https://www.google.com/travel/flights?hl=fr&q=${q(`Vols de ${e.de} à ${e.vers} le ${ctx.aller} retour le ${ctx.retour}`)}`
+      }
+      break
+    case 'autocar':
+      titre = 'Réserver (FlixBus)'
+      url = 'https://www.flixbus.fr/'
+      break
+    case 'covoiturage':
+      titre = 'Trouver un covoiturage (BlaBlaCar)'
+      url = `https://www.blablacar.fr/search?fn=${q(e.de)}&fc=${c(e.depuis)}&tn=${q(e.vers)}&tc=${c(e.jusqua)}&db=${ctx.aller}&seats=${Math.min(4, voyageurs)}`
+      break
+    case 'voiture':
+      titre = 'Itinéraire (Google Maps)'
+      url = maps('driving')
+      break
+    case 'parking':
+      titre = 'Parkings (Google Maps)'
+      url = `https://www.google.com/maps/search/?api=1&query=${q(`parking ${e.de}`)}`
+      break
+    case 'transports':
+      titre = 'Itinéraire (Google Maps)'
+      url = maps('transit')
+      break
+    case 'taxi':
+      titre = 'Itinéraire (Google Maps)'
+      url = maps('driving')
+      break
+    default:
+      return null
+  }
+  return { titre, url, preRempli: contientDatesEtVoyageurs(url) }
 }

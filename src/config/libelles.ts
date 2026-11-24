@@ -7,7 +7,8 @@ export const MODES_UI: Record<ModeTransport, { libelle: string; icone: typeof Ca
   voiture: { libelle: 'Voiture', icone: Car },
   train: { libelle: 'Train', icone: TrainFront },
   avion: { libelle: 'Avion', icone: Plane },
-  car: { libelle: 'Car', icone: Bus },
+  car: { libelle: 'Autocar', icone: Bus },
+  covoiturage: { libelle: 'Covoiturage', icone: UsersRound },
 }
 
 export const STYLES_UI: Record<Style, { libelle: string; detail: string }> = {
@@ -71,7 +72,7 @@ export const LOGEMENTS_UI: Record<TypeLogement, { libelle: string; icone: typeof
 
 /** Réglages avancés regroupés par carte (pour le badge « modifié » et la réinitialisation par section). */
 export const SECTIONS_AVANCEES = {
-  transport: ['vehicules', 'consommationL100', 'prixCarburant', 'peages', 'classe', 'bagagesSoute', 'transportLocal'],
+  transport: ['vehicules', 'consommationL100', 'prixCarburant', 'peages', 'usure', 'classe', 'bagagesSoute', 'carteReduction', 'reservation', 'rayonHubMin', 'accesGare', 'transportLocal'],
   logement: ['typeLogement', 'etoiles', 'chambres', 'petitDejeuner', 'quartier', 'airbnbEntier', 'aubergeDortoir', 'fraisAirbnb', 'taxeSejour'],
   repas: ['partRestaurant', 'restosParJour', 'niveauResto'],
   activites: ['rythme', 'gratuitesUniquement', 'budgetMaxActivite', 'activitesIncluses', 'activitesExclues', 'tempsLibre'],
