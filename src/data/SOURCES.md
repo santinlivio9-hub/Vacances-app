@@ -36,6 +36,14 @@ Les données OpenStreetMap sont sous licence [ODbL](https://www.openstreetmap.or
 
 ---
 
+## Moteur de calcul (refonte)
+
+- **Coûts** (`src/engine/couts.ts`) : prix de référence France × indice du pays × coefficient de saison (logement). Enfants : 70 % pour repas, activités et souvenirs, 100 % pour le transport et le logement. Imprévus : pourcentage du reste.
+- **Transport** (`src/engine/transport.ts`) : un mode est refusé avec une raison s'il est irréaliste (pas de route, trop long, vol de moins de 400 km).
+- **Budget** (`src/engine/budget.ts`) : chaque piste d'économie est chiffrée en relançant l'estimation. Le plan proposé applique d'abord des pistes ciblées ; changer de style n'intervient que si c'est nécessaire.
+- **Itinéraire** (`src/engine/itineraire.ts`) : les lieux sont notés (intérêts, notoriété, distance au centre, part de hasard réglée par une graine), puis regroupés par k-moyennes (un quartier par jour). Premier et dernier jour allégés, horaires indicatifs. Sans lieux trouvés : activités génériques.
+- **Réservations** (`src/engine/liens.ts`) : liens publics pré-remplis quand le site accepte des paramètres dans l'adresse (Booking.com, Airbnb, BlaBlaCar, Google Vols, Google Maps, GetYourGuide), sinon page d'accueil. Aucun lien d'affiliation. Formalités indicatives, à vérifier sur diplomatie.gouv.fr.
+
 # Sources de la première version (12 destinations)
 
 
