@@ -119,3 +119,43 @@ Liens testés le 23/11/2026 dans un navigateur automatisé :
 
 - **Communes** (`communes.json`) : 34 746 communes de France métropolitaine et de Corse, avec leur position et leurs codes postaux. Source : [geo.api.gouv.fr](https://geo.api.gouv.fr) (Etalab, Licence Ouverte 2.0), récupérées le 23/11/2026. Pour régénérer le fichier : `npm run donnees:communes`.
 - **Aéroports** (`aeroports.json`) : 22 aéroports de départ en France. Coordonnées arrondies au kilomètre. « PAR » regroupe Roissy-CDG et Orly.
+
+## Version 3 : logements, séjours longs, propositions
+
+### Logements à la nuit (`prixBase.json` → `logement`)
+
+| Type | Prix Équilibré (France, 2 pers.) | Sources et remarques |
+| --- | --- | --- |
+| Chambre dans un logement (Airbnb) | 60 € / nuit | ordre de grandeur des chambres privées en ville moyenne (annonces Airbnb, 2025–2026) |
+| Chez l'habitant | 58 € / nuit | chambres d'hôtes simples et chambres chez l'habitant (Gîtes de France, Airbnb) |
+| Auberge, chambre privée | 78 € / nuit | chambres doubles des auberges HI et privées (Hostelworld) |
+| Gîte (jusqu'à 4 pers.) | 105 € / nuit | moyenne des gîtes ruraux à la semaine ramenée à la nuit (Gîtes de France) |
+| Frais Airbnb | ménage 50 €, service ≈ 14 % | frais de ménage moyens par séjour ; frais de service voyageur annoncés par Airbnb (structure en évolution depuis 2025 : de plus en plus d'annonces les incluent dans le prix affiché) |
+| Taxe de séjour | 0,60 € à 2,50 € par adulte et par nuit | barèmes communaux français 2026 (fourchettes légales selon la catégorie, plus taxe additionnelle départementale) ; à l'étranger, ordre de grandeur ajusté au coût de la vie |
+
+Avec une cuisine (appartement, gîte, auberge, chez l'habitant, camping), les repas pris hors restaurant sont comptés au prix des courses ; à l'hôtel, moitié courses, moitié snack.
+
+### Séjours longs (`prixBase.json` → `sejourLong`, `villes.json`)
+
+- **Loyers au mois** (une personne, charges comprises, grande ville hors Paris) : studio meublé 680 €, colocation 520 € la chambre, chambre chez l'habitant 480 €, résidence étudiante ou jeunes actifs 630 €, Airbnb au mois 1 250 € (réduction mensuelle comprise). Ordres de grandeur d'après les loyers affichés par [Studapart](https://www.studapart.com/fr/location-studio-lyon) (studio à Lyon ≈ 556 € hors meublé), les observatoires locaux des loyers et les annonces de colocation (chambre à Lyon ≈ 450 € hors charges).
+- **Coefficient de ville** (`villes.json`) : Paris 1,75, Lyon 1,1, Bordeaux 1,05, Annecy 1,2… ; une ville absente compte pour 0,85. Pour les villes étrangères, le coefficient s'ajoute à l'indice du pays.
+- **Abonnement de transports** : 62 € par mois par défaut, 90,80 € pour Navigo (Paris et petite couronne), 74 € pour Lyon. En France, l'employeur rembourse la moitié de l'abonnement, stagiaires compris (code du travail, article L3261-2) : option activée par défaut.
+- **Zones autour du lieu de travail** : cercles calculés avec des vitesses moyennes porte à porte (à pied 4,5 km/h, vélo 14 km/h, transports en commun 16 km/h, voiture 24 km/h en ville). Loyer +12 % tout près du travail, −14 % dans la zone la plus éloignée. Ce sont des cercles, pas de vrais temps de trajet par les rues.
+- **Vie courante** : courses 290 € par mois, sorties 130 €, petites dépenses 40 € (téléphone, hygiène, assurance habitation), d'après les budgets étudiants publiés par les CROUS et l'Observatoire de la vie étudiante.
+
+### Dates flexibles (`src/engine/periodes.ts`)
+
+On teste les 12 prochains mois (ou la période choisie), avec la durée la plus courte et la plus longue. Les prix changent avec la saison du pays (logement) et le coefficient saisonnier des vols : ce n'est pas un relevé des tarifs jour par jour.
+
+### Propositions (`src/engine/propositions.ts`)
+
+Chaque type de logement coché est combiné avec les modes de transport réalistes (possibles, et pas beaucoup plus lents que le plus rapide) et avec le style voisin. On garde 3 à 6 propositions : moins chère, meilleur rapport qualité-prix (confort, moins un point par tranche de 25 % au-dessus de la moins chère), plus confortable (sans dépasser le double de la moins chère), plus rapide ou plus proche du travail, vos réglages tels quels, et une version par type de logement. Le confort sur 10 tient compte du logement, du style et de la fatigue du trajet.
+
+### Liens des séjours longs (vérifiés le 24/11/2026)
+
+| Site | Lien | Remarque |
+| --- | --- | --- |
+| Airbnb au mois | `/s/Ville/homes?checkin=&checkout=` sur toute la durée | au-delà de 28 nuits, Airbnb affiche le prix au mois |
+| Leboncoin | `/recherche?text=location meublée Ville` | recherche par mots-clés ; les paramètres de filtre ne sont pas documentés |
+| Studapart | `/fr/logement-etudiant-ville` | pages par ville ([exemple Lyon](https://www.studapart.com/fr/logement-etudiant-lyon)), seulement pour les grandes villes françaises connues ; sinon page d'accueil |
+| La Carte des Colocs | page d'accueil | l'adresse des recherches dépend de la région : simple lien |

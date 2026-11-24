@@ -3,3 +3,7 @@ dist
 *.tsbuildinfo
 .DS_Store
 .vite
+
+# Variables locales (URL et clé Supabase)
+.env
+.env.local
