@@ -1,20 +1,17 @@
-# Avancement — v6 « Liquid Glass » (suite)
+# Avancement — v7 « Qui paie quoi »
 
 Pour reprendre : **« Reprends PROGRESS.md à l'étape X »** (X = première étape non cochée).
+La v6 « Liquid Glass » est terminée (commits jusqu'à 4a0f675).
 
-Déjà fait (commit 2091324) : tokens, `<Glass>`, `<LiquidSelector>`, barre capsule mobile, sidebar repliée/ouverte avec rail, fond étoilé, total en verre sur la photo, réglage « Effet verre », page `#/design`, test de contraste.
+Décisions validées : le total ne change pas, sauf les bébés (< 2 ans : 0 logement, 0 train/car, repas 30 %) ; liste de voyageurs dans les réglages (adultes/enfants déduits) ; calcul en centimes, écart d'arrondi au premier payeur ; remboursements par appariement des plus grosses dettes et créances ; donut SVG fait main.
 
 ## Étapes
-- [x] 1. PROGRESS.md
-- [x] 2. Sélection liquide dans les contrôles segmentés (Simple / Avancé, onglets, chips)
-- [x] 3. Anneau de budget doré + badge d'écart
-- [x] 4. Carte : champs Départ/Arrivée en verre, feuille du bas en verre, barre « Calculer » teintée
-- [x] 5. En-têtes qui deviennent verre au défilement, boutons d'action ronds, chargement, fenêtres
-- [x] 6. Sidebar ouverte : « Mes voyages récents » + avatar
-- [x] 7. Connexion par code à 6 chiffres (réf. C)
-- [x] 8. Mes voyages en colonnes + statut de voyage (réf. D)
-- [x] 9. Reflet qui suit le doigt / la souris
-- [x] 10. Vérification finale (build, tests, captures 390 × 844 sombre)
+- [x] 1. Lecture de l'existant et résumé
+- [ ] 2. Moteur `src/engine/repartition.ts` et tests
+- [ ] 3. Voyageurs et profils de paiement dans la configuration, estimation par personne en direct
+- [ ] 4. Onglet « Qui paie quoi » et feuille « Modifier la répartition »
+- [ ] 5. Équilibrage des remboursements, partage texte, impression
+- [ ] 6. Vérification finale et captures (exemple 3 adultes + 1 enfant)
 
 ## Étape en cours
-Terminé. Reste à vérifier dans Safari sur iPhone (WebKit indisponible dans le conteneur).
+2
