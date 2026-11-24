@@ -14,7 +14,7 @@ Déjà fait (commit 2091324) : tokens, `<Glass>`, `<LiquidSelector>`, barre caps
 - [x] 7. Connexion par code à 6 chiffres (réf. C)
 - [x] 8. Mes voyages en colonnes + statut de voyage (réf. D)
 - [x] 9. Reflet qui suit le doigt / la souris
-- [ ] 10. Vérification finale (build, tests, captures 390 × 844 sombre)
+- [x] 10. Vérification finale (build, tests, captures 390 × 844 sombre)
 
 ## Étape en cours
-10
+Terminé. Reste à vérifier dans Safari sur iPhone (WebKit indisponible dans le conteneur).

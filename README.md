@@ -115,7 +115,14 @@ Réglages à faire une seule fois : dépôt public, puis **Settings → Pages �
 - Jetons dans [`src/ui/tokens.ts`](src/ui/tokens.ts), avec un test de contraste (4,5:1 minimum, sur le pire fond possible).
 - Navigation : capsule flottante sur mobile (elle rétrécit quand on descend dans la page), barre latérale repliable sur ordinateur.
 - Compte → Apparence → « Effet verre : Complet / Léger / Désactivé / Auto » (Auto = léger sur téléphone). Si le système demande de réduire la transparence ou les animations, l'app suit.
-- Page cachée de démonstration : `#/design`.
+- Contrôles segmentés (Simple / Avancé, onglets, choix exclusifs) : la bulle de sélection glisse d'une option à l'autre (`<PisteLiquide>`).
+- Budget : anneau de progression (vert, or, rouge) et badge d'écart « ↓ 120 € sous le budget ».
+- Carte : panneaux de verre clair, feuille du bas qu'on tire par sa poignée ; boutons principaux en verre bleu (`bouton-accent`).
+- En-têtes transparents qui deviennent du verre au défilement ; actions en boutons ronds ; fenêtres en feuilles de verre sur fond flouté ; chargement avec des gouttes qui se déforment.
+- Connexion par code à 6 chiffres (référence « Glassy OTP ») : collage et remplissage automatique iOS, compte à rebours pour renvoyer le code. Réglage Supabase : voir « Activer les comptes », étape 4.
+- Mes voyages : colonnes Brouillons / À réserver / Réservés / Passés sur ordinateur (onglets sur mobile), budget des voyages à venir en haut, bouton « Marquer réservé ».
+- Reflet de lumière qui suit le doigt ou la souris sur le verre interactif.
+- Page cachée de démonstration : `#/design` (avec une démo du code : 246813).
 
 ## Trajets combinés et prix (v5)
 
