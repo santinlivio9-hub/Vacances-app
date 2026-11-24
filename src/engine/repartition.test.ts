@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { ProfilPaiement, TypeVoyageur, Voyageur } from '../domain/types'
-import { calculerRepartition, fractionLisible, poidsCout, voyageursParDefaut, type VoyagePourRepartition } from './repartition'
+import { calculerRepartition, equilibrer, fractionLisible, poidsCout, resumeTexte, voyageursParDefaut, type VoyagePourRepartition } from './repartition'
 
 const v = (id: string, type: TypeVoyageur, paiement: ProfilPaiement, extra: Partial<Voyageur> = {}): Voyageur => ({ id, type, paiement, prenom: id, ...extra })
 const part = (r: ReturnType<typeof calculerRepartition>, id: string) => r.parts.find((p) => p.id === id)!.montant
@@ -134,5 +134,55 @@ describe('répartition des dépenses', () => {
     expect(fractionLisible(2 / 3)).toBe('2/3')
     expect(fractionLisible(1)).toBe('')
     expect(fractionLisible(0.27)).toBe('27 %')
+  })
+})
+
+describe('équilibrage après le voyage', () => {
+  it('le moins de virements possible : Léa doit 86 € à Livio', () => {
+    // Parts : Livio 500, Léa 400 ; Livio a avancé 586, Léa 314 → Léa doit 86 €
+    const eq = equilibrer(
+      [
+        { id: 'livio', montant: 500 },
+        { id: 'lea', montant: 400 },
+        { id: 'tom', montant: 0 },
+      ],
+      [
+        { payeur: 'livio', montant: 586 },
+        { payeur: 'lea', montant: 314 },
+      ],
+    )
+    expect(eq.virements).toEqual([{ de: 'lea', vers: 'livio', montant: 86 }])
+    expect(eq.soldes.find((s) => s.id === 'tom')!.solde).toBe(0)
+  })
+
+  it('les virements soldent tout le monde, au centime près, en n − 1 virements au plus', () => {
+    const parts = [
+      { id: 'a', montant: 333.34 },
+      { id: 'b', montant: 333.33 },
+      { id: 'c', montant: 333.33 },
+      { id: 'd', montant: 0 },
+    ]
+    const eq = equilibrer(parts, [
+      { payeur: 'a', montant: 1000 },
+      { payeur: 'd', montant: 12.5 },
+    ])
+    expect(eq.totalAvance).toBe(1012.5)
+    expect(eq.virements.length).toBeLessThanOrEqual(3)
+    const recu = new Map<string, number>()
+    for (const v of eq.virements) {
+      recu.set(v.vers, (recu.get(v.vers) ?? 0) + Math.round(v.montant * 100))
+      recu.set(v.de, (recu.get(v.de) ?? 0) - Math.round(v.montant * 100))
+    }
+    for (const s of eq.soldes) expect(recu.get(s.id) ?? 0).toBe(Math.round(s.solde * 100))
+    // d n'avait rien à payer : on lui rend ses 12,50 €
+    expect(eq.soldes.find((s) => s.id === 'd')!.solde).toBe(12.5)
+  })
+
+  it('résumé texte à partager', () => {
+    const r = calculerRepartition({ postes: { transport: 300 } }, [v('Livio', 'adulte', 'part'), v('Tom', 'adulte', 'rien')])
+    const t = resumeTexte('Annecy', r, { virements: [{ de: 'Tom', vers: 'Livio', montant: 10 }], noms: new Map([['Tom', 'Tom'], ['Livio', 'Livio']]) })
+    expect(t).toContain('• Livio : 300 € (Transport)')
+    expect(t).toContain('• Tom : 0 € (invité : ne paie rien)')
+    expect(t).toContain('• Tom doit 10 € à Livio')
   })
 })

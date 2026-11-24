@@ -1,4 +1,4 @@
-import type { PosteDepense, ReglagesRepartition, ReglagesSimples, Voyageur } from '../domain/types'
+import type { Avance, PosteDepense, ReglagesRepartition, ReglagesSimples, Voyageur } from '../domain/types'
 
 /**
  * Qui paie quoi. Le coût (ce que consomme chacun) et le paiement (qui règle) sont séparés :
@@ -341,4 +341,64 @@ export function repartitionDuTotal(
   const k = somme > 0 ? total / somme : 1
   const ramenes = Object.fromEntries(POSTES_DEPENSE.map((p) => [p, (postes[p] ?? 0) * k])) as Record<PosteDepense, number>
   return calculerRepartition({ postes: ramenes, activites: activites?.map((a) => ({ ...a, prix: a.prix * k })), avion: s.transport === 'avion' }, voyageursDe(s), s.repartition)
+}
+
+export interface Virement {
+  de: string
+  vers: string
+  montant: number
+}
+
+export interface Equilibrage {
+  /** Ce que chacun a avancé, ce qu'il devait, et la différence (positif : on lui doit de l'argent) */
+  soldes: { id: string; avance: number; du: number; solde: number }[]
+  virements: Virement[]
+  totalAvance: number
+}
+
+/**
+ * Remboursements après le voyage. Chacun doit sa part du total réellement dépensé (même proportion
+ * que dans la répartition) ; on solde ensuite la plus grosse dette avec la plus grosse créance, jusqu'au bout.
+ * Au plus n − 1 virements pour n voyageurs, et le moins possible dans les cas courants.
+ */
+export function equilibrer(parts: Pick<PartVoyageur, 'id' | 'montant'>[], avances: Pick<Avance, 'payeur' | 'montant'>[]): Equilibrage {
+  const ids = new Set(parts.map((p) => p.id))
+  const avancesC = new Map(parts.map((p) => [p.id, 0]))
+  for (const a of avances) if (ids.has(a.payeur) && a.montant > 0) avancesC.set(a.payeur, avancesC.get(a.payeur)! + centimes(a.montant))
+  const totalAvance = [...avancesC.values()].reduce((a, b) => a + b, 0)
+  const totalParts = parts.reduce((t, p) => t + centimes(p.montant), 0)
+  // Part due de chacun, en centimes, ramenée au total avancé ; l'écart d'arrondi au premier qui doit quelque chose
+  const dus = parts.map((p) => (totalParts > 0 ? Math.round((centimes(p.montant) * totalAvance) / totalParts) : 0))
+  const ecart = totalAvance - dus.reduce((a, b) => a + b, 0)
+  if (ecart !== 0) {
+    const i = dus.findIndex((d) => d > 0)
+    if (i >= 0) dus[i] += ecart
+  }
+  const soldes = parts.map((p, i) => ({ id: p.id, avance: avancesC.get(p.id)! / 100, du: dus[i] / 100, solde: (avancesC.get(p.id)! - dus[i]) / 100 }))
+  const creanciers = parts.map((p, i) => ({ id: p.id, c: avancesC.get(p.id)! - dus[i] })).filter((x) => x.c > 0)
+  const debiteurs = parts.map((p, i) => ({ id: p.id, c: dus[i] - avancesC.get(p.id)! })).filter((x) => x.c > 0)
+  const virements: Virement[] = []
+  while (creanciers.length && debiteurs.length) {
+    creanciers.sort((a, b) => b.c - a.c)
+    debiteurs.sort((a, b) => b.c - a.c)
+    const cr = creanciers[0]
+    const de = debiteurs[0]
+    const m = Math.min(cr.c, de.c)
+    virements.push({ de: de.id, vers: cr.id, montant: m / 100 })
+    cr.c -= m
+    de.c -= m
+    if (cr.c === 0) creanciers.shift()
+    if (de.c === 0) debiteurs.shift()
+  }
+  return { soldes, virements, totalAvance: totalAvance / 100 }
+}
+
+/** Résumé texte à coller dans un groupe de discussion. */
+export function resumeTexte(titre: string, r: ResultatRepartition, eq?: { virements: Virement[]; noms: Map<string, string> }): string {
+  const euros = (n: number) => `${n.toLocaleString('fr-FR', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 })} €`
+  if (!r.ok) return `${titre}\nRépartition impossible : ${r.erreur}`
+  const lignes = [`${titre}`, `Total : ${euros(r.total)}`, '', 'Qui paie quoi :', ...r.parts.map((p) => `• ${p.nom} : ${euros(p.montant)}${p.montant > 0 ? ` (${p.explication})` : ` (${p.explication.toLowerCase()})`}`)]
+  if (eq?.virements.length) lignes.push('', 'Remboursements :', ...eq.virements.map((v) => `• ${eq.noms.get(v.de)} doit ${euros(v.montant)} à ${eq.noms.get(v.vers)}`))
+  lignes.push('', 'Estimé avec Valise & Cap (prix indicatifs)')
+  return lignes.join('\n')
 }

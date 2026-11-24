@@ -1,8 +1,8 @@
-import { ChevronDown, SlidersHorizontal, X } from 'lucide-react'
+import { ArrowRight, ChevronDown, Plus, Scale, Share2, SlidersHorizontal, Trash2, X } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { EditeurVoyageurs } from '../config/EditeurVoyageurs'
-import type { PosteDepense, RegleActivite, ReglagesRepartition, ReglagesSimples, Voyageur } from '../domain/types'
-import { NOMS_POSTES, POSTES_DEPENSE, nomVoyageur, voyageursDe, type ActiviteRepartie, type PartVoyageur, type ResultatRepartition } from '../engine/repartition'
+import type { Avance, PosteDepense, RegleActivite, ReglagesRepartition, ReglagesSimples, Voyageur } from '../domain/types'
+import { NOMS_POSTES, POSTES_DEPENSE, equilibrer, nomVoyageur, resumeTexte, voyageursDe, type ActiviteRepartie, type PartVoyageur, type ResultatRepartition } from '../engine/repartition'
 import { AvatarVoyageur, couleurVoyageur } from '../ui/AvatarVoyageur'
 import { formatEuros } from '../ui/format'
 import { Montant } from '../ui/glass'
@@ -162,11 +162,111 @@ function TableauActivites({ activites, voyageurs, regles, onChange }: { activite
   )
 }
 
+const champ = 'h-11 min-w-0 rounded-2xl bg-white/70 px-3 text-base ring-1 ring-slate-900/10 focus:ring-2 focus:ring-ocean-500 focus:outline-none dark:bg-white/8 dark:ring-white/12'
+
+/** Mode Avancé, après le voyage : qui a avancé quoi, et les remboursements avec le moins de virements possible. */
+function Equilibrage({ resultat, voyageurs, regles, postes, onChange }: { resultat: Extract<ResultatRepartition, { ok: true }>; voyageurs: Voyageur[]; regles: ReglagesRepartition; postes: Partial<Record<PosteDepense, number>>; onChange: (r: ReglagesRepartition) => void }) {
+  const avances = regles.avances ?? []
+  const noms = new Map(resultat.parts.map((p) => [p.id, p.nom]))
+  const eq = equilibrer(resultat.parts, avances)
+  const maj = (l: Avance[]) => onChange({ ...regles, avances: l })
+  const ajouter = (libelle = '', montant = 0) => maj([...avances, { id: `av-${Date.now().toString(36)}`, payeur: resultat.parts.find((p) => p.montant > 0)?.id ?? voyageurs[0].id, libelle, montant: Math.round(montant * 100) / 100 }])
+  return (
+    <section aria-labelledby="titre-equilibrer" className="verre rounded-[1.75rem] p-4 [--verre-fond:0.75] dark:[--verre-fond:0.55]">
+      <h3 id="titre-equilibrer" className="flex items-center gap-2 font-semibold">
+        <Scale className="size-5 text-ocean-700 dark:text-ocean-300" aria-hidden /> Équilibrer après le voyage
+      </h3>
+      <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-300">Indiquez qui a avancé quoi : l’app calcule les remboursements, avec le moins de virements possible.</p>
+      <ul className="mt-3 space-y-2">
+        {avances.map((a) => (
+          <li key={a.id} className="grid grid-cols-[1fr_6.5rem_auto] items-center gap-2 sm:grid-cols-[10rem_1fr_7rem_auto]">
+            <select aria-label="Qui a payé" className={`${champ} col-span-3 sm:col-span-1`} value={a.payeur} onChange={(e) => maj(avances.map((x) => (x.id === a.id ? { ...x, payeur: e.target.value } : x)))}>
+              {voyageurs.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {noms.get(v.id)} a payé…
+                </option>
+              ))}
+            </select>
+            <input aria-label="Quoi" className={champ} placeholder="Le logement" value={a.libelle} onChange={(e) => maj(avances.map((x) => (x.id === a.id ? { ...x, libelle: e.target.value } : x)))} />
+            <input aria-label="Montant en euros" className={`${champ} text-right`} type="number" inputMode="decimal" min={0} step="0.01" value={a.montant || ''} onChange={(e) => maj(avances.map((x) => (x.id === a.id ? { ...x, montant: Math.max(0, Number(e.target.value)) } : x)))} />
+            <button type="button" onClick={() => maj(avances.filter((x) => x.id !== a.id))} className="grid size-11 place-items-center rounded-full text-slate-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40" aria-label={`Supprimer « ${a.libelle || 'avance'} »`}>
+              <Trash2 className="size-4" />
+            </button>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button type="button" onClick={() => ajouter()} className="eclat inline-flex h-10 items-center gap-1.5 rounded-full bg-white/70 px-3.5 text-sm font-semibold text-ocean-800 ring-1 ring-slate-900/10 dark:bg-white/8 dark:text-ocean-100 dark:ring-white/12">
+          <Plus className="size-4" aria-hidden /> Une dépense
+        </button>
+        {POSTES_DEPENSE.filter((p) => (postes[p] ?? 0) > 0 && p !== 'imprevus' && !avances.some((a) => a.libelle === NOMS_POSTES[p])).map((p) => (
+          <button key={p} type="button" onClick={() => ajouter(NOMS_POSTES[p], postes[p]!)} className="inline-flex h-10 items-center gap-1 rounded-full px-3 text-xs font-medium text-slate-600 ring-1 ring-slate-900/10 hover:ring-ocean-400 dark:text-slate-300 dark:ring-white/12">
+            <Plus className="size-3.5" aria-hidden /> {NOMS_POSTES[p]}
+          </button>
+        ))}
+      </div>
+      {eq.totalAvance > 0 && (
+        <div className="mt-4" aria-live="polite">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Total avancé : {formatEuros(eq.totalAvance)}
+            {Math.abs(eq.totalAvance - resultat.total) >= 1 && ` (estimé : ${formatEuros(resultat.total)} ; chacun doit sa part du total réel)`}
+          </p>
+          {eq.virements.length === 0 ? (
+            <p className="mt-2 rounded-2xl bg-(--statut-ok)/12 px-3 py-2 text-sm font-medium text-(--statut-ok-texte)">Personne ne doit rien : les comptes sont équilibrés.</p>
+          ) : (
+            <ul className="mt-2 space-y-1.5">
+              {eq.virements.map((v) => (
+                <li key={`${v.de}-${v.vers}`} className="flex items-center gap-2 rounded-2xl bg-slate-900/4 px-3 py-2 text-sm dark:bg-white/6">
+                  <b>{noms.get(v.de)}</b> doit <b className="tabular-nums">{formatEuros(v.montant)}</b> à <b>{noms.get(v.vers)}</b>
+                  <ArrowRight className="ml-auto size-4 text-slate-400" aria-hidden />
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </section>
+  )
+}
+
+/** Tableau de répartition (version imprimée / PDF). */
+export function TableauRepartition({ resultat }: { resultat: ResultatRepartition }) {
+  if (!resultat.ok) return <p>Répartition impossible : {resultat.erreur}</p>
+  return (
+    <section>
+      <h2 className="mb-2 text-lg font-semibold">Qui paie quoi</h2>
+      <table className="w-full border-collapse text-sm">
+        <thead>
+          <tr className="border-b border-slate-300 text-left">
+            <th className="py-1 pr-2">Voyageur</th>
+            <th className="py-1 pr-2">Détail</th>
+            <th className="py-1 text-right">Montant</th>
+          </tr>
+        </thead>
+        <tbody>
+          {resultat.parts.map((p) => (
+            <tr key={p.id} className="border-b border-slate-200 align-top">
+              <td className="py-1 pr-2 font-medium">{p.nom}</td>
+              <td className="py-1 pr-2">{p.explication}</td>
+              <td className="py-1 text-right tabular-nums">{formatEuros(p.montant)}</td>
+            </tr>
+          ))}
+          <tr className="font-semibold">
+            <td className="py-1 pr-2">Total</td>
+            <td />
+            <td className="py-1 text-right tabular-nums">{formatEuros(resultat.total)}</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  )
+}
+
 /**
  * Onglet « Qui paie quoi » : une carte par voyageur, le donut, et la feuille « Modifier la répartition »
  * où chaque changement met à jour les montants en direct.
  */
-export function OngletQuiPaie({ resultat, simple, activites, avance, onModifier, actions }: { resultat: ResultatRepartition; simple: ReglagesSimples; activites: ActiviteRepartie[]; avance: boolean; onModifier: (p: Partial<ReglagesSimples>) => void; actions?: React.ReactNode }) {
+export function OngletQuiPaie({ resultat, simple, activites, avance, onModifier, titre, postes, onMessage }: { resultat: ResultatRepartition; simple: ReglagesSimples; activites: ActiviteRepartie[]; avance: boolean; onModifier: (p: Partial<ReglagesSimples>) => void; titre: string; postes: Partial<Record<PosteDepense, number>>; onMessage: (t: string) => void }) {
   const feuille = useRef<HTMLDialogElement>(null)
   const voyageurs = voyageursDe(simple)
   const regles = simple.repartition ?? {}
@@ -176,7 +276,20 @@ export function OngletQuiPaie({ resultat, simple, activites, avance, onModifier,
         <button type="button" onClick={() => feuille.current?.showModal()} className="bouton-accent inline-flex h-11 items-center gap-2 rounded-full px-4 text-sm font-semibold">
           <SlidersHorizontal className="size-4" aria-hidden /> Modifier la répartition
         </button>
-        {actions}
+        <button
+          type="button"
+          onClick={() => {
+            const eq = resultat.ok && regles.avances?.length ? equilibrer(resultat.parts, regles.avances) : undefined
+            const texte = resumeTexte(titre, resultat, eq && { virements: eq.virements, noms: new Map(resultat.parts.map((p) => [p.id, p.nom])) })
+            navigator.clipboard
+              .writeText(texte)
+              .then(() => onMessage('Résumé copié : collez-le dans votre groupe.'))
+              .catch(() => (navigator.share ? navigator.share({ text: texte }).catch(() => {}) : onMessage('Copie impossible dans ce navigateur.')))
+          }}
+          className="eclat inline-flex h-11 items-center gap-2 rounded-full bg-white/70 px-4 text-sm font-semibold text-ocean-800 ring-1 ring-slate-900/10 dark:bg-white/8 dark:text-ocean-100 dark:ring-white/12"
+        >
+          <Share2 className="size-4" aria-hidden /> Copier le résumé
+        </button>
       </div>
 
       {!resultat.ok ? (
@@ -203,6 +316,11 @@ export function OngletQuiPaie({ resultat, simple, activites, avance, onModifier,
               <CartePart key={p.id} part={p} voyageur={voyageurs[i]} index={i} />
             ))}
           </ul>
+          {avance ? (
+            <Equilibrage resultat={resultat} voyageurs={voyageurs} regles={regles} postes={postes} onChange={(repartition) => onModifier({ repartition })} />
+          ) : (
+            <p className="text-xs text-slate-500 dark:text-slate-400">En mode Avancé : qui participe à chaque activité, et l’équilibrage des remboursements après le voyage.</p>
+          )}
         </>
       )}
 

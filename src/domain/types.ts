@@ -122,6 +122,16 @@ export interface ReglagesRepartition {
   logementParChambre?: boolean
   /** Chambres : listes d'ids de voyageurs (logementParChambre) */
   chambres?: string[][]
+  /** Après le voyage : ce que chacun a réellement avancé */
+  avances?: Avance[]
+}
+
+export interface Avance {
+  id: string
+  /** Voyageur qui a payé */
+  payeur: string
+  libelle: string
+  montant: number
 }
 
 export interface ReglagesSimples {

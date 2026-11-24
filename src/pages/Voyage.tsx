@@ -19,7 +19,7 @@ import { imageLargeur } from '../services/wikipedia'
 import { coutsDuResultat } from '../voyage/calcul'
 import { Economies } from '../voyage/Economies'
 import { OngletItineraire } from '../voyage/OngletItineraire'
-import { OngletQuiPaie } from '../voyage/OngletQuiPaie'
+import { OngletQuiPaie, TableauRepartition } from '../voyage/OngletQuiPaie'
 import { repartitionDuTotal, type ActiviteRepartie } from '../engine/repartition'
 import { OngletReservations } from '../voyage/OngletReservations'
 import { TableauBudget } from '../voyage/TableauBudget'
@@ -360,7 +360,7 @@ export default function Voyage() {
                   <OngletBudget couts={couts} />
                 </Suspense>
               )}
-              {onglet === 'qui' && <OngletQuiPaie resultat={repartition} simple={s} activites={activitesPayantes} avance={modeAvance} onModifier={modifierSimple} />}
+              {onglet === 'qui' && <OngletQuiPaie resultat={repartition} simple={s} activites={activitesPayantes} avance={modeAvance} onModifier={modifierSimple} titre={`${arrivee.nom} · ${s.nuits} nuit${s.nuits > 1 ? 's' : ''} à partir du ${new Date(`${s.dateDepart}T12:00:00`).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}`} postes={couts.postes} onMessage={afficher} />}
               {onglet === 'reservations' && (
                 <OngletReservations liens={donnees.liens} checklist={donnees.checklist} coche={(id) => !!coches[`${prefixeCoche}:${id}`]} onCocher={(id) => basculerCoche(`${prefixeCoche}:${id}`)} />
               )}
@@ -370,6 +370,7 @@ export default function Voyage() {
             <div className="hidden space-y-8 print:block">
               <OngletItineraire itineraire={resultat.itineraire} ville={ville} onRemplacer={() => {}} />
               <TableauBudget couts={couts} />
+              <TableauRepartition resultat={repartition} />
             </div>
           </>
         )}
