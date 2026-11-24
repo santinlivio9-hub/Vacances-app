@@ -1,6 +1,8 @@
 import { Compass, Heart, Luggage, Moon, PanelLeftClose, PanelLeftOpen, Sun, UserRound } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { NavLink, useLocation } from 'react-router'
+import { NavLink, useLocation, useNavigate } from 'react-router'
+import { useCompte } from '../compte/compte'
+import { useVoyage } from '../store/voyage'
 import { useFavoris } from '../store/favoris'
 import { usePreferences } from '../store/preferences'
 import { LiquidSelector, useCibleActive } from './glass'
@@ -134,6 +136,69 @@ function BarreRepliee({ ouvrir }: { ouvrir: () => void }) {
   )
 }
 
+
+const PASTILLES = ['bg-[#ff9f43]', 'bg-[#2fd08a]', 'bg-[#ff6b9a]', 'bg-[#6aa8ff]']
+
+/** « Mes voyages récents » (la section « Projects » de la référence) : pastille de couleur et nombre de jours. */
+function VoyagesRecents() {
+  const sauvegardes = useVoyage((v) => v.sauvegardes)
+  const ouvrir = useVoyage((v) => v.ouvrirSauvegarde)
+  const navigate = useNavigate()
+  const recents = [...sauvegardes].sort((a, b) => b.majLe.localeCompare(a.majLe)).slice(0, 3)
+  if (recents.length === 0) return null
+  return (
+    <div className="mt-3 min-w-0">
+      <p className="mb-1.5 pl-1 text-[10px] font-semibold tracking-[0.2em] text-white/55 uppercase">Voyages récents</p>
+      <ul className="space-y-0.5">
+        {recents.map((v, i) => (
+          <li key={v.id}>
+            <button
+              type="button"
+              onClick={() => {
+                ouvrir(v.id)
+                navigate(v.statut === 'brouillon' ? '/configurer' : '/calcul?vers=voyage')
+              }}
+              className="flex h-9 w-full items-center gap-2 rounded-xl px-2 text-left text-[13px] text-white/90 hover:bg-white/10"
+            >
+              <span className={`size-2.5 shrink-0 rounded-full ${PASTILLES[i % PASTILLES.length]} shadow-[0_0_8px_currentColor]`} aria-hidden />
+              <span className="min-w-0 flex-1 truncate">{v.arrivee.nom}</span>
+              <span className="shrink-0 rounded-md bg-white/10 px-1.5 text-[11px] tabular-nums text-white/75">{v.reglages.simple.nuits + 1} j</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+/** Avatar et nom (onglet Compte) en bas de la barre ouverte. */
+function Profil() {
+  const utilisateur = useCompte((c) => c.utilisateur)
+  const nom = utilisateur?.nom || 'Invité'
+  const initiales = nom
+    .split(/[\s.@_-]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((m) => m[0]!.toUpperCase())
+    .join('')
+  return (
+    <NavLink to="/compte" className="mt-auto flex items-center gap-2.5 rounded-2xl p-1.5 hover:bg-white/10">
+      <span className="relative shrink-0">
+        {utilisateur?.avatar ? (
+          <img src={utilisateur.avatar} alt="" className="size-10 rounded-full object-cover ring-2 ring-white/30" />
+        ) : (
+          <span className="grid size-10 place-items-center rounded-full bg-[linear-gradient(135deg,#ffb36b,#ff7a3d)] text-sm font-bold text-white ring-2 ring-white/30">{initiales || 'V'}</span>
+        )}
+        <span className={`absolute right-0 bottom-0 size-3 rounded-full ring-2 ring-[#163a7c] ${utilisateur ? 'bg-[#2fd08a]' : 'bg-slate-400'}`} aria-hidden />
+      </span>
+      <span className="min-w-0 leading-tight">
+        <span className="block truncate text-sm font-semibold">{nom}</span>
+        <span className="block truncate text-[11px] text-white/65">{utilisateur?.email ?? 'Se connecter pour synchroniser'}</span>
+      </span>
+    </NavLink>
+  )
+}
+
 /**
  * Ordinateur, barre ouverte (référence « Glassy Sidebar ») : pastilles de verre, et l'onglet
  * choisi devient une forme blanche qui coule dans le rail de droite, où son nom s'écrit à la verticale.
@@ -172,6 +237,8 @@ function BarreOuverte({ fermer }: { fermer: () => void }) {
               </NavLink>
             )
           })}
+          <VoyagesRecents />
+          <Profil />
         </div>
         {/* Rail blanc : boutons en haut, nom de la section à la verticale en bas */}
         <div className="absolute inset-y-0 right-0 z-10 flex flex-col items-center gap-2 py-4" style={{ width: RAIL }}>
