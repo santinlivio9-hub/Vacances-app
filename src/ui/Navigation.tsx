@@ -118,7 +118,7 @@ function BarreRepliee({ ouvrir }: { ouvrir: () => void }) {
                 data-actif={estActif}
                 aria-label={libelle}
                 title={libelle}
-                className={`relative z-10 grid size-12 place-items-center rounded-full transition ${estActif ? ENCRE_SELECTION : 'bg-white/8 text-white/90 ring-1 ring-white/12 hover:bg-white/15'}`}
+                className={`relative z-10 grid size-12 place-items-center rounded-full transition ${estActif ? ENCRE_SELECTION : 'eclat bg-white/8 text-white/90 ring-1 ring-white/12 hover:bg-white/15'}`}
               >
                 <Icone className={`size-5 ${estActif && vers === '/favoris' ? 'fill-current' : ''}`} aria-hidden />
                 {vers === '/favoris' && <Badge n={nbFavoris} />}
@@ -229,7 +229,7 @@ function BarreOuverte({ fermer }: { fermer: () => void }) {
                 to={vers}
                 end={vers === '/'}
                 data-actif={estActif}
-                className={`relative flex h-12 items-center gap-3 rounded-2xl px-3.5 text-sm font-semibold transition ${estActif ? ENCRE_SELECTION : 'bg-white/8 text-white/90 shadow-[inset_0_1px_0_rgb(255_255_255/0.18)] ring-1 ring-white/12 hover:bg-white/15'}`}
+                className={`relative flex h-12 items-center gap-3 rounded-2xl px-3.5 text-sm font-semibold transition ${estActif ? ENCRE_SELECTION : 'eclat bg-white/8 text-white/90 shadow-[inset_0_1px_0_rgb(255_255_255/0.18)] ring-1 ring-white/12 hover:bg-white/15'}`}
               >
                 <Icone className={`size-5 shrink-0 ${estActif && vers === '/favoris' ? 'fill-current' : ''}`} aria-hidden />
                 <span className="truncate">{libelle}</span>

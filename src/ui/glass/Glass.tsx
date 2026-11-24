@@ -41,7 +41,7 @@ export function Glass<T extends ElementType = 'div'>({ as, variante = 'regular',
   const base = teinte === 'bleu' ? 'verre-bleu' : `verre ${FOND[variante]}`
   return (
     <Balise
-      className={`${base} reflet ${FORMES[forme]} ${TEINTES[teinte]} ${refraction ? 'refraction' : ''} ${interactif ? 'transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 active:scale-[0.98] motion-reduce:transform-none' : ''} ${className}`}
+      className={`${base} reflet ${FORMES[forme]} ${TEINTES[teinte]} ${refraction ? 'refraction' : ''} ${interactif ? 'eclat transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 active:scale-[0.98] motion-reduce:transform-none' : ''} ${className}`}
       {...reste}
     >
       {children}

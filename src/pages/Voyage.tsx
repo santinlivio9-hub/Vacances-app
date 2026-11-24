@@ -243,7 +243,7 @@ export default function Voyage() {
               onClick={action}
               className="group flex min-h-12 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[11px] font-semibold text-ocean-900 sm:h-11 sm:min-h-0 sm:flex-row sm:gap-1.5 sm:rounded-full sm:pr-3.5 sm:pl-1 sm:text-sm dark:text-ocean-50"
             >
-              <span className="verre grid size-10 place-items-center rounded-full [--verre-fond:0.7] transition group-hover:brightness-110 group-active:scale-95 sm:size-9 dark:[--verre-fond:0.55]">
+              <span className="verre eclat grid size-10 place-items-center rounded-full [--verre-fond:0.7] transition group-hover:brightness-110 group-active:scale-95 sm:size-9 dark:[--verre-fond:0.55]">
                 <Icone className="size-[1.1rem]" aria-hidden />
               </span>
               {libelle}

@@ -410,3 +410,36 @@ dialog.feuille-verre[open] {
   -webkit-backdrop-filter: blur(22px) saturate(150%);
   backdrop-filter: blur(22px) saturate(150%);
 }
+
+/* Reflet qui suit le doigt ou la souris (position placée par FiltresVerre) */
+@layer components {
+  /* Dans une couche : les utilitaires (absolute, fixed…) gardent la priorité */
+  :is(.eclat, .bouton-accent) {
+    position: relative;
+    isolation: isolate;
+  }
+}
+:is(.eclat, .bouton-accent)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(7rem circle at var(--mx, 50%) var(--my, 0%), rgb(255 255 255 / 0.38), transparent 65%);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+:is(.eclat, .bouton-accent):is(:hover, :active)::before {
+  opacity: 1;
+}
+@media (hover: none) {
+  :is(.eclat, .bouton-accent):hover:not(:active)::before {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  :is(.eclat, .bouton-accent)::before {
+    display: none;
+  }
+}
