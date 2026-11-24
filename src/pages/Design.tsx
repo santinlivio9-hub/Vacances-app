@@ -3,7 +3,7 @@ import { useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { Segments } from '../config/Controles'
 import { usePreferences, type EffetVerre, type Theme } from '../store/preferences'
-import { Glass, LiquidSelector, Montant, useCibleActive, type FormeVerre, type TeinteVerre, type VarianteVerre } from '../ui/glass'
+import { AnneauBudget, BadgeEcart, Glass, LiquidSelector, Montant, useCibleActive, type FormeVerre, type TeinteVerre, type VarianteVerre } from '../ui/glass'
 import { COUCHES_MAX } from '../ui/tokens'
 
 /** Fond chaud et contrasté, comme la photo de la référence « Glassy Dashboard » (sans appel réseau). */
@@ -122,6 +122,14 @@ export default function Design() {
           <p className="text-xs font-medium opacity-70">Estimation totale</p>
           <Montant valeur={985} unite="/ 2 pers." className="text-5xl" />
           <p className="mt-1 text-sm opacity-75">entre 810 et 1 210 €</p>
+          <div className="mt-3 flex flex-wrap items-center gap-4">
+            {[0.55, 0.88, 1.24].map((r) => (
+              <span key={r} className="flex items-center gap-2">
+                <AnneauBudget ratio={r} />
+                <BadgeEcart total={1000 * r} budget={1000} />
+              </span>
+            ))}
+          </div>
         </Glass>
       </section>
     </div>

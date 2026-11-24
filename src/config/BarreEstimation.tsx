@@ -2,7 +2,7 @@ import { AlertTriangle, ArrowRight, CheckCircle2, CircleAlert } from 'lucide-rea
 import { useEffect, useRef, useState } from 'react'
 import { etatBudget } from '../engine/couts'
 import { formatEntre, formatEuros } from '../ui/format'
-import { Montant } from '../ui/glass'
+import { AnneauBudget, BadgeEcart, Montant } from '../ui/glass'
 
 /** Nombre qui glisse vers sa nouvelle valeur (désactivé si l'utilisateur préfère moins d'animations). */
 export function useNombreAnime(cible: number, dureeMs = 350): number {
@@ -43,6 +43,7 @@ export function BarreEstimation({ total, parPersonne, budget, provisoire, bloque
   return (
     <div className="verre fixed inset-x-0 bottom-0 z-20 rounded-t-3xl px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] [--verre-fond:0.94]">
       <div className="mx-auto flex max-w-2xl items-center gap-3">
+        {s && budget != null && <AnneauBudget ratio={ratio} taille={46} epaisseur={4.5} className="text-slate-900 dark:text-white" />}
         <div className="min-w-0 flex-1" aria-live="polite" aria-atomic="true">
           <p className="truncate text-xs text-slate-500 dark:text-slate-400">{libelle}{provisoire ? ' (trajet en cours de calcul)' : ''}</p>
           <p className="flex items-baseline gap-2">
@@ -52,15 +53,11 @@ export function BarreEstimation({ total, parPersonne, budget, provisoire, bloque
           {fourchette && fourchette.haut > 0 && <p className="text-xs leading-snug text-slate-600 dark:text-slate-300">{formatEntre(fourchette)}</p>}
           {precision && <p className="text-xs leading-snug text-slate-500 dark:text-slate-400">{precision}</p>}
           {s && budget != null && (
-            <div className="mt-1">
-              <div className="h-1.5 overflow-hidden rounded-full bg-slate-900/10 dark:bg-white/10" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(ratio * 100)} aria-label="Part du budget utilisée">
-                <div className="h-full rounded-full transition-[width] duration-300" style={{ width: `${Math.min(100, ratio * 100)}%`, background: s.couleur }} />
-              </div>
-              <p className="mt-0.5 flex items-center gap-1 text-xs font-medium" style={{ color: s.texte }}>
-                <s.icone className="size-3.5" aria-hidden />
-                {s.libelle} : {Math.round(ratio * 100)} % de {formatEuros(budget)}
-              </p>
-            </div>
+            <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs font-medium" style={{ color: s.texte }}>
+              <s.icone className="size-3.5" aria-hidden />
+              {s.libelle}
+              <BadgeEcart total={total} budget={budget} />
+            </p>
           )}
         </div>
         <button

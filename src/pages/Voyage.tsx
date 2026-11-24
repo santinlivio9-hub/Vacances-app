@@ -12,7 +12,7 @@ import { cleTrajet, dateDuJour, useVoyage } from '../store/voyage'
 import { formatEntre, formatEuros } from '../ui/format'
 import { comparatifTrajets } from '../engine/transport'
 import { CartesTrajets } from '../voyage/CartesTrajets'
-import { Glass, Montant, PisteLiquide, classeOnglet, FOND_PISTE } from '../ui/glass'
+import { AnneauBudget, BadgeEcart, Glass, Montant, PisteLiquide, classeOnglet, FOND_PISTE } from '../ui/glass'
 import { MentionDonnees } from '../ui/MentionDonnees'
 import { imageLargeur } from '../services/wikipedia'
 import { coutsDuResultat } from '../voyage/calcul'
@@ -196,20 +196,14 @@ export default function Voyage() {
             </p>
           )}
           {st && s.budget != null && (
-            <div className="mt-3 max-w-md">
-              <div
-                className="h-2 overflow-hidden rounded-full bg-white/25"
-                role="meter"
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={Math.round(ratio * 100)}
-                aria-label="Part du budget utilisée"
-              >
-                <div className="h-full rounded-full" style={{ width: `${Math.min(100, ratio * 100)}%`, background: st.couleur }} />
-              </div>
-              <p className="mt-1 flex items-center gap-1.5 text-sm font-medium">
-                <st.icone className="size-4" style={{ color: st.couleur }} aria-hidden />
-                {st.libelle} : {Math.round(ratio * 100)} % de {formatEuros(s.budget)}
+            <div className="mt-3 flex max-w-md items-center gap-3">
+              <AnneauBudget ratio={ratio} taille={52} className="text-white print:text-slate-700" />
+              <p className="min-w-0 text-sm font-medium">
+                <span className="flex items-center gap-1.5">
+                  <st.icone className="size-4 shrink-0" style={{ color: st.couleur }} aria-hidden />
+                  {st.libelle} · {formatEuros(s.budget)}
+                </span>
+                <BadgeEcart total={total} budget={s.budget} sombre />
               </p>
             </div>
           )}
