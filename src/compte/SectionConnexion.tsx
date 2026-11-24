@@ -162,7 +162,7 @@ export function SectionConnexion({ onMessage }: { onMessage: (t: string) => void
             placeholder="vous@exemple.fr"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-12 min-w-0 flex-1 rounded-2xl bg-slate-50 px-4 text-base ring-1 ring-slate-900/10 dark:bg-white/5 dark:ring-white/10"
+            className="h-12 min-w-0 rounded-2xl bg-slate-50 px-4 text-base sm:flex-1 ring-1 ring-slate-900/10 dark:bg-white/5 dark:ring-white/10"
           />
           <button type="submit" disabled={envoi === 'envoi'} className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-ocean-700 px-4 font-semibold text-white disabled:opacity-60">
             {envoi === 'envoi' ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Mail className="size-4" aria-hidden />}

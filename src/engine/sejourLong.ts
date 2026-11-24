@@ -196,7 +196,7 @@ export function budgetSejourLong(entree: EntreeSejourLong): BudgetSejourLong {
   const ponctuel = { voyage: transport.total, installation }
   const total = totalMensuel * mois + ponctuel.voyage + ponctuel.installation
 
-  const MODES_NOMS = { pied: 'à pied', velo: 'à vélo', transports: 'abonnement de transports', voiture: 'en voiture' }
+  const MODES_NOMS = { pied: 'À pied', velo: 'À vélo', transports: 'Abonnement de transports', voiture: 'En voiture' }
   const details: Record<PosteMensuel, LigneDetail[]> = {
     loyer: [{ libelle: `${LOGEMENTS[logement].nom}, zone « ${zone.nom.toLowerCase()} »${proche ? ` (${proche.nom})` : ''}, charges comprises`, montant: loyer }],
     trajets: [{ libelle: zone.coutTrajetMois === 0 ? 'Trajets à pied' : `${MODES_NOMS[zone.mode]}${av.remboursementTransport ? ', remboursé à 50 % par l’employeur' : ''}`, montant: trajets }],

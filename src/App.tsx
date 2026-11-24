@@ -1,4 +1,4 @@
-import { lazy, Suspense, type CSSProperties } from 'react'
+import { lazy, Suspense, useEffect, type CSSProperties } from 'react'
 import { MotionConfig } from 'framer-motion'
 import { HashRouter, Navigate, Outlet, Route, Routes, useLocation } from 'react-router'
 import { useLarge } from './carte/hooks'
@@ -37,6 +37,10 @@ function Coque() {
   const { pathname } = useLocation()
   const large = useLarge()
   const visible = !SANS_NAVIGATION.includes(pathname)
+  // Chaque écran s'ouvre en haut de page (sinon on garde le défilement de l'écran précédent)
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
   const style = {
     '--nav-bas': visible && !large ? 'calc(4rem + env(safe-area-inset-bottom))' : '0px',
     '--nav-gauche': visible && large ? '5.5rem' : '0px',

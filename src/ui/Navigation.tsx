@@ -34,7 +34,7 @@ export function Navigation({ large }: { large: boolean }) {
           to={vers}
           end={vers === '/'}
           className={({ isActive }) =>
-            `group relative flex flex-col items-center justify-center gap-0.5 rounded-2xl text-[11px] font-semibold transition ${large ? 'h-16' : 'h-full'} ${
+            `group relative flex flex-col items-center justify-center gap-0.5 rounded-2xl text-center text-[11px] leading-tight font-semibold transition ${large ? 'h-16' : 'h-full'} ${
               isActive ? 'text-ocean-800 dark:text-white' : 'text-slate-500 hover:text-ocean-700 dark:text-slate-400 dark:hover:text-ocean-200'
             }`
           }
