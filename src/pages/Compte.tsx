@@ -138,7 +138,7 @@ export default function Compte() {
       </main>
 
       {message && (
-        <p role="status" className="fixed inset-x-4 bottom-[calc(var(--nav-bas)+1rem)] z-40 mx-auto max-w-sm rounded-2xl bg-slate-900 px-4 py-3 text-center text-sm text-white shadow-lg">
+        <p role="status" className="verre-sombre fixed inset-x-4 bottom-[calc(var(--nav-bas)+1rem)] z-40 mx-auto max-w-sm rounded-full px-4 py-3 text-center text-sm text-white">
           {message}
         </p>
       )}

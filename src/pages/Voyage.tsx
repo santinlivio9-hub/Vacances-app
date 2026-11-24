@@ -14,6 +14,7 @@ import { comparatifTrajets } from '../engine/transport'
 import { CartesTrajets } from '../voyage/CartesTrajets'
 import { AnneauBudget, BadgeEcart, Glass, Montant, PisteLiquide, classeOnglet, FOND_PISTE } from '../ui/glass'
 import { MentionDonnees } from '../ui/MentionDonnees'
+import { classeEnTeteVerre, useDefile } from '../ui/useDefile'
 import { imageLargeur } from '../services/wikipedia'
 import { coutsDuResultat } from '../voyage/calcul'
 import { Economies } from '../voyage/Economies'
@@ -49,6 +50,8 @@ const chargement = <div className="grid h-64 place-items-center text-slate-500">
 
 export default function Voyage() {
   const navigate = useNavigate()
+  // La barre d'actions colle en haut une fois l'en-tête photo passé : elle devient alors du verre
+  const defile = useDefile(220)
   const { depart, arrivee, reglages, graine, regenerer, sauvegarder, appliquerChangements, coches, basculerCoche } = useVoyage()
   const { resultat, remplacerItineraire, propositions } = useResultat()
   const [onglet, setOnglet] = useState<Onglet>('itineraire')
@@ -211,7 +214,7 @@ export default function Voyage() {
       </header>
 
       {/* Actions */}
-      <nav aria-label="Actions sur le voyage" className="sticky top-0 z-30 border-b border-slate-900/5 bg-ocean-50 print:hidden dark:border-white/10 dark:bg-[#071433]">
+      <nav aria-label="Actions sur le voyage" className={`sticky top-0 z-30 print:hidden ${classeEnTeteVerre(defile)}`}>
         <div className="mx-auto grid max-w-3xl grid-cols-5 gap-1 px-2 py-1.5 sm:flex sm:py-2">
           {[
             { icone: Pencil, libelle: 'Modifier', action: () => navigate('/configurer') },
@@ -238,9 +241,11 @@ export default function Voyage() {
               key={libelle}
               type="button"
               onClick={action}
-              className="flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-2xl px-1 text-[11px] font-semibold text-ocean-800 hover:bg-ocean-100 sm:h-11 sm:min-h-0 sm:flex-row sm:gap-1.5 sm:rounded-full sm:px-3.5 sm:text-sm dark:text-ocean-100 dark:hover:bg-white/10"
+              className="group flex min-h-12 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[11px] font-semibold text-ocean-900 sm:h-11 sm:min-h-0 sm:flex-row sm:gap-1.5 sm:rounded-full sm:pr-3.5 sm:pl-1 sm:text-sm dark:text-ocean-50"
             >
-              <Icone className="size-5 sm:size-4" aria-hidden />
+              <span className="verre grid size-10 place-items-center rounded-full [--verre-fond:0.7] transition group-hover:brightness-110 group-active:scale-95 sm:size-9 dark:[--verre-fond:0.55]">
+                <Icone className="size-[1.1rem]" aria-hidden />
+              </span>
               {libelle}
             </button>
           ))}
@@ -364,7 +369,7 @@ export default function Voyage() {
       </main>
 
       {message && (
-        <p role="status" className="fixed inset-x-4 bottom-[calc(var(--nav-bas)+1rem)] z-40 mx-auto max-w-sm rounded-2xl bg-slate-900 px-4 py-3 text-center text-sm text-white shadow-lg print:hidden">
+        <p role="status" className="verre-sombre fixed inset-x-4 bottom-[calc(var(--nav-bas)+1rem)] z-40 mx-auto max-w-sm rounded-full px-4 py-3 text-center text-sm text-white print:hidden">
           {message}
         </p>
       )}
@@ -372,7 +377,7 @@ export default function Voyage() {
       <dialog
         ref={dialogue}
         aria-labelledby="titre-sauvegarde"
-        className="m-auto w-[min(26rem,calc(100vw-2rem))] rounded-3xl bg-white p-5 text-slate-900 shadow-2xl backdrop:bg-black/40 dark:bg-[#0e1f45] dark:text-slate-100"
+        className="feuille-verre verre m-auto w-[min(26rem,calc(100vw-2rem))] rounded-[1.75rem] p-5 text-slate-900 [--verre-fond:0.9] dark:text-slate-100 dark:[--verre-fond:0.82]"
       >
         <form
           method="dialog"
@@ -398,7 +403,7 @@ export default function Voyage() {
             <button type="button" onClick={() => dialogue.current?.close()} className="h-11 rounded-full px-4 font-semibold text-slate-600 dark:text-slate-300">
               Annuler
             </button>
-            <button type="submit" className="h-11 rounded-full bg-ocean-700 px-5 font-semibold text-white">
+            <button type="submit" className="bouton-accent h-11 rounded-full px-5 font-semibold">
               Sauvegarder
             </button>
           </div>

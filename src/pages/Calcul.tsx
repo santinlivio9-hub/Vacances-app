@@ -76,13 +76,19 @@ export default function Calcul() {
 
   const position = etapes.findIndex((e) => e.id === etape)
   return (
-    <main className="grid min-h-dvh place-items-center bg-gradient-to-b from-ocean-100 to-ocean-50 p-6 dark:from-ocean-900 dark:to-ocean-950">
+    <main className="relative isolate grid min-h-dvh place-items-center overflow-hidden p-6">
+      {/* Formes colorées qui se déforment derrière le verre pendant le calcul */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+        <span className="goutte absolute top-[12%] left-[8%] size-56 bg-ocean-400/45 blur-2xl dark:bg-[#2f6fe0]/60" />
+        <span className="goutte absolute right-[4%] bottom-[18%] size-64 bg-corail-300/45 blur-2xl [animation-delay:-3s] dark:bg-[#7a4dd8]/35" />
+        <span className="goutte absolute top-[45%] left-[35%] size-40 bg-[#ffe08a]/40 blur-2xl [animation-delay:-6s] dark:bg-[#e0a526]/25" />
+      </div>
       <div className="w-full max-w-sm">
         <h1 className="text-center text-2xl font-bold [text-wrap:balance]">
           {depart.nom} → {arrivee.nom}
         </h1>
         <p className="mt-1 text-center text-slate-600 dark:text-slate-300">{versVoyage ? 'Nous préparons votre voyage…' : 'Nous comparons plusieurs façons de partir…'}</p>
-        <ol className="verre mt-6 space-y-1 rounded-3xl p-3 [--verre-fond:0.9]" aria-live="polite">
+        <ol className="verre refraction reflet mt-6 space-y-1 rounded-[1.75rem] p-3 [--verre-fond:0.6] dark:[--verre-fond:0.45]" aria-live="polite">
           {etapes.map((e, i) => {
             const fait = i < position
             const enCours = i === position
@@ -106,7 +112,7 @@ export default function Calcul() {
           })}
         </ol>
         {erreur && (
-          <div role="alert" className="mt-4 rounded-2xl bg-white p-4 text-center text-sm shadow dark:bg-[#0e1f45]">
+          <div role="alert" className="verre mt-4 rounded-3xl p-4 text-center text-sm [--verre-fond:0.9]">
             <p>Le calcul n’a pas pu aboutir. Vérifiez votre connexion puis réessayez.</p>
             <button type="button" onClick={() => location.reload()} className="mt-3 h-11 rounded-full bg-ocean-700 px-5 font-semibold text-white">
               Réessayer

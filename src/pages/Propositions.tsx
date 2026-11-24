@@ -218,7 +218,7 @@ export default function Propositions() {
               type="button"
               disabled={selection.length < 2}
               onClick={() => dialogue.current?.showModal()}
-              className="h-11 rounded-2xl bg-ocean-700 px-5 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-45"
+              className="bouton-accent h-11 rounded-2xl px-5 font-semibold disabled:cursor-not-allowed disabled:opacity-45"
             >
               Comparer
             </button>
@@ -229,7 +229,7 @@ export default function Propositions() {
       <dialog
         ref={dialogue}
         aria-labelledby="titre-comparaison"
-        className="m-auto max-h-[90dvh] w-[min(48rem,calc(100vw-1.5rem))] rounded-3xl bg-white p-4 text-slate-900 shadow-2xl backdrop:bg-black/40 dark:bg-[#0e1f45] dark:text-slate-100"
+        className="feuille-verre verre m-auto max-h-[90dvh] w-[min(48rem,calc(100vw-1.5rem))] rounded-[1.75rem] p-4 text-slate-900 [--verre-fond:0.92] dark:text-slate-100 dark:[--verre-fond:0.86]"
         onClick={(e) => e.target === dialogue.current && dialogue.current.close()}
       >
         <div className="mb-3 flex items-center justify-between gap-2">
@@ -251,7 +251,7 @@ export default function Propositions() {
       </dialog>
 
       {message && (
-        <p role="status" className="fixed inset-x-4 bottom-[calc(var(--nav-bas)+1rem)] z-40 mx-auto max-w-sm rounded-2xl bg-slate-900 px-4 py-3 text-center text-sm text-white shadow-lg">
+        <p role="status" className="verre-sombre fixed inset-x-4 bottom-[calc(var(--nav-bas)+1rem)] z-40 mx-auto max-w-sm rounded-full px-4 py-3 text-center text-sm text-white">
           {message}
         </p>
       )}
